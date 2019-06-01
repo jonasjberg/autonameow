@@ -120,17 +120,17 @@ def file_exists(filepath):
         return False
 
 
-def dir_exists(dir_path):
+def dir_exists(dirpath):
     """
     Tests whether a given path is an existing directory.
 
     Args:
-        dir_path: The path to test.
+        dirpath: The path to test.
 
     Returns:
         True if the directory exists and is readable, else False.
     """
-    _path = enc.syspath(dir_path)
+    _path = enc.syspath(dirpath)
     try:
         return bool(os.path.exists(_path) and os.path.isdir(_path))
     except (OSError, TypeError, ValueError):
