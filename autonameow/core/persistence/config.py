@@ -43,13 +43,17 @@ CONFIG_BASENAME = 'autonameow.yaml'
 log = logging.getLogger(__name__)
 
 
-def config_dirpath_candidates():
+def config_dirpath_candidates(system_platform):
     """
     Returns a list of possible platform-specific user configuration directories.
 
     The returned directories are listed in order of priority, from high to low.
     Assume that the first directory to contain a configuration file is the one
     that is used.
+
+    Args:
+        system_platform (str): Simplified name of the current operating system;
+                               E.G. "Linux", "windows", etc.
 
     CREDITS: Parts of this code is shamelessly lifted pretty much as-is from
              the venerable "beets" (/beets/util/confit.py) by Adrian Sampson.
@@ -58,6 +62,8 @@ def config_dirpath_candidates():
         A list of absolute paths to configuration directories sorted by
         priority/probability, from high to low.
     """
+    _system_platform = system_platform.lower()
+
     candidate_paths = list()
 
     def _consider_candidate(_path):
@@ -65,14 +71,14 @@ def config_dirpath_candidates():
         if _abspath not in candidate_paths:
             candidate_paths.append(_abspath)
 
-    if platform.system() == 'Darwin':
+    if _system_platform == 'darwin':
         _consider_candidate(FILEPATH_CONFIG_MACOS)
         _consider_candidate(FILEPATH_CONFIG_UNIX_FALLBACK)
 
         if FILEPATH_CONFIG_UNIX_VAR in os.environ:
             _consider_candidate(os.environ[FILEPATH_CONFIG_UNIX_VAR])
 
-    elif platform.system() == 'Windows':
+    elif _system_platform == 'windows':
         # NOTE: Unsupported platform!
         _consider_candidate(FILEPATH_CONFIG_WINDOWS_FALLBACK)
         if FILEPATH_CONFIG_WINDOWS_VAR in os.environ:
@@ -100,13 +106,13 @@ def config_filepath_for_platform():
     Raises:
         ConfigError: No config path candidates could be found.
     """
-    dirs = config_dirpath_candidates()
-    if not dirs:
-        raise ConfigError('No configurations paths were found')
+    dirpaths = config_dirpath_candidates(system_platform=platform.system())
+    if not dirpaths:
+        raise ConfigError('Unable to determine configuration directory path')
 
     # Path name encoding boundary. Convert to internal bytestring format.
-    config_path = disk.joinpaths(dirs[0], CONFIG_BASENAME)
-    return enc.normpath(config_path)
+    config_filepath = disk.joinpaths(dirpaths[0], CONFIG_BASENAME)
+    return enc.normpath(config_filepath)
 
 
 def has_config_file():
