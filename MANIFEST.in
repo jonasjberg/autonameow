@@ -3,7 +3,7 @@ include autonameow/core/truths/data/creatortool.yaml
 include autonameow/core/truths/data/language.yaml
 include autonameow/core/truths/data/publisher.yaml
 include autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml
-include autonameow/extractors/filesystem/extractor_ guessit_fieldmeta.yaml
+include autonameow/extractors/filesystem/extractor_guessit_fieldmeta.yaml
 include autonameow/extractors/filesystem/filetags_fieldmeta.yaml
 include autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml
 include autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml

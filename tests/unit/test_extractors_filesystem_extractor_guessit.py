@@ -20,10 +20,10 @@
 from unittest import TestCase, skipIf
 
 import unit.utils as uu
-from extractors.filesystem.guessit import get_lazily_imported_guessit_module
-from extractors.filesystem.guessit import GuessitExtractor
-from extractors.filesystem.guessit import reset_lazily_imported_guessit_module
-from extractors.filesystem.guessit import run_guessit
+from extractors.filesystem.extractor_guessit import get_lazily_imported_guessit_module
+from extractors.filesystem.extractor_guessit import GuessitExtractor
+from extractors.filesystem.extractor_guessit import reset_lazily_imported_guessit_module
+from extractors.filesystem.extractor_guessit import run_guessit
 from unit.case_extractors import CaseExtractorBasics
 from unit.case_extractors import CaseExtractorOutput
 
