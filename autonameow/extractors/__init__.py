@@ -119,4 +119,6 @@ class ExtractorRegistry(object):
         return self._excluded_providers
 
 
+# TODO: This (and a lot of other stuff..) only deals with "filesystem" and
+#       "metadata" extractors and should be moved into the 'metadata' package.
 registry = ExtractorRegistry()
