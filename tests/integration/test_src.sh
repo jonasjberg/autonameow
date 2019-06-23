@@ -84,7 +84,7 @@ aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_
 
 declare -a _FIELDMETA_YAML_FILES=(
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/filetags_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/extractor_filetags_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_guessit_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml"

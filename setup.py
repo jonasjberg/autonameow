@@ -56,7 +56,7 @@ setup(
             'core/truths/data/language.yaml',
             'core/truths/data/publisher.yaml',
             'extractors/filesystem/crossplatform_fieldmeta.yaml',
-            'extractors/filesystem/filetags_fieldmeta.yaml',
+            'extractors/filesystem/extractor_filetags_fieldmeta.yaml',
             'extractors/metadata/exiftool_fieldmeta.yaml',
             'extractors/metadata/extractor_guessit_fieldmeta.yaml',
             'extractors/metadata/extractor_pandoc_template.plain',
