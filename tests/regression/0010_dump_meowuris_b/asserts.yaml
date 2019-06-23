@@ -5,7 +5,7 @@ stdout:
     - 'analyzer.ebook.*EbookAnalyzer'
     - 'analyzer.filename.*FilenameAnalyzer'
     - 'extractor.filesystem.filetags.*FiletagsExtractor'
-    - 'extractor.filesystem.guessit.*GuessitExtractor'
+    - 'extractor.filesystem.guessit.*GuessitMetadataExtractor'
     - 'extractor.filesystem.xplat.*CrossPlatformFileSystemExtractor'
     - 'extractor.metadata.exiftool.*ExiftoolMetadataExtractor'
     - 'extractor.metadata.jpeginfo.*JpeginfoMetadataExtractor'

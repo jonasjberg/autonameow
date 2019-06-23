@@ -21,7 +21,7 @@ from unittest import TestCase, skipIf
 
 import unit.utils as uu
 from extractors.filesystem.extractor_guessit import get_lazily_imported_guessit_module
-from extractors.filesystem.extractor_guessit import GuessitExtractor
+from extractors.filesystem.extractor_guessit import GuessitMetadataExtractor
 from extractors.filesystem.extractor_guessit import reset_lazily_imported_guessit_module
 from extractors.filesystem.extractor_guessit import run_guessit
 from unit.case_extractors import CaseExtractorBasics
@@ -29,15 +29,15 @@ from unit.case_extractors import CaseExtractorOutput
 
 
 UNMET_DEPENDENCIES = (
-    not GuessitExtractor.dependencies_satisfied(),
+    not GuessitMetadataExtractor.dependencies_satisfied(),
     'Extractor dependencies ("guessit") not satified'
 )
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestGuessitExtractor(CaseExtractorBasics, TestCase):
-    EXTRACTOR_CLASS = GuessitExtractor
-    EXTRACTOR_NAME = 'GuessitExtractor'
+class TestGuessitMetadataExtractor(CaseExtractorBasics, TestCase):
+    EXTRACTOR_CLASS = GuessitMetadataExtractor
+    EXTRACTOR_NAME = 'GuessitMetadataExtractor'
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -59,8 +59,8 @@ class TestRunGuessit(TestCase):
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestGuessitExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
-    EXTRACTOR_CLASS = GuessitExtractor
+class TestGuessitMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = GuessitMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_mp4.mp4')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('title', str, 'magic'),

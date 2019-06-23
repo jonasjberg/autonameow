@@ -21,7 +21,7 @@ from extractors import ExtractorError
 from extractors.base import BaseMetadataExtractor
 
 
-class GuessitExtractor(BaseMetadataExtractor):
+class GuessitMetadataExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['video/*']
 
     def __init__(self):
