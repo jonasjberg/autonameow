@@ -255,7 +255,7 @@ def main(options=None):
     }
     opts.update(options)
 
-    logs.init_logging(options)
+    logs.init_logging(opts)
 
     if not opts.get('input_paths'):
         log.warning(
