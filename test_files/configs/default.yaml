@@ -62,9 +62,9 @@ RULES:
             - extractor.metadata.exiftool.EXIF:DateTimeOriginal
             - extractor.metadata.exiftool.EXIF:DateTimeDigitized
             - extractor.metadata.exiftool.EXIF:CreateDate
-            description: extractor.filesystem.filetags.description
+            description: extractor.metadata.filetags.description
             extension: extractor.filesystem.xplat.extension
-            tags: extractor.filesystem.filetags.tags
+            tags: extractor.metadata.filetags.tags
         NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
         exact_match: true
         ranking_bias: 1
@@ -94,7 +94,7 @@ RULES:
             extractor.filesystem.xplat.mime_type: image/jpeg
         DATA_SOURCES:
             datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
-            description: extractor.filesystem.filetags.description
+            description: extractor.metadata.filetags.description
             extension: extractor.filesystem.xplat.extension
         NAME_TEMPLATE: '{datetime} {description}.{extension}'
         exact_match: true

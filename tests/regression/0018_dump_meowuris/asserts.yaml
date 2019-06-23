@@ -4,9 +4,9 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'extractor.filesystem.filetags'
     - 'extractor.filesystem.xplat'
     - 'extractor.metadata.exiftool'
+    - 'extractor.metadata.filetags'
     - 'extractor.metadata.guessit'
     - 'extractor.metadata.jpeginfo'
     does_not_match:

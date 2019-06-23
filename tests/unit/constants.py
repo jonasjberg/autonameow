@@ -63,11 +63,29 @@ MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
 MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
 MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
 
-MEOWURI_FS_FILETAGS_DATETIME = 'extractor.filesystem.filetags.datetime'
-MEOWURI_FS_FILETAGS_DESCRIPTION = 'extractor.filesystem.filetags.description'
-MEOWURI_FS_FILETAGS_EXTENSION = 'extractor.filesystem.filetags.extension'
-MEOWURI_FS_FILETAGS_FOLLOWS = 'extractor.filesystem.filetags.follows_filetags_convention'
-MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
+MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE = 'extractor.metadata.exiftool.EXIF:CreateDate'
+MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL = 'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
+MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE = 'extractor.metadata.exiftool.PDF:CreateDate'
+MEOWURI_EXT_EXIFTOOL_PDFCREATOR = 'extractor.metadata.exiftool.PDF:Creator'
+MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE = 'extractor.metadata.exiftool.PDF:ModifyDate'
+MEOWURI_EXT_EXIFTOOL_PDFPRODUCER = 'extractor.metadata.exiftool.PDF:Producer'
+MEOWURI_EXT_EXIFTOOL_PDFTITLE = 'extractor.metadata.exiftool.PDF:Title'
+MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR = 'extractor.metadata.exiftool.XMP-dc:Creator'
+MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS = 'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'
+MEOWURI_EXT_EXIFTOOL_XMPDCDATE = 'extractor.metadata.exiftool.XMP-dc:Date'
+MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER = 'extractor.metadata.exiftool.XMP-dc:Publisher'
+MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
+MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
+
+MEOWURI_EXT_FILETAGS_DATETIME = 'extractor.metadata.filetags.datetime'
+MEOWURI_EXT_FILETAGS_DESCRIPTION = 'extractor.metadata.filetags.description'
+MEOWURI_EXT_FILETAGS_EXTENSION = 'extractor.metadata.filetags.extension'
+MEOWURI_EXT_FILETAGS_FOLLOWS = 'extractor.metadata.filetags.follows_filetags_convention'
+MEOWURI_EXT_FILETAGS_TAGS = 'extractor.metadata.filetags.tags'
+
+MEOWURI_EXT_GUESSIT_DATE = 'extractor.metadata.guessit.date'
+MEOWURI_EXT_GUESSIT_TITLE = 'extractor.metadata.guessit.title'
+MEOWURI_EXT_GUESSIT_TYPE = 'extractor.metadata.guessit.type'
 
 MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.mime_type'
 MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath_full'
@@ -90,35 +108,17 @@ MEOWURI_GEN_METADATA_TITLE = 'generic.metadata.title'
 MEOWURI_GEN_METADATA_DATECREATED = 'generic.metadata.date_created'
 MEOWURI_GEN_METADATA_DATEMODIFIED = 'generic.metadata.date_modified'
 
-MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE = 'extractor.metadata.exiftool.EXIF:CreateDate'
-MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL = 'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
-MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE = 'extractor.metadata.exiftool.PDF:CreateDate'
-MEOWURI_EXT_EXIFTOOL_PDFCREATOR = 'extractor.metadata.exiftool.PDF:Creator'
-MEOWURI_EXT_EXIFTOOL_PDFMODIFYDATE = 'extractor.metadata.exiftool.PDF:ModifyDate'
-MEOWURI_EXT_EXIFTOOL_PDFPRODUCER = 'extractor.metadata.exiftool.PDF:Producer'
-MEOWURI_EXT_EXIFTOOL_PDFTITLE = 'extractor.metadata.exiftool.PDF:Title'
-MEOWURI_EXT_EXIFTOOL_XMPDCCREATOR = 'extractor.metadata.exiftool.XMP-dc:Creator'
-MEOWURI_EXT_EXIFTOOL_XMPDCCREATORFILEAS = 'extractor.metadata.exiftool.XMP-dc:CreatorFile-as'
-MEOWURI_EXT_EXIFTOOL_XMPDCDATE = 'extractor.metadata.exiftool.XMP-dc:Date'
-MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER = 'extractor.metadata.exiftool.XMP-dc:Publisher'
-MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
-MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
-
-MEOWURI_EXT_GUESSIT_DATE = 'extractor.metadata.guessit.date'
-MEOWURI_EXT_GUESSIT_TITLE = 'extractor.metadata.guessit.title'
-MEOWURI_EXT_GUESSIT_TYPE = 'extractor.metadata.guessit.type'
-
 
 ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_AZR_FILENAME_DATETIME,
     MEOWURI_AZR_FILENAME_PUBLISHER,
     MEOWURI_AZR_FILENAME_TAGS,
     MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_FS_FILETAGS_DATETIME,
-    MEOWURI_FS_FILETAGS_DESCRIPTION,
-    MEOWURI_FS_FILETAGS_EXTENSION,
-    MEOWURI_FS_FILETAGS_FOLLOWS,
-    MEOWURI_FS_FILETAGS_TAGS,
+    MEOWURI_EXT_FILETAGS_DATETIME,
+    MEOWURI_EXT_FILETAGS_DESCRIPTION,
+    MEOWURI_EXT_FILETAGS_EXTENSION,
+    MEOWURI_EXT_FILETAGS_FOLLOWS,
+    MEOWURI_EXT_FILETAGS_TAGS,
     MEOWURI_FS_XPLAT_MIMETYPE,
     MEOWURI_FS_XPLAT_ABSPATH_FULL,
     MEOWURI_FS_XPLAT_EXTENSION,

@@ -4,7 +4,7 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'extractor.filesystem.filetags'
+    - 'extractor.metadata.filetags'
     - 'extractor.filesystem.xplat'
     does_not_match:
     - '.*class.*'

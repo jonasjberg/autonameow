@@ -286,14 +286,14 @@ class TestMeowURIComparison(TestCase):
         self.assertTrue(a > b)
 
     def test_alphabetical_ordering(self):
-        a = MeowURI('extractor.filesystem.filetags.description')
-        b = MeowURI('extractor.filesystem.filetags.tags')
+        a = MeowURI('extractor.metadata.filetags.description')
+        b = MeowURI('extractor.metadata.filetags.tags')
         c = MeowURI('extractor.filesystem.xplat.abspath_full')
         self.assertTrue(a < b)
-        self.assertTrue(a < c)
-        self.assertTrue(b < c)
-        self.assertTrue(c > a)
-        self.assertTrue(c > b)
+        self.assertTrue(a > c)
+        self.assertTrue(b > c)
+        self.assertTrue(c < a)
+        self.assertTrue(c < b)
 
     def test_comparison_with_other_types_raises_valueerror(self):
         a = MeowURI('extractor.filesystem.xplat.basename_full')
@@ -597,8 +597,8 @@ class TestMeowURIMatchesStart(TestCase):
         m = MeowURI('extractor.filesystem.xplat.extension')
         for given in [
             uuconst.MEOWURI_AZR_FILENAME_DATETIME,
-            uuconst.MEOWURI_FS_FILETAGS_DATETIME,
-            'extractor.filesystem.filetags',
+            uuconst.MEOWURI_EXT_FILETAGS_DATETIME,
+            'extractor.metadata.filetags',
         ]:
             with self.subTest(given=given):
                 self._assert_matches_from_start_returns(False, m, given)
@@ -609,8 +609,8 @@ class TestMeowURIMatchesStart(TestCase):
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL),
             uu.as_meowuri(uuconst.MEOWURI_AZR_FILENAME_DATETIME),
             uu.as_meowuri(uuconst.MEOWURI_FS_XPLAT_ABSPATH_FULL),
-            uu.as_meowuri('extractor.filesystem.filetags.extension'),
-            uu.as_meowuri('extractor.filesystem.filetags'),
+            uu.as_meowuri('extractor.metadata.filetags.extension'),
+            uu.as_meowuri('extractor.metadata.filetags'),
             MeowURIRoot('analyzer'),
         ]:
             with self.subTest(given=given):
@@ -681,7 +681,7 @@ class TestMeowURIMatchesEnd(TestCase):
             MeowURIRoot('extractor'),
             uu.as_meowuri('extractor.filesystem.xplat'),
             uu.as_meowuri('extractor.filesystem'),
-            uu.as_meowuri(uuconst.MEOWURI_FS_FILETAGS_DATETIME),
+            uu.as_meowuri(uuconst.MEOWURI_EXT_FILETAGS_DATETIME),
             uu.as_meowuri(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE),
         ]:
             with self.subTest(given=given):

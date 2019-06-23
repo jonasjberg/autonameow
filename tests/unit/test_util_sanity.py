@@ -33,7 +33,7 @@ class TestCheckIsinstanceMeowuri(TestCase):
         from core.model import MeowURI
         _assert_valid(MeowURI(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE))
         _assert_valid(MeowURI(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE))
-        _assert_valid(MeowURI(uuconst.MEOWURI_FS_FILETAGS_EXTENSION))
+        _assert_valid(MeowURI(uuconst.MEOWURI_EXT_FILETAGS_EXTENSION))
 
     def test_raises_exception_for_not_instances_of_meowuri(self):
         def _assert_raises(test_input):
@@ -46,7 +46,7 @@ class TestCheckIsinstanceMeowuri(TestCase):
         _assert_raises(None)
         _assert_raises(uuconst.MEOWURI_GEN_CONTENTS_MIMETYPE)
         _assert_raises(uuconst.MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE)
-        _assert_raises(uuconst.MEOWURI_FS_FILETAGS_EXTENSION)
+        _assert_raises(uuconst.MEOWURI_EXT_FILETAGS_EXTENSION)
 
 
 class TestCheckIsinstanceFileObject(TestCase):

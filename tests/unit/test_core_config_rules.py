@@ -574,7 +574,7 @@ class TestIsValidSourceSpecification(TestCase):
             uuconst.MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE,
             uuconst.MEOWURI_FS_XPLAT_BASENAME_FULL,
             uuconst.MEOWURI_FS_XPLAT_MIMETYPE,
-            uuconst.MEOWURI_FS_FILETAGS_TAGS,
+            uuconst.MEOWURI_EXT_FILETAGS_TAGS,
         ]:
             with self.subTest(given=given_str):
                 given = uu.as_meowuri(given_str)

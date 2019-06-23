@@ -83,7 +83,7 @@ DEFAULT_CONFIG = {
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
-                'description': 'extractor.filesystem.filetags.description',
+                'description': 'extractor.metadata.filetags.description',
                 'extension': 'extractor.filesystem.xplat.extension'
             }
         },
@@ -116,9 +116,9 @@ DEFAULT_CONFIG = {
                     'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
                     'extractor.metadata.exiftool.EXIF:CreateDate'
                 ],
-                'description': 'extractor.filesystem.filetags.description',
+                'description': 'extractor.metadata.filetags.description',
                 'extension': 'extractor.filesystem.xplat.extension',
-                'tags': 'extractor.filesystem.filetags.tags',
+                'tags': 'extractor.metadata.filetags.tags',
             }
         },
         # ____________________________________________________________________

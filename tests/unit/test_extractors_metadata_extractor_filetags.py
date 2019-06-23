@@ -23,10 +23,10 @@ from unittest import skipIf, TestCase
 from unittest.mock import Mock
 
 import unit.utils as uu
-from extractors.filesystem.extractor_filetags import FiletagsMetadataExtractor
-from extractors.filesystem.extractor_filetags import FiletagsParts
-from extractors.filesystem.extractor_filetags import follows_filetags_convention
-from extractors.filesystem.extractor_filetags import split_basename_prefix_into_filetags_parts
+from extractors.metadata.extractor_filetags import FiletagsMetadataExtractor
+from extractors.metadata.extractor_filetags import FiletagsParts
+from extractors.metadata.extractor_filetags import follows_filetags_convention
+from extractors.metadata.extractor_filetags import split_basename_prefix_into_filetags_parts
 from unit.case_extractors import CaseExtractorBasics
 from unit.case_extractors import CaseExtractorOutput
 
