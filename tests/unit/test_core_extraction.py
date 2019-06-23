@@ -64,48 +64,48 @@ class TestFilterAbleToHandle(TestCase):
     def test_returns_expected_extractors_for_mp4_video_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='video/mp4'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor', 'GuessitMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_png_image_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='image/png'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_pdf_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='application/pdf'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_text_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='text/plain'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_empty_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='inode/x-empty'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=[]
         )
 
     def test_returns_expected_extractors_for_rtf_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.get_mock_fileobject(mime_type='text/rtf'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor']
         )
 
     def test_returns_expected_extractors_for_markdown_file(self):
         self._check_returned_extractors_for(
             fileobject=uu.fileobject_testfile('sample.md'),
-            expected=['CrossPlatformFileSystemExtractor', 'FiletagsExtractor'],
+            expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor', 'PandocMetadataExtractor']
         )

@@ -76,7 +76,7 @@ FILENAME_TAG_SEPARATOR = ' -- '
 FiletagsParts = namedtuple('FiletagsParts', 'timestamp description tags')
 
 
-class FiletagsExtractor(BaseMetadataExtractor):
+class FiletagsMetadataExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['*/*']
     IS_SLOW = False
 

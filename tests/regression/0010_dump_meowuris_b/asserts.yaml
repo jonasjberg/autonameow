@@ -4,7 +4,7 @@ stdout:
     - 'analyzer.document.*DocumentAnalyzer'
     - 'analyzer.ebook.*EbookAnalyzer'
     - 'analyzer.filename.*FilenameAnalyzer'
-    - 'extractor.filesystem.filetags.*FiletagsExtractor'
+    - 'extractor.filesystem.filetags.*FiletagsMetadataExtractor'
     - 'extractor.filesystem.xplat.*CrossPlatformFileSystemExtractor'
     - 'extractor.metadata.exiftool.*ExiftoolMetadataExtractor'
     - 'extractor.metadata.guessit.*GuessitMetadataExtractor'

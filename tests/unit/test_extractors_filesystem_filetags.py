@@ -23,7 +23,7 @@ from unittest import skipIf, TestCase
 from unittest.mock import Mock
 
 import unit.utils as uu
-from extractors.filesystem.filetags import FiletagsExtractor
+from extractors.filesystem.filetags import FiletagsMetadataExtractor
 from extractors.filesystem.filetags import FiletagsParts
 from extractors.filesystem.filetags import follows_filetags_convention
 from extractors.filesystem.filetags import split_basename_prefix_into_filetags_parts
@@ -32,7 +32,7 @@ from unit.case_extractors import CaseExtractorOutput
 
 
 UNMET_DEPENDENCIES = (
-    FiletagsExtractor.dependencies_satisfied() is False,
+    FiletagsMetadataExtractor.dependencies_satisfied() is False,
     'Extractor dependencies not satisfied (!)'
 )
 assert not UNMET_DEPENDENCIES[0], (
@@ -41,14 +41,14 @@ assert not UNMET_DEPENDENCIES[0], (
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestFiletagsExtractor(CaseExtractorBasics, TestCase):
-    EXTRACTOR_CLASS = FiletagsExtractor
-    EXTRACTOR_NAME = 'FiletagsExtractor'
+class TestFiletagsMetadataExtractor(CaseExtractorBasics, TestCase):
+    EXTRACTOR_CLASS = FiletagsMetadataExtractor
+    EXTRACTOR_NAME = 'FiletagsMetadataExtractor'
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
-    EXTRACTOR_CLASS = FiletagsExtractor
+class TestFiletagsMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('datetime', datetime, uu.str_to_datetime('2017-09-12 224820')),
@@ -60,8 +60,8 @@ class TestFiletagsExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestFiletagsExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
-    EXTRACTOR_CLASS = FiletagsExtractor
+class TestFiletagsMetadataExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('description', str, 'empty'),
@@ -79,8 +79,8 @@ def _get_mock_fileobject(prefix, suffix):
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestFiletagsExtractorOutputTestFileC(CaseExtractorOutput, TestCase):
-    EXTRACTOR_CLASS = FiletagsExtractor
+class TestFiletagsMetadataExtractorOutputTestFileC(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsMetadataExtractor
     SOURCE_FILEOBJECT = _get_mock_fileobject(
         prefix=b'2018-06-29 kunskapsmatris sprak',
         suffix=b'xlsx'
@@ -95,8 +95,8 @@ class TestFiletagsExtractorOutputTestFileC(CaseExtractorOutput, TestCase):
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestFiletagsExtractorOutputTestFileD(CaseExtractorOutput, TestCase):
-    EXTRACTOR_CLASS = FiletagsExtractor
+class TestFiletagsMetadataExtractorOutputTestFileD(CaseExtractorOutput, TestCase):
+    EXTRACTOR_CLASS = FiletagsMetadataExtractor
     SOURCE_FILEOBJECT = _get_mock_fileobject(
         prefix=b'2007-04-23_12-comments',
         suffix=b'png'

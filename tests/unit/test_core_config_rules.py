@@ -554,7 +554,7 @@ class TestIsValidSourceSpecification(TestCase):
 
     def test_returns_false_given_pre_version_v0_5_5_sources(self):
         # The analyzer 'FiletagsAnalyzer' was reworked into extractor
-        # 'FiletagsExtractor' in commit de9b6b34cd6255dfc9c1d945f12d612e89
+        # 'FiletagsMetadataExtractor' in commit de9b6b34cd6255dfc9c1d945f12d612e89
         for given in [
             'analyzer.filesystem.filetags.datetime',
             'analyzer.filesystem.filetags.description',
