@@ -19,5 +19,6 @@
 
 from .extractor_epub import EpubMetadataExtractor
 from .extractor_exiftool import ExiftoolMetadataExtractor
+from .extractor_guessit import GuessitMetadataExtractor
 from .extractor_jpeginfo import JpeginfoMetadataExtractor
 from .extractor_pandoc import PandocMetadataExtractor

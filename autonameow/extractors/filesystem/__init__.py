@@ -19,6 +19,5 @@
 
 from .crossplatform import CrossPlatformFileSystemExtractor
 from .filetags import FiletagsExtractor
-from .extractor_guessit import GuessitMetadataExtractor
 
 # TODO: [TD0029] Add support for MacOS Spotlight metadata.

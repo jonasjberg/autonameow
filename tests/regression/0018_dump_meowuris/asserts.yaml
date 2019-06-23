@@ -4,10 +4,10 @@ stdout:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
-    - 'extractor.filesystem.guessit'
     - 'extractor.filesystem.filetags'
     - 'extractor.filesystem.xplat'
     - 'extractor.metadata.exiftool'
+    - 'extractor.metadata.guessit'
     - 'extractor.metadata.jpeginfo'
     does_not_match:
     - 'extractor.text.epub'

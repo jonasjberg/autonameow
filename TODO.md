@@ -463,9 +463,9 @@ Low Priority
             extractor.filesystem.xplat.contents.mime_type: video/*
         NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
-            title: extractor.filesystem.guessit.title
-            season: extractor.filesystem.guessit.season
-            episode: extractor.filesystem.guessit.episode
+            title: extractor.metadata.guessit.title
+            season: extractor.metadata.guessit.season
+            episode: extractor.metadata.guessit.episode
             extension: extractor.filesystem.xplat.contents.mime_type
         exact_match: true
     ```
