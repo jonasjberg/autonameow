@@ -45,6 +45,9 @@ def get_plain_text(fileobject):
     result = None
 
     suitable_extractors = could_get_plain_text_from(fileobject)
+    log.debug('Text extractors that can handle the current file: %d',
+              len(suitable_extractors))
+
     for extractor in suitable_extractors:
         extractor_instance = _get_pooled_instance(extractor)
 
