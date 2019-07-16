@@ -55,7 +55,7 @@ setup(
             'core/truths/data/creatortool.yaml',
             'core/truths/data/language.yaml',
             'core/truths/data/publisher.yaml',
-            'extractors/filesystem/crossplatform_fieldmeta.yaml',
+            'extractors/filesystem/extractor_crossplatform_fieldmeta.yaml',
             'extractors/metadata/extractor_exiftool_fieldmeta.yaml',
             'extractors/metadata/extractor_filetags_fieldmeta.yaml',
             'extractors/metadata/extractor_guessit_fieldmeta.yaml',

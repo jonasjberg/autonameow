@@ -2,7 +2,7 @@ include autonameow/analyzers/probable_extension_lookup
 include autonameow/core/truths/data/creatortool.yaml
 include autonameow/core/truths/data/language.yaml
 include autonameow/core/truths/data/publisher.yaml
-include autonameow/extractors/filesystem/crossplatform_fieldmeta.yaml
+include autonameow/extractors/filesystem/extractor_crossplatform_fieldmeta.yaml
 include autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml
 include autonameow/extractors/metadata/extractor_filetags_fieldmeta.yaml
 include autonameow/extractors/metadata/extractor_guessit_fieldmeta.yaml

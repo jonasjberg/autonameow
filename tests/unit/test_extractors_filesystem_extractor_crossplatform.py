@@ -21,8 +21,8 @@ from datetime import datetime
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
-from extractors.filesystem.crossplatform import CrossPlatformFileSystemExtractor
-from extractors.filesystem.crossplatform import datetime_from_timestamp
+from extractors.filesystem.extractor_crossplatform import CrossPlatformFileSystemExtractor
+from extractors.filesystem.extractor_crossplatform import datetime_from_timestamp
 from unit.case_extractors import CaseExtractorBasics
 
 
