@@ -460,6 +460,14 @@ class TestLikelyExtension(TestCase):
              Given(suffix='', mime='audio/x-wav')),
             (Expect('wma'),
              Given(suffix='wma', mime='video/x-ms-asf')),
+
+            # Video
+            (Expect('mpg'),
+             Given(suffix='', mime='video/mpeg')),
+            (Expect('mpg'),
+             Given(suffix='mpg', mime='video/mpeg')),
+            (Expect('mpg'),
+             Given(suffix='mpeg', mime='video/mpeg')),
         ]
 
     def test_returns_expected(self):

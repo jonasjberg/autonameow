@@ -40,6 +40,7 @@ text/x-sh: sh
 text/x-shellscript: sh
 text/x-shellscript: bash
 text/x-tex: tex
+video/mpeg: mpg
 video/ogg: ogv
 video/x-ogg: ogv
 video/x-matroska: mkv

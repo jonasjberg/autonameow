@@ -7,8 +7,9 @@ application/vnd.ms-excel: xls
 image/jpeg: jpg
 application/gzip: gz
 audio/midi: mid
-video/quicktime: mov
 video/mp4: mp4
+video/mpeg: mpg
+video/quicktime: mov
 text/plain: txt
 text/rtf: rtf
 text/x-java: java
