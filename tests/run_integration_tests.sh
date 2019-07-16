@@ -125,15 +125,19 @@ do
         continue
     fi
 
-    # Skip scripts not matching filtering expression, if any.
     _testscript_base="$(basename -- "$testscript")"
+
+    # Skip scripts not matching filtering expression, if any.
     if [ -n "$optionarg_filter" ]
     then
-        if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
-        then
-            aw_utils.log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
-            continue
-        fi
+        case "$_testscript_base" in
+            *${optionarg_filter}*)
+                ;;
+            *)
+                aw_utils.log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
+                continue
+                ;;
+        esac
     fi
 
     # !! # TODO: Fix all descendant processes not killed.
