@@ -290,10 +290,14 @@ class Rule(object):
         return self.description
 
     def __repr__(self):
-        out = list()
-        for key in self.__dict__:
-            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
-        return 'Rule({})'.format(', '.join(out))
+        return '{!s}({!r}, {!r}, {!r}, {!r}, {!r})'.format(
+            self.__class__.__name__,
+            self.conditions,
+            self.data_sources,
+            self.exact_match,
+            self.name_template,
+            self.ranking_bias,
+        )
 
     def stringify(self):
         # TODO: [TD0171] Separate logic from user interface.
