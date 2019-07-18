@@ -249,11 +249,23 @@ class Rule(object):
         )
 
     def __gt__(self, other):
-        # Sort by arbitrary attributes to get repeatable rule evaluation results.
+        # Sort by arbitrary attributes to get repeatable results. HOWEVER, note
+        # that the 'RuleMatcher' uses 'prioritize_rules()' to sort rules prior
+        # to evaluation.
         return (
-            len(self.conditions) > len(other.conditions)
-            and len(self.data_sources) > len(other.data_sources)
-            and self.ranking_bias > other.ranking_bias
+            len(self.conditions),
+            len(self.data_sources),
+            self.ranking_bias,
+            self.exact_match,
+            str(self.name_template),
+            self.description,
+        ) > (
+           len(other.conditions),
+           len(other.data_sources),
+           other.ranking_bias,
+           other.exact_match,
+           str(other.name_template),
+           other.description,
         )
 
     def __hash__(self):

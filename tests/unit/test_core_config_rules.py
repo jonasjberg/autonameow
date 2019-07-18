@@ -36,10 +36,14 @@ def _get_rule(*args, **kwargs):
     test_default_conditions = kwargs.get('conditions') or list()
     test_default_data_sources = kwargs.get('data_sources') or dict()
     test_default_name_template = kwargs.get('name_template') or 'dummy'
+    test_default_exact_match = kwargs.get('exact_match') or False
+    test_default_ranking_bias = kwargs.get('ranking_bias')
     kwargs.update({
         'conditions': test_default_conditions,
         'data_sources': test_default_data_sources,
-        'name_template': test_default_name_template
+        'name_template': test_default_name_template,
+        'exact_match': test_default_exact_match,
+        'ranking_bias': test_default_ranking_bias,
     })
     return Rule(*args, **kwargs)
 
@@ -213,9 +217,17 @@ class TestRuleComparison(TestCase):
 class TestRuleOrdering(TestCase):
     def setUp(self):
         self.rule_with_zero_conditions_and_sources = _get_rule()
+        self.rule_with_zero_conditions_and_sources_exact = _get_rule(
+            exact_match=True
+        )
         self.rule_with_one_condition_and_source = _get_rule(
             conditions=MOCK_CONDITIONS_A,
             data_sources=MOCK_DATA_SOURCES_A,
+        )
+        self.rule_with_one_condition_and_source_exact = _get_rule(
+            conditions=MOCK_CONDITIONS_A,
+            data_sources=MOCK_DATA_SOURCES_A,
+            exact_match=True
         )
         self.rule_with_two_conditions_and_sources = _get_rule(
             conditions=MOCK_CONDITIONS_C,
@@ -223,24 +235,81 @@ class TestRuleOrdering(TestCase):
         )
 
     def test_rules_are_sorted_by_number_of_conditions_and_sources_a(self):
-        unsorted_rules = [
+        actual = sorted([
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+        ])
+        expected = [
             self.rule_with_zero_conditions_and_sources,
             self.rule_with_one_condition_and_source,
         ]
-        sorted_rules = sorted(unsorted_rules)
-        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
-        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
+        self.assertEqual(expected, actual)
 
     def test_rules_are_sorted_by_number_of_conditions_and_sources_b(self):
-        unsorted_rules = [
+        actual = sorted([
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_one_condition_and_source,
+            self.rule_with_two_conditions_and_sources,
+        ])
+        expected = [
             self.rule_with_zero_conditions_and_sources,
             self.rule_with_one_condition_and_source,
             self.rule_with_two_conditions_and_sources,
         ]
-        sorted_rules = sorted(unsorted_rules)
-        self.assertEqual(self.rule_with_zero_conditions_and_sources, sorted_rules[0])
-        self.assertEqual(self.rule_with_one_condition_and_source, sorted_rules[1])
-        self.assertEqual(self.rule_with_two_conditions_and_sources, sorted_rules[2])
+        self.assertEqual(expected, actual)
+
+    def test_rules_are_sorted_by_conditions_sources_and_exact_match(self):
+        actual = sorted([
+            self.rule_with_one_condition_and_source,
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_zero_conditions_and_sources_exact,
+            self.rule_with_one_condition_and_source_exact,
+        ])
+        expected = [
+            self.rule_with_zero_conditions_and_sources,
+            self.rule_with_zero_conditions_and_sources_exact,
+            self.rule_with_one_condition_and_source,
+            self.rule_with_one_condition_and_source_exact,
+        ]
+        self.assertEqual(expected, actual)
+
+    def test_rules_are_sorted_by_conditions_sources_exact_match_ranking_bias(self):
+        rule_ranking_bias_zero = _get_rule(
+            exact_match=False,
+            ranking_bias=0.0,
+        )
+        rule_ranking_bias_half = _get_rule(
+            exact_match=False,
+            ranking_bias=0.5,
+        )
+        rule_ranking_bias_half_exact_match = _get_rule(
+            exact_match=True,
+            ranking_bias=0.5,
+        )
+        rule_ranking_bias_full = _get_rule(
+            exact_match=False,
+            ranking_bias=1.0,
+        )
+        rule_ranking_bias_full_exact_match = _get_rule(
+            exact_match=True,
+            ranking_bias=1.0,
+        )
+
+        actual = sorted([
+            rule_ranking_bias_full_exact_match,
+            rule_ranking_bias_half,
+            rule_ranking_bias_full,
+            rule_ranking_bias_zero,
+            rule_ranking_bias_half_exact_match,
+        ])
+        expected = [
+            rule_ranking_bias_zero,
+            rule_ranking_bias_half,
+            rule_ranking_bias_half_exact_match,
+            rule_ranking_bias_full,
+            rule_ranking_bias_full_exact_match,
+        ]
+        self.assertEqual(expected, actual)
 
 
 class TestDummyRule(TestCase):
