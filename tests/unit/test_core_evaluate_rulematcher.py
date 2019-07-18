@@ -65,7 +65,6 @@ class TestRuleMatcher(TestCase):
 
 
 class TestRuleMatcherMatching(TestCase):
-
     def test_returns_empty_list_if_no_rules_are_available(self):
         matcher = _get_rulematcher(rules=[])
         actual = matcher.get_matched_rules()
