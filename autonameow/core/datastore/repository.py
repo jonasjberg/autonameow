@@ -71,6 +71,18 @@ class DataBundle(object):
 
         return unknown_mapping_weight
 
+    def __repr__(self):
+        return '<{}(value={!r}, coercer={!r}, source={!r}, generic_field={!r}, mapped_fields={!r}, multivalued={!r}) at {}>'.format(
+            self.__class__.__name__,
+            self.value,
+            self.coercer,
+            self.source,
+            self.generic_field,
+            self.mapped_fields,
+            self.multivalued,
+            hex(id(self)),
+        )
+
     def __str__(self):
         return '<{!s}({!s})>'.format(self.__class__.__name__, self.value)
 
