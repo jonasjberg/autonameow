@@ -124,14 +124,14 @@ class TestRuleComparison(TestCase):
         container.add(b)
         self.assertEqual(2, len(container))
 
-        c = _get_rule(name_template='meow')
-        container.add(c)
-        container.add(c)
+        d = _get_rule(name_template='meow')
+        container.add(d)
+        container.add(d)
         self.assertEqual(3, len(container))
 
         # Descriptions are ignored.
-        d = _get_rule(name_template='meow', description='MEOW MEOW')
-        container.add(d)
+        e = _get_rule(name_template='meow', description='MEOW MEOW')
+        container.add(e)
         self.assertEqual(3, len(container))
 
     def test_equality_only_required_arguments(self):

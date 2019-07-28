@@ -259,7 +259,8 @@ def prioritize_rules(rules):
                        d[1]['score'],
                        d[1]['relative_score'],
                        d[0].ranking_bias,
-                       len(d[0].data_sources))
+                       len(d[0].data_sources),
+                       len(d[0].name_template.placeholders))
     )
     return [rule[0] for rule in prioritized_rules]
 

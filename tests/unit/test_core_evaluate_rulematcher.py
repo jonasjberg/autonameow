@@ -79,6 +79,10 @@ class TestRuleMatcherMatching(TestCase):
         rule.ranking_bias = float(bias)
         rule.data_sources = list()
 
+        name_template = Mock()
+        name_template.placeholders = list()
+        rule.name_template = name_template
+
         # NOTE(jonas): Prevent 'TypeError: unorderable types: Mock() < Mock()'
         #              when sorting rules in 'get_matched_rules()'.
         rule.__gt__ = lambda _, other: 0
@@ -169,6 +173,10 @@ class DummyRule(object):
         self.exact_match = exact_match
         self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
         self.data_sources = list()
+
+        # self.name_template = Mock()
+        from core.namebuilder.template import NameTemplate
+        self.name_template = NameTemplate('foo {datetime} {title} bar.txt')
 
 
 class TestPrioritizeRules(TestCase):
