@@ -202,14 +202,16 @@ class TemplateFieldDataResolver(object):
             num_databundles = len(databundles)
             log.debug('Got list of data. Attempting de-duplication of %d databundles',
                       num_databundles)
-            deduped_databundles = dedupe_list_of_databundles(databundles)
-            num_deduped_databundles = len(deduped_databundles)
-            log.debug('De-duplication returned %d of %d databundles',
-                      num_deduped_databundles, num_databundles)
-            if num_deduped_databundles < num_databundles:
-                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-                # Use the deduplicated list
-                databundles = deduped_databundles
+
+            if num_databundles > 1:
+                deduped_databundles = dedupe_list_of_databundles(databundles)
+                num_deduped_databundles = len(deduped_databundles)
+                log.debug('De-duplication returned %d of %d databundles',
+                          num_deduped_databundles, num_databundles)
+                if num_deduped_databundles < num_databundles:
+                    # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+                    # Use the deduplicated list
+                    databundles = deduped_databundles
 
             if len(databundles) == 1:
                 databundle = databundles[0]
@@ -335,6 +337,7 @@ def dedupe_list_of_databundles(databundle_list):
         values have been removed, leaving only one arbitrarily chosen bundle
         per group of bundles.
     """
+    log.debug('dedupe_list_of_databundles(%s)', databundle_list)
     list_of_databundles = list(databundle_list)
     if len(list_of_databundles) == 1:
         return list_of_databundles
