@@ -438,6 +438,16 @@ Bloomsbury:
 - www.bloomsbury.com
 - bloomsbury.com
 
+BlueHillPub:
+- BlueHillPub
+- Blue Hill Pub
+- Blue Hill Pub.
+- Blue Hill Publ
+- Blue Hill Publ.
+- Blue Hill Publishers
+- Blue Hill International
+- Blue Hill International Journal of Research
+
 Booklocker:
 - Booklocker
 - Booklocker.com
@@ -514,6 +524,16 @@ BPBPub:
 - BPB PUBLICATIONS
 - BPB Publications INDIA
 - BPB Publications, INDIA
+
+Brill:
+- Brill
+- BRILL
+- Brill Archive
+
+BradfordBooks:
+- BradfordBooks
+- Bradford Book
+- Bradford Books
 
 BritannicaEducational:
 - Britannica Educational
@@ -1487,9 +1507,10 @@ LuLu:
 - Lulu.com
 
 TMAoA:
-- MAA
 - TMAoA
+- MAA
 - Mathematical Association of America
+- Published and distributed by the Mathematical Association of America
 - The Mathematical Association of America
 
 Macmillan:
@@ -1531,6 +1552,11 @@ Manning:
 - Manning Publ.
 - Manning Publications Company
 - Manning Publications
+
+MartinusNijhoff:
+- MartinusNijhoff
+- Martinus Nijhoff
+- Martinus Nijhoff Publishers
 
 MasseyUP:
 - MasseyUP
@@ -1871,6 +1897,7 @@ PeachpitPress:
 
 Pearson:
 - Pearson
+- Pearson College Division
 - Pearson Australia Pty Ltd
 - Pearson Australia Pty Ltd.
 - Pearson Australia Pty. Ltd
@@ -2157,6 +2184,10 @@ Sams:
 - www.samspublishing.com
 - samspublishing.com
 
+SAPPress:
+- SAPPress
+- SAP PRESS
+
 SASInstitute:
 - SAS
 - SASInstitute
@@ -2166,6 +2197,10 @@ SASInstitute:
 SASPub:
 - SASPub
 - SAS Publishing
+
+ScarecrowPress:
+- ScarecrowPress
+- Scarecrow Press
 
 SecurePlanet:
 - SecurePlanet
@@ -2263,6 +2298,21 @@ SourceBooks:
 - Sourcebooks, Inc.
 - Sourcebooks, Incorporated
 
+Southwestern:
+- Southwestern
+- South-western
+- South-Western
+- South-western Publishing Group
+- Southwestern Publishing Group
+- https://www.swpublishinggroup.com/
+- https://www.swpublishinggroup.com
+- http://www.swpublishinggroup.com/
+- http://www.swpublishinggroup.com
+- www.swpublishinggroup.com/
+- www.swpublishinggroup.com
+- swpublishinggroup.com/
+- swpublishinggroup.com
+
 Springer:
 - 'Imprint: Springer'
 - Imprint Springer
@@ -2328,6 +2378,7 @@ Springer:
 
 StanfordUP:
 - StanfordUP
+- Stanford Law Books
 - Stanford University Press
 - U of Stanford Press
 - University of Stanford Press
@@ -2561,6 +2612,13 @@ Wiley:
 - Wiley/Blackwell
 # The "For Dummies" series was first published by IDG Books/Hungry Minds.
 - For Dummies
+
+WillanPub:
+- WillanPub
+- Willan Pub
+- Willan Pub.
+- Willan Publ
+- Willan Publ.
 
 WoltersKluwer:
 - Kluwer

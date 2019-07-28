@@ -215,6 +215,11 @@ Bloomsbury:
     - bloomsbury
     - (www\.)?bloomsbury\.com
 
+BlueHillPub:
+    match_any_regex_ignorecase:
+    - blue hill pub\.?l?(ishers)?
+    - blue hill international( journal of research)?
+
 Booklocker:
     match_any_regex_ignorecase:
     - booklocker\.com
@@ -242,6 +247,15 @@ BottomLinePub:
 BPBPub:
     match_any_regex_ignorecase:
     - bpb pub(lications)?
+
+BradfordBooks:
+    match_any_literal:
+    - Bradford Book
+    - Bradford Books
+
+Brill:
+    match_any_regex_ignorecase:
+    - \bbrill\b( archive)?
 
 BritannicaEducational:
     match_any_literal:
@@ -680,6 +694,7 @@ TMAoA:
     match_any_literal:
     - MAA
     - Mathematical Association of America
+    - Published and distributed by the Mathematical Association of America
     - The Mathematical Association of America
 
 Macmillan:
@@ -694,6 +709,11 @@ MakerMedia:
 Manning:
     match_any_regex_ignorecase:
     - manning
+
+MartinusNijhoff:
+    match_any_literal:
+    - Martinus Nijhoff
+    - Martinus Nijhoff Publishers
 
 MasseyUP:
     match_any_literal:
@@ -829,6 +849,7 @@ Pearson:
     match_any_literal:
     - Pearson/PrenticeHall
     - Pearson/AddisonWesley
+    - Pearson College Division
     - Pearson IT Certification
     match_any_regex_ignorecase:
     - pearson (australia|education)
@@ -950,6 +971,10 @@ Sams:
     - sams pub
     - (www\.)?samspublishing\.com
 
+SAPPress:
+    match_any_literal:
+    - SAP PRESS
+
 SASInstitute:
     match_any_regex:
     - \bSAS\b
@@ -959,6 +984,10 @@ SASInstitute:
 SASPub:
     match_any_literal:
     - SAS Publishing
+
+ScarecrowPress:
+    match_any_literal:
+    - Scarecrow Press
 
 SecurePlanet:
     match_any_regex_ignorecase:
@@ -996,6 +1025,11 @@ SourceBooks:
     match_any_regex_ignorecase:
     - sourcebooks
 
+Southwestern:
+    match_any_regex_ignorecase:
+    - south-?western( publishing group)?
+    - (www\.)?swpublishinggroup\.com
+
 Springer:
     match_any_regex_ignorecase:
     - springer(.verlag)?
@@ -1004,6 +1038,8 @@ StanfordUP:
     match_any_regex_ignorecase:
     - stanford university pr(.?|ess)
     - u(niversity)? of stanford pr(.?|ess)
+    match_any_literal:
+    - Stanford Law Books
 
 StMartinsPress:
     match_any_regex_ignorecase:
@@ -1096,6 +1132,10 @@ Wiley:
     - John Wiley
     - J. Wiley
     - For Dummies
+
+WillanPub:
+    match_any_regex_ignorecase:
+    - Willan Publ?\.?
 
 WoltersKluwer:
     match_any_regex_ignorecase:
