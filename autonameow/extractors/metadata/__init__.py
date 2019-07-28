@@ -17,6 +17,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+from .extractor_crossplatform import CrossPlatformFileSystemExtractor
 from .extractor_epub import EpubMetadataExtractor
 from .extractor_exiftool import ExiftoolMetadataExtractor
 from .extractor_filetags import FiletagsMetadataExtractor

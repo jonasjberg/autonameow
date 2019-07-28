@@ -121,7 +121,6 @@ def do_extract_metadata(fileobject):
         add_results_callback=_collect_results_callback
     )
     request_extractors = set(extractors.registry.metadata_providers)
-    request_extractors.update(extractors.registry.filesystem_providers)
     try:
         runner.start(fileobject, request_extractors)
     except exceptions.AutonameowException as e:

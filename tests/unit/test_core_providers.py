@@ -209,7 +209,7 @@ class TestWrapProviderResults(TestCase):
     def test_wraps_actual_crossplatform_filesystem_extractor_results(self):
         # TODO: [cleanup][temporary] Remove after refactoring!
         # TODO: [cleanup][hack] Use mocks!
-        from extractors.filesystem import CrossPlatformFileSystemExtractor
+        from extractors.metadata import CrossPlatformFileSystemExtractor
         example_provider_instance = CrossPlatformFileSystemExtractor()
         actual = wrap_provider_results(
             datadict=self.EXAMPLE_DATADICT,

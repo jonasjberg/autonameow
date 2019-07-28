@@ -22,7 +22,6 @@ from unittest import TestCase
 import unit.utils as uu
 from extractors import AUTONAMEOW_EXTRACTOR_PATH
 from extractors import EXTRACTOR_CLASS_PACKAGES
-from extractors import EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
 from extractors import EXTRACTOR_CLASS_PACKAGES_METADATA
 from extractors import _find_extractor_classes_in_packages
 from extractors import collect_included_excluded_extractors
@@ -54,9 +53,6 @@ class TestExtractorsConstants(TestCase):
 
     def test_extractor_class_packages(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES)
-
-    def test_extractor_class_packages_filesystem(self):
-        self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
 
     def test_extractor_class_packages_metadata(self):
         self._assert_list_of_strings(EXTRACTOR_CLASS_PACKAGES_METADATA)
@@ -129,12 +125,12 @@ class TestCollectAndCheckMetadataExtractorClassesIncluded(TestCase):
         for klass in self.actual:
             # TODO: [TD0151] Fix inconsistent use of classes vs. class instances.
             _klass_name = klass.name()
-            self.assertIn('Metadata', _klass_name)
+            self.assertIn('Extractor', _klass_name)
 
     def test_returns_metadata_extractors_verified_by_meowuri_prefix(self):
         for klass in self.actual:
             _meowuri_prefix = str(klass.meowuri_prefix())
-            self.assertTrue(_meowuri_prefix.startswith('extractor.metadata'))
+            self.assertTrue(_meowuri_prefix.startswith('extractor.'))
 
 
 class TestExtractorClassMeowURIs(TestCase):

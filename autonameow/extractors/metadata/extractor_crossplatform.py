@@ -22,10 +22,16 @@ from datetime import datetime
 
 from extractors.base import BaseMetadataExtractor
 
+# TODO: [TD0029] Add support for MacOS Spotlight metadata.
+
 
 class CrossPlatformFileSystemExtractor(BaseMetadataExtractor):
     HANDLES_MIME_TYPES = ['*/*']
+
+    # TODO: The 'MEOWURI_CHILD' and 'MEOWURI_LEAF' overrides are only used here!
+    MEOWURI_CHILD = 'filesystem'
     MEOWURI_LEAF = 'xplat'
+
     IS_SLOW = False
     FIELD_FILEOBJECT_ATTRIBUTE_MAP = [
         ('abspath_full', 'abspath'),

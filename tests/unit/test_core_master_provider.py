@@ -249,7 +249,7 @@ class TestProviderRunner(TestCase):
     ):
         provider_runner = self._get_provider_runner()
 
-        from extractors.filesystem import CrossPlatformFileSystemExtractor
+        from extractors.metadata import CrossPlatformFileSystemExtractor
         provider_For_meowuri = set([CrossPlatformFileSystemExtractor])
         mock_providers_for_meowuri.return_value = provider_For_meowuri
 

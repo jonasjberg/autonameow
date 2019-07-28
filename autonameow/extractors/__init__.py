@@ -32,10 +32,11 @@ log = logging.getLogger(__name__)
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
-EXTRACTOR_CLASS_PACKAGES_FILESYSTEM = ['filesystem']
 EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
-EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
-                            + EXTRACTOR_CLASS_PACKAGES_METADATA)
+EXTRACTOR_CLASS_PACKAGES = (
+    EXTRACTOR_CLASS_PACKAGES_METADATA +
+    []
+)
 
 
 class ExtractorError(AutonameowException):
@@ -80,7 +81,6 @@ class ExtractorRegistry(object):
     def __init__(self):
         self._all_providers = None
         self._metadata_providers = None
-        self._filesystem_providers = None
         self._excluded_providers = set()
 
     def _get_cached_or_collect(self, self_attribute, packages):
@@ -110,15 +110,8 @@ class ExtractorRegistry(object):
                                            EXTRACTOR_CLASS_PACKAGES_METADATA)
 
     @property
-    def filesystem_providers(self):
-        return self._get_cached_or_collect('_filesystem_providers',
-                                           EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
-
-    @property
     def excluded_providers(self):
         return self._excluded_providers
 
 
-# TODO: This (and a lot of other stuff..) only deals with "filesystem" and
-#       "metadata" extractors and should be moved into the 'metadata' package.
 registry = ExtractorRegistry()

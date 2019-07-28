@@ -83,7 +83,7 @@ aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.pref
 aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
 
 declare -a _FIELDMETA_YAML_FILES=(
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/filesystem/extractor_crossplatform_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_crossplatform_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_filetags_fieldmeta.yaml"
     "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_guessit_fieldmeta.yaml"
