@@ -1337,3 +1337,17 @@ class PreProcessNames(TestCase):
                 'Jonathan Sullivan',
             ]
         )
+
+    def test_duplicated_names_with_slight_variations(self):
+        self._assert_preprocess_names_returns(
+            expected=['Dan K. Barrett', 'Dan K Barrett', 'Ken F. Silverman', 'Ken Silverman'],
+            given=['Dan K. Barrett', 'Dan K.. Barrett', 'Ken F. Silverman', 'Ken Silverman']
+        )
+
+    @unittest.expectedFailure
+    def test_duplicated_names_with_slight_variations_are_deduplicated(self):
+        # TODO: Improve splitting and/or remove duplicates.
+        self._assert_preprocess_names_returns(
+            expected=['Dan K. Barrett', 'Ken F. Silverman'],
+            given=['Dan K. Barrett', 'Dan K.. Barrett', 'Ken F. Silverman', 'Ken Silverman']
+        )
