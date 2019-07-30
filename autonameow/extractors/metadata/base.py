@@ -82,7 +82,7 @@ class BaseMetadataExtractor(ProviderMixin):
 
             _node = cls.MEOWURI_CHILD
             if _undefined(_node):
-                _node = cls._meowuri_node_from_module_name()
+                _node = 'metadata'
 
             _leaf = cls.MEOWURI_LEAF
             if _undefined(_leaf):
@@ -93,22 +93,6 @@ class BaseMetadataExtractor(ProviderMixin):
             )
 
         return cls._meowuri_prefix
-
-    @classmethod
-    def _meowuri_node_from_module_name(cls):
-        try:
-            _name = cls.__module__.split('.')[-2]
-
-            # De-pluralize; 'extractors' --> 'extractor', etc.
-            if _name.endswith('s'):
-                return _name[:-1]
-            return _name
-
-        # "The base class for the exceptions that are raised when a key or
-        # index used on a mapping or sequence is invalid: IndexError, KeyError.
-        # This can be raised directly by codecs.lookup()." -- Python 3.6.1 docs
-        except LookupError:
-            return C.MEOWURI_UNDEFINED_PART
 
     @classmethod
     def _meowuri_leaf_from_module_name(cls):

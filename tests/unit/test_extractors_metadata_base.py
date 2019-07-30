@@ -82,10 +82,6 @@ class TestBaseMetadataExtractor(TestCase):
     def test_base_class_does_not_specify_meowuri_leaf(self):
         self.assertEqual(C.MEOWURI_UNDEFINED_PART, self.e.MEOWURI_LEAF)
 
-    def test__meowuri_node_from_module_name(self):
-        actual = self.e._meowuri_node_from_module_name()
-        self.assertEqual('metadata', actual)
-
     def test__meowuri_leaf_from_module_name(self):
         actual = self.e._meowuri_leaf_from_module_name()
         expect = 'base'
