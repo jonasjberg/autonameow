@@ -22,8 +22,8 @@ from unittest.mock import Mock, PropertyMock, patch
 
 import unit.utils as uu
 from core import constants as C
-from extractors.base import BaseMetadataExtractor
-from extractors.base import _fieldmeta_filepath_from_extractor_source_filepath
+from extractors.metadata.base import BaseMetadataExtractor
+from extractors.metadata.base import _fieldmeta_filepath_from_extractor_source_filepath
 
 
 class TestBaseMetadataExtractor(TestCase):
@@ -84,7 +84,7 @@ class TestBaseMetadataExtractor(TestCase):
 
     def test__meowuri_node_from_module_name(self):
         actual = self.e._meowuri_node_from_module_name()
-        self.assertEqual('extractor', actual)
+        self.assertEqual('metadata', actual)
 
     def test__meowuri_leaf_from_module_name(self):
         actual = self.e._meowuri_leaf_from_module_name()
@@ -107,14 +107,14 @@ class TestBaseMetadataExtractorClassMethods(TestCase):
         with self.assertRaises(NotImplementedError):
             _ = self.e.can_handle(self.mock_fileobject)
 
-    @patch('extractors.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.metadata.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['text/plain'])
     def test_can_handle_returns_false(self, mock_attribute):
         e = BaseMetadataExtractor()
         actual = e.can_handle(self.mock_fileobject)
         self.assertFalse(actual)
 
-    @patch('extractors.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
+    @patch('extractors.metadata.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['image/jpeg'])
     def test_can_handle_returns_true(self, mock_attribute):
         e = BaseMetadataExtractor()

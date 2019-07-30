@@ -20,7 +20,7 @@
 import os
 from datetime import datetime
 
-from extractors.base import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 
 # TODO: [TD0029] Add support for MacOS Spotlight metadata.
 

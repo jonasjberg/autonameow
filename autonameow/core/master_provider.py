@@ -302,7 +302,7 @@ class ProviderRunner(object):
 def _provider_is_extractor(provider):
     # TODO: [hack] Fix circular import problems when running new unit test runner.
     #       $ PYTHONPATH=autonameow:tests python3 -m unit --skip-slow
-    from extractors.base import BaseMetadataExtractor
+    from extractors.metadata.base import BaseMetadataExtractor
     return issubclass(provider, BaseMetadataExtractor)
 
 

@@ -64,7 +64,7 @@ considered to follow the filetags convention. The 'extension' is optional.
 import re
 from collections import namedtuple
 
-from extractors.base import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 from util import coercers
 
 

@@ -45,7 +45,7 @@ class ExtractorError(AutonameowException):
 
 def _find_extractor_classes_in_packages(packages):
     klasses = list()
-    from extractors.base import BaseMetadataExtractor
+    from extractors.metadata.base import BaseMetadataExtractor
 
     for package in packages:
         __import__(package)

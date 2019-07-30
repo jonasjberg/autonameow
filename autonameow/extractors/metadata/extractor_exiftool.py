@@ -24,7 +24,7 @@ from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
 from core.truths import known_metadata
 from extractors import ExtractorError
-from extractors.base import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 from util import process
 from util.text.humannames import preprocess_names
 
