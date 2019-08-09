@@ -34,15 +34,13 @@ C_RED="${C_RED:+"$C_RED"}"
 C_RESET="${C_RESET:+"$C_RESET"}"
 
 
-# Initialize counter variables every time this script is sourced
-# by each of the test suites. Used in 'aw_utils.log_test_suite_results_summary'.
+# Initialize counters every time this script is sourced by the test suites.
 suite_tests_count=0
 suite_tests_passed=0
 suite_tests_failed=0
 
 
-# Should be called once at the start of a test run. Creates a timestamped log
-# file and exports the the log file path as 'AUTONAMEOW_INTEGRATION_LOG'.
+# Should be called once at the start of a test run.
 aw_utils.initialize_logging()
 {
     if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
@@ -110,8 +108,6 @@ aw_utils.log_msg_separator_thin()
     aw_utils.log_msg "$(printf '~%.0s' {1..80})"
 }
 
-
-# Prints out a summary of test results for the currently sourcing script.
 aw_utils.log_test_suite_results_summary()
 {
     local -r _name="$1"
@@ -135,7 +131,6 @@ aw_utils.log_test_suite_results_summary()
     aw_utils.log_msg_separator
 }
 
-# Prints out a total test results ummary for all tests.
 aw_utils.log_total_results_summary()
 {
     local -r _execution_time="$1"
@@ -197,10 +192,6 @@ aw_utils.update_global_test_results()
     echo "${_total_count} ${_total_passed} ${_total_failed}" >| "$AUTONAMEOW_INTEGRATION_STATS"
 }
 
-
-# Evaluates an expression, given as the first argument.
-# Calls 'aw_utils.test_fail' if the expression returns NON-zero.
-# Calls 'aw_utils.test_pass' if the expression returns zero.
 aw_utils.assert_true()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
@@ -212,9 +203,6 @@ aw_utils.assert_true()
     fi
 }
 
-# Evaluates an expression, given as the first argument.
-# Calls 'aw_utils.test_pass' if the expression returns NON-zero.
-# Calls 'aw_utils.test_fail' if the expression returns zero.
 aw_utils.assert_false()
 {
     ( eval "${1}" &>/dev/null ) >/dev/null
@@ -226,7 +214,6 @@ aw_utils.assert_false()
     fi
 }
 
-# Returns the current time as a UNIX timestamp.
 aw_utils.current_unix_time()
 {
     # The 'date' command differs between versions; the GNU coreutils version
@@ -244,8 +231,6 @@ aw_utils.current_unix_time()
     esac
 }
 
-# Calculates the execution time by taking the difference of two unix
-# timestamps.  The expected arguments are start and end times.
 # Returns the time delta in milliseconds.
 aw_utils.calculate_execution_time()
 {
@@ -291,8 +276,6 @@ aw_utils.assert_bulk_test()
     done
 }
 
-# Tests that a command or list of commands are available.
-# Returns true if ALL commands are available. Else false.
 aw_utils.command_exists()
 {
     for arg in "$@"
