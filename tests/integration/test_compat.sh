@@ -219,7 +219,7 @@ set -o pipefail
 # and check for non-zero return codes in various options.
 while IFS= read -r -d '' bad_config_file
 do
-    config_file_abspath="$(realpath -e -- "$bad_config_file")"
+    config_file_abspath="$(realpath --canonicalize-existing -- "$bad_config_file")"
     config_file_basename="$(basename -- "$bad_config_file")"
     aw_utils.assert_true '[ -e "$config_file_abspath" ]' \
                 "Bad configuration file exists: \"${config_file_basename}\""
@@ -258,7 +258,7 @@ done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -n
 TEMPLATED_DEFAULT_CONFIG="$(aw_utils.abspath_testfile "configs/integration_default_templated.yaml")"
 aw_utils.assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
 
-TEMP_PERSISTENCE_DIR="$(realpath -e -- "$(mktemp -d -t aw_test_persistence.XXXXXX)")"
+TEMP_PERSISTENCE_DIR="$(realpath --canonicalize-existing -- "$(mktemp -d -t aw_test_persistence.XXXXXX)")"
 aw_utils.assert_bulk_test "$TEMP_PERSISTENCE_DIR" d r w x
 
 _sed_backup_suffix='.orig'

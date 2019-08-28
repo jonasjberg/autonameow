@@ -46,7 +46,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-DOC_PATH="$( ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "./docs/" ) )"
+DOC_PATH="$(realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIR}/docs/")"
 doc_path_basename="$(basename -- "$DOC_PATH")"
 aw_utils.assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \"${doc_path_basename}\" should exist"

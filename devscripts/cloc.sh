@@ -41,8 +41,8 @@ fi
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
 then
-    self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
-    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${self_dirpath}/..")"
+    self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+    AUTONAMEOW_ROOT_DIR="$(realpath --canonicalize-existing -- "${self_dirpath}/..")"
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]

@@ -239,11 +239,9 @@ aw_utils.calculate_execution_time()
     echo "$(((_time_end - _time_start) / 1000000))"
 }
 
-# Get the absolute path to a file in the "$SRCROOT/test_files" directory.
-# Expects the first and only argument to be the basename of the desired file.
 aw_utils.abspath_testfile()
 {
-    ( cd "$AUTONAMEOW_ROOT_DIR" && realpath -e "test_files/${1}" )
+    realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIR}/test_files/${1}"
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
