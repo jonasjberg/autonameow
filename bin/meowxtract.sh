@@ -50,13 +50,6 @@ EOF
 esac
 
 
-# NOTE: The version of readlink shipped with MacOS does not have the '-f'
-#       option. Description from the "readlink (GNU coreutils) 8.25" manpage:
-#
-#       -f, --canonicalize
-#       canonicalize by following every symlink in every component of
-#       the given name recursively; all but the last component must exist
-#
 if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
