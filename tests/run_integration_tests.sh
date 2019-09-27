@@ -58,9 +58,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  autonameow integration test suite runner
+"$SELF_BASENAME"  --  autonameow integration test suite runner
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $SELF_BASENAME ([OPTIONS])
 
   OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
                           Argument [EXP] is passed to grep as-is.
@@ -73,9 +73,9 @@ print_usage_info()
   results to stdout/stderr in real-time.
   Note: The "raw" log file is always written.
 
-  EXIT CODES:   ${EXIT_SUCCESS}         All tests/assertions passed.
-                ${EXIT_FAILURE}         Any tests/assertions FAILED.
-                ${EXIT_CRITICAL}         Runner itself failed or aborted.
+  EXIT CODES:   $EXIT_SUCCESS          All tests/assertions passed.
+                $EXIT_FAILURE          Any tests/assertions FAILED.
+                $EXIT_CRITICAL         Runner itself failed or aborted.
 
   Project website: www.github.com/jonasjberg/autonameow
 
@@ -85,7 +85,7 @@ EOF
 
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
 else
     while getopts f:hq opt
     do
@@ -147,10 +147,10 @@ do
     # !! # Run task and check exit code.
     # !! if $option_quiet
     # !! then
-    # !!     eval "${testscript}" 2>&1 >/dev/null &
+    # !!     eval "$testscript" 2>&1 >/dev/null &
     # !!     TASK_PID="$!"
     # !! else
-    # !!     eval "${testscript}" &
+    # !!     eval "$testscript" &
     # !!     TASK_PID="$!"
     # !! fi
     # !! wait "$TASK_PID"
@@ -158,9 +158,9 @@ do
     aw_utils.log_msg_timestamped "Starting \"${_testscript_base}\" .."
     if $option_quiet
     then
-        source "${testscript}" &>/dev/null
+        source "$testscript" &>/dev/null
     else
-        source "${testscript}"
+        source "$testscript"
     fi
     aw_utils.log_msg_timestamped "Finished \"${_testscript_base}\""
 done
@@ -169,7 +169,7 @@ done
 # Calculate total execution time.
 time_end="$(aw_utils.current_unix_time)"
 total_time="$(((time_end - time_start) / 1000000))"
-aw_utils.log_msg "Total execution time: ${total_time} ms"
+aw_utils.log_msg "Total execution time: $total_time ms"
 
 
 while read -r _count _pass _fail

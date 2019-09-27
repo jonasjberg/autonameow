@@ -85,7 +85,7 @@ do
         exitstatus=1
     fi
 
-done < <(find "${AUTONAMEOW_ROOT_DIRPATH}" -xdev -type f \
+done < <(find "$AUTONAMEOW_ROOT_DIRPATH" -xdev -type f \
          -not \( -path "*/thirdparty/*" -or -path "*/vendor/*" -or -path "*/site-packages/*" \) \
          \( -name "*.md" -or -name "*.py" \) \
          -print0 | sort -z)

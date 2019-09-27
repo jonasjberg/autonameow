@@ -32,7 +32,7 @@ if [ "$#" -ne "1" ] || [ ! -e "$1" ]
 then
     cat <<EOF
 
-  USAGE:  ${SELF_BASENAME} [PATH TO PYTHON PROGRAM]
+  USAGE:  $SELF_BASENAME [PATH TO PYTHON PROGRAM]
 
   Lists modules imported by the specified Python program.
   Imports used by a simple "no-op" program is used to filter the

@@ -310,10 +310,10 @@ aw_utils.assert_has_command()
 # Source:  http://stackoverflow.com/a/2684300/7802196
 
 [[ ${BASH_VERSINFO[0]} -le 2 ]] && { echo 'No BASH_SOURCE array variable' 1>&2 ; exit 1 ; }
-[[ ${BASH_SOURCE[0]} != ${0} ]] # && echo "script ${BASH_SOURCE[0]} is being sourced ..."
+[[ ${BASH_SOURCE[0]} != $0 ]] # && echo "script ${BASH_SOURCE[0]} is being sourced ..."
 
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]
 then
     aw_utils.log_msg "Starting self-tests .."
     aw_utils.assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'

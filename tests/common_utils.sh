@@ -68,10 +68,10 @@ run_task()
     # Run task and check exit code.
     if $_opt_quiet
     then
-        eval "${_cmd}" >/dev/null 2>&1 &
+        eval "$_cmd" >/dev/null 2>&1 &
         TASK_PID="$!"
     else
-        eval "${_cmd}" &
+        eval "$_cmd" &
         TASK_PID="$!"
     fi
     wait "$TASK_PID"

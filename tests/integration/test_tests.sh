@@ -59,7 +59,7 @@ _check_samplefiles_symlink()
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Test Suite'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -151,10 +151,10 @@ aw_utils.assert_bulk_test "$_devscripts_path" n e d r w x
 _todo_helper_script_path="${_devscripts_path}/todo_id.py"
 aw_utils.assert_bulk_test "$_todo_helper_script_path" n e f r x
 
-aw_utils.assert_true '"${_todo_helper_script_path}"' \
+aw_utils.assert_true '"$_todo_helper_script_path"' \
             'TODO-list utility script returns exit code 0 when started without arguments'
 
-aw_utils.assert_true '"${_todo_helper_script_path}" --help' \
+aw_utils.assert_true '"$_todo_helper_script_path" --help' \
             'TODO-list utility script returns exit code 0 when started with argument "--help"'
 
 _whitespace_check_script_path="${_devscripts_path}/check_whitespace.sh"
@@ -203,7 +203,7 @@ aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e x
 
 _temporary_file='___temporary_file___'
 [ -f "$_temporary_file" ] || touch "$_temporary_file"
-aw_utils.assert_true '[ -f "${_temporary_file}" ]' \
+aw_utils.assert_true '[ -f "$_temporary_file" ]' \
             'Reference dummy temporary was created'
 
 aw_utils.assert_bulk_test "$_temporary_file"
@@ -224,7 +224,7 @@ aw_utils.assert_bulk_test "$_temporary_file" f r
 aw_utils.assert_bulk_test "$_temporary_file" f r w
 aw_utils.assert_bulk_test "$_temporary_file" f w
 
-aw_utils.assert_true '[ -f "${_temporary_file}" ] && rm "$_temporary_file"' \
+aw_utils.assert_true '[ -f "$_temporary_file" ] && rm "$_temporary_file"' \
             'Reference dummy temporary file was deleted'
 
 

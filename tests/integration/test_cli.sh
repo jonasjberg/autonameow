@@ -42,7 +42,7 @@ source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Command-Line Interface'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -164,7 +164,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files s
 SAMPLE_PDF_FILE="$(aw_utils.samplefile_abspath "gmail.pdf")"
 aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
-sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+sample_pdf_file_basename="$(basename -- "$SAMPLE_PDF_FILE")"
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$ACTIVE_CONFIG" --dry-run --list-all -- "$SAMPLE_PDF_FILE"' \
             "Expect exit code 0 when started with \"--dry-run --list-all\" given the file \"${sample_pdf_file_basename}\""
 
@@ -195,8 +195,8 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run
 # ______________________________________________________________________________
 # Tests with the same input paths used more than once.
 
-sample_empty_file_basename="$(basename -- "${SAMPLE_EMPTY_FILE}")"
-sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+sample_empty_file_basename="$(basename -- "$SAMPLE_EMPTY_FILE")"
+sample_pdf_file_basename="$(basename -- "$SAMPLE_PDF_FILE")"
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dry-run --automagic -- "$SAMPLE_EMPTY_FILE"' \
             "Expect exit code 0 for \"--dry-run --automagic -- \"${sample_empty_file_basename}\"\""

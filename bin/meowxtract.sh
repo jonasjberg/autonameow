@@ -65,7 +65,7 @@ then
 else
     # Not using GNU coreutils readlink or readlink is not available.
     self_abspath="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
-    AUTONAMEOW_PATH="$(dirname -- "${self_abspath}")"
+    AUTONAMEOW_PATH="$(dirname -- "$self_abspath")"
 fi
 
 

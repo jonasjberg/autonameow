@@ -59,9 +59,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  autonameow test suite helper script
+"$SELF_BASENAME"  --  autonameow test suite helper script
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $SELF_BASENAME ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
                -v   Enable all output from the unit/integration-runners.
@@ -111,7 +111,7 @@ runner_opts=''
 $option_write_reports && runner_opts='-w'
 
 declare -i COUNT_FAIL=0
-run_task "$option_quiet" 'Running unit test runner'        '${SELF_DIRPATH}/run_unit_tests.sh ${runner_opts}'
+run_task "$option_quiet" 'Running unit test runner'        '${SELF_DIRPATH}/run_unit_tests.sh $runner_opts'
 run_task "$option_quiet" 'Running regression test runner'  '${SELF_DIRPATH}/run_regression_tests.sh -f "!*LOCAL*"'
 run_task "$option_quiet" 'Running integration test runner' '${SELF_DIRPATH}/run_integration_tests.sh'
 

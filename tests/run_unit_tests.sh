@@ -54,11 +54,11 @@ exit_with_error_message_if_missing_command()
 {
     local -r _cmdname="$1"
 
-    if ! command -v "${_cmdname}" &>/dev/null
+    if ! command -v "$_cmdname" &>/dev/null
     then
         cat >&2 <<EOF
 
-    [ERROR] This program requires "${_cmdname}" to run.
+    [ERROR] This program requires "$_cmdname" to run.
 
 EOF
         exit 1
@@ -79,9 +79,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  autonameow unit tests runner
+"$SELF_BASENAME"  --  autonameow unit tests runner
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $SELF_BASENAME ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
@@ -94,9 +94,9 @@ print_usage_info()
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
-  EXIT CODES:   ${EXIT_SUCCESS}   All tests/assertions passed.
-                ${EXIT_FAILURE}   Any tests/assertions FAILED.
-                ${EXIT_CRITICAL}   Runner itself failed or aborted.
+  EXIT CODES:   $EXIT_SUCCESS    All tests/assertions passed.
+                $EXIT_FAILURE    Any tests/assertions FAILED.
+                $EXIT_CRITICAL   Runner itself failed or aborted.
 
 
 Project website: www.github.com/jonasjberg/autonameow
@@ -160,7 +160,7 @@ fi
 run_pytest()
 {
     declare -a _pytest_opts=('')
-    $option_write_report    && _pytest_opts+="--self-contained-html --html="${_unittest_log}" "
+    $option_write_report    && _pytest_opts+="--self-contained-html --html="$_unittest_log" "
     $option_enable_coverage && _pytest_opts+='--cov=autonameow --cov-report=term '
     $option_run_last_failed && _pytest_opts+='--last-failed '
 
@@ -180,7 +180,7 @@ then
     printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
-    echo "${_unittest_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
+    echo "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
 fi
 
 

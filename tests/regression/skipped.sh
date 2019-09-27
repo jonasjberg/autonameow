@@ -31,9 +31,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  skipped test helper
+"$SELF_BASENAME"  --  skipped test helper
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $SELF_BASENAME ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -c   Clear ("unskip") all skipped tests.

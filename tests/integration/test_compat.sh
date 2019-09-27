@@ -43,7 +43,7 @@ source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Compatibility'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -273,7 +273,7 @@ aw_utils.assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
             'Temporary persistence directory should initially not contain any files'
 
 # Arbitrary execution just to do *something* with the persistence directory.
-"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_SAMPLEFILES_DIR}" &>/dev/null
+"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "$AUTONAMEOW_SAMPLEFILES_DIR" &>/dev/null
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 aw_utils.assert_true '[ "$_number_files_in_temp_persistence_dir" -ge "1" ]' \

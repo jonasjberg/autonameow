@@ -42,7 +42,7 @@ source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Stand-alone Extraction'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -98,7 +98,7 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
 SAMPLE_PDF_FILE="$(aw_utils.samplefile_abspath "gmail.pdf")"
 aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e r
 
-sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
+sample_pdf_file_basename="$(basename -- "$SAMPLE_PDF_FILE")"
 
 
 # ______________________________________________________________________________
@@ -208,7 +208,7 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "
 SAMPLE_RTF_FILE="$(aw_utils.samplefile_abspath "sample.rtf")"
 aw_utils.assert_bulk_test "$SAMPLE_RTF_FILE" e r
 
-sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
+sample_rtf_file_basename="$(basename -- "$SAMPLE_RTF_FILE")"
 
 aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "baz last line"' \
             "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
@@ -218,7 +218,7 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "
 SAMPLE_MD_FILE="$(aw_utils.samplefile_abspath "sample.md")"
 aw_utils.assert_bulk_test "$SAMPLE_MD_FILE" e r
 
-sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
+sample_md_file_basename="$(basename -- "$SAMPLE_MD_FILE")"
 
 # From the MarkdownTextExtractor
 aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "ON MEOW"' \
@@ -239,7 +239,7 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "
 SAMPLE_DJVU_FILE="$(aw_utils.samplefile_abspath "Critique_of_Pure_Reason.djvu")"
 aw_utils.assert_bulk_test "$SAMPLE_DJVU_FILE" e r
 
-sample_djvu_file_basename="$(basename -- "${SAMPLE_DJVU_FILE}")"
+sample_djvu_file_basename="$(basename -- "$SAMPLE_DJVU_FILE")"
 
 aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_DJVU_FILE" | grep -- "Immanuel Kant"' \
             "Expect text extracted from \"${sample_djvu_file_basename}\" to contain \"Immanuel Kant\""

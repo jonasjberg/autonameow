@@ -50,7 +50,7 @@ check_git_ls_files_does_not_match()
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Source Code'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -120,7 +120,7 @@ do
         # like this (shame.. shame..) to keep the number of tests constant.
         _expr='true'
     fi
-    aw_utils.assert_true "${_expr}" \
+    aw_utils.assert_true "$_expr" \
                 "Fieldmeta YAML-file \"${_fieldmeta_basename}\" uses only ASCII letters and underlines in any and all \"generic_field\" values"
 
     aw_utils.assert_false 'grep -qE -- "weight: [0-9]+$" "$fieldmeta_file"' \
@@ -134,7 +134,7 @@ done
 
 _todo_helper_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/todo_id.py"
 
-aw_utils.assert_true '"${_todo_helper_script_path}"' \
+aw_utils.assert_true '"$_todo_helper_script_path"' \
             'TODO-list utility script checks pass ("todo_id.py --check" returns 0)'
 
 

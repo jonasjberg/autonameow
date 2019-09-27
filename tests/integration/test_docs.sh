@@ -42,7 +42,7 @@ source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Documentation'
-aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 

@@ -42,7 +42,7 @@ fi
 require_user_confirmation='true'
 [ "$#" -eq "1" ] && [ "$1" == '--force' ] && require_user_confirmation='false'
 
-if [ "${require_user_confirmation}" == 'true' ]
+if [ "$require_user_confirmation" == 'true' ]
 then
     cat >&2 <<EOF
 
