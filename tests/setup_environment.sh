@@ -20,16 +20,20 @@
 
 _autonameow_setup_environment_main()
 {
-    local _self_dir_relative
-    local _self_path
-    _self_dir_relative="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
-    _self_path="$(dirname -- "$(realpath -- "$_self_dir_relative")")"
+    local _self_relative_filepath
+    local _self_absolute_filepath
+    _self_relative_filepath="${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}"
+    _self_absolute_filepath="$(
+        dirname -- "$(realpath -- "$_self_relative_filepath")"
+    )"
+    declare -p _self_relative_filepath
+    declare -p _self_absolute_filepath
 
     # Absolute path to the autonameow source root.
-    AUTONAMEOW_ROOT_DIR="$(realpath -- "${_self_path}/..")"
+    AUTONAMEOW_ROOT_DIR="$(realpath -- "${_self_absolute_filepath}/..")"
 
-    unset _self_dir_relative
-    unset _self_path
+    unset _self_relative_filepath
+    unset _self_absolute_filepath
 
     if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
     then
