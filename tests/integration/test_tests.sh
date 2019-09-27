@@ -34,20 +34,20 @@ fi
 source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 
-check_testfiles_directory()
+_check_samplefiles_directory()
 {
-    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" d r x
+    aw_utils.assert_bulk_test "$(aw_utils.samplefile_abspath "$1")" d r x
 }
 
-check_testfiles_file()
+_check_samplefiles_file()
 {
-    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" f r
+    aw_utils.assert_bulk_test "$(aw_utils.samplefile_abspath "$1")" f r
 }
 
-check_testfiles_symlink()
+_check_samplefiles_symlink()
 {
-    # NOTE(jonas): Can't test for -L because aw_utils.abspath_testfile resolves links..
-    aw_utils.assert_bulk_test "$(aw_utils.abspath_testfile "$1")" e r
+    # NOTE(jonas): Can't test for -L because aw_utils.samplefile_abspath resolves links..
+    aw_utils.assert_bulk_test "$(aw_utils.samplefile_abspath "$1")" e r
 }
 
 
@@ -169,13 +169,13 @@ aw_utils.assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
 
 # ______________________________________________________________________________
 #
-# Shared bash script (integration test) functionality.
+# Verify utility functionality used by the integration tests.
 
-_abspath_testfile_empty="$(aw_utils.abspath_testfile "empty")"
-aw_utils.assert_bulk_test "$_abspath_testfile_empty" n e f
+_samplefile_empty="$(aw_utils.samplefile_abspath 'empty')"
+aw_utils.assert_bulk_test "$_samplefile_empty" n e f
 
-_abspath_testfile_subdir="$(aw_utils.abspath_testfile "subdir")"
-aw_utils.assert_bulk_test "$_abspath_testfile_subdir" n e d
+_samplefile_subdir="$(aw_utils.samplefile_abspath 'subdir')"
+aw_utils.assert_bulk_test "$_samplefile_subdir" n e d
 
 aw_utils.assert_true '[ "$(aw_utils.calculate_execution_time 1501987087187088013 1501987087942286968)" -eq "755" ]' \
             'aw_utils.calculate_execution_time returns expected (755ms)'

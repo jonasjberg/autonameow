@@ -94,8 +94,8 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
 
-# Test file to extract from.
-SAMPLE_PDF_FILE="$(aw_utils.abspath_testfile "gmail.pdf")"
+# Sample file to extract from.
+SAMPLE_PDF_FILE="$(aw_utils.samplefile_abspath "gmail.pdf")"
 aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
@@ -204,8 +204,8 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_PDF_FILE" | grep -- "
             "Expect text extracted from \"${sample_pdf_file_basename}\" to contain \"Fri, Jan 8, 2016 at 3:50 PM\""
 
 
-# Test file to extract from.
-SAMPLE_RTF_FILE="$(aw_utils.abspath_testfile "sample.rtf")"
+# Sample file to extract from.
+SAMPLE_RTF_FILE="$(aw_utils.samplefile_abspath "sample.rtf")"
 aw_utils.assert_bulk_test "$SAMPLE_RTF_FILE" e r
 
 sample_rtf_file_basename="$(basename -- "${SAMPLE_RTF_FILE}")"
@@ -214,8 +214,8 @@ aw_utils.assert_true '"$EXTRACT_RUNNER" --text -- "$SAMPLE_RTF_FILE" | grep -- "
             "Expect text extracted from \"${sample_rtf_file_basename}\" to contain \"baz last line\""
 
 
-# Test file to extract from.
-SAMPLE_MD_FILE="$(aw_utils.abspath_testfile "sample.md")"
+# Sample file to extract from.
+SAMPLE_MD_FILE="$(aw_utils.samplefile_abspath "sample.md")"
 aw_utils.assert_bulk_test "$SAMPLE_MD_FILE" e r
 
 sample_md_file_basename="$(basename -- "${SAMPLE_MD_FILE}")"
@@ -235,8 +235,8 @@ aw_utils.assert_false '"$EXTRACT_RUNNER" --text -- "$SAMPLE_MD_FILE" | grep -- "
              "Expect text extracted from \"${sample_md_file_basename}\" to NOT contain \"* meow list\" from the PlainTextExtractor"
 
 
-# Test file to extract from.
-SAMPLE_DJVU_FILE="$(aw_utils.abspath_testfile "Critique_of_Pure_Reason.djvu")"
+# Sample file to extract from.
+SAMPLE_DJVU_FILE="$(aw_utils.samplefile_abspath "Critique_of_Pure_Reason.djvu")"
 aw_utils.assert_bulk_test "$SAMPLE_DJVU_FILE" e r
 
 sample_djvu_file_basename="$(basename -- "${SAMPLE_DJVU_FILE}")"

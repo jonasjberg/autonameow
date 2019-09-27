@@ -161,7 +161,7 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --config-path /tmp/does_not_exist_su
              'Specifying an invalid path with "--config-path" should be handled properly'
 
 
-BAD_CONFIG_FILE="$(aw_utils.abspath_testfile "configs/bad_corrupt_gif.yaml")"
+BAD_CONFIG_FILE="$(aw_utils.samplefile_abspath "configs/bad_corrupt_gif.yaml")"
 aw_utils.assert_bulk_test "$BAD_CONFIG_FILE" e f r
 
 aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE"' \
@@ -172,7 +172,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-options --verbose' \
             'autonameow should return zero when started with "--dump-options" and "--verbose"'
 
 
-NONASCII_CONFIG_FILE="$(aw_utils.abspath_testfile "configs/autonam€öw.yaml")"
+NONASCII_CONFIG_FILE="$(aw_utils.samplefile_abspath "configs/autonam€öw.yaml")"
 aw_utils.assert_bulk_test "$NONASCII_CONFIG_FILE" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$NONASCII_CONFIG_FILE"' \
@@ -201,13 +201,13 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --dump-options --quiet --config-path 
 
 
 set +o pipefail
-BAD_CONFIG_FILE_NO_FILE_RULES="$(aw_utils.abspath_testfile "configs/bad_no_file_rules.yaml")"
+BAD_CONFIG_FILE_NO_FILE_RULES="$(aw_utils.samplefile_abspath "configs/bad_no_file_rules.yaml")"
 aw_utils.assert_bulk_test "$BAD_CONFIG_FILE_NO_FILE_RULES" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_NO_FILE_RULES" 2>&1 | grep -q "Unable to load configuration"' \
             'Attempting to load a configuration file without any file rules should be handled properly'
 
-BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(aw_utils.abspath_testfile "configs/bad_empty_but_sections.yaml")"
+BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS="$(aw_utils.samplefile_abspath "configs/bad_empty_but_sections.yaml")"
 aw_utils.assert_bulk_test "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY_BUT_SECTIONS" 2>&1 | grep -q "Unable to load configuration"' \
@@ -255,7 +255,7 @@ done < <(find "${AUTONAMEOW_SAMPLEFILES_DIR}/configs" -maxdepth 1 -xdev -type f 
 # Tests the assumption that autonameow writes at least one file to the
 # persistence path set in the config.
 
-TEMPLATED_DEFAULT_CONFIG="$(aw_utils.abspath_testfile "configs/integration_default_templated.yaml")"
+TEMPLATED_DEFAULT_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_default_templated.yaml")"
 aw_utils.assert_bulk_test "$TEMPLATED_DEFAULT_CONFIG" f r w
 
 TEMP_PERSISTENCE_DIR="$(realpath --canonicalize-existing -- "$(mktemp -d -t aw_test_persistence.XXXXXX)")"

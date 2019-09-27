@@ -239,7 +239,7 @@ aw_utils.calculate_execution_time()
     echo "$(((_time_end - _time_start) / 1000000))"
 }
 
-aw_utils.abspath_testfile()
+aw_utils.samplefile_abspath()
 {
     realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles/${1}"
 }

@@ -49,7 +49,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 aw_utils.assert_true 'aw_utils.command_exists python3' \
             'Python v3.x is available on the system'
 
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/default.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/default.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e f r
 
 aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
@@ -103,7 +103,7 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug --quiet -- ' \
              'Starting with mutually exclusive options "--debug" and "--quiet" should generate an error'
 
 
-SAMPLE_EMPTY_FILE="$(aw_utils.abspath_testfile "empty")"
+SAMPLE_EMPTY_FILE="$(aw_utils.samplefile_abspath "empty")"
 aw_utils.assert_bulk_test "$SAMPLE_EMPTY_FILE" e f r
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --automagic --dry-run -- "$SAMPLE_EMPTY_FILE"' \
@@ -161,7 +161,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*No input files s
             'When started without options the output should match ".*No input files specified.*"'
 
 
-SAMPLE_PDF_FILE="$(aw_utils.abspath_testfile "gmail.pdf")"
+SAMPLE_PDF_FILE="$(aw_utils.samplefile_abspath "gmail.pdf")"
 aw_utils.assert_bulk_test "$SAMPLE_PDF_FILE" e f r
 
 sample_pdf_file_basename="$(basename -- "${SAMPLE_PDF_FILE}")"
@@ -182,7 +182,7 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$
 #
 # Tests the recursive option.
 
-TEST_FILES_SUBDIR="$(aw_utils.abspath_testfile "subdir")"
+TEST_FILES_SUBDIR="$(aw_utils.samplefile_abspath "subdir")"
 aw_utils.assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \

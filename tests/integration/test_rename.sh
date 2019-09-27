@@ -48,7 +48,7 @@ source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 test_automagic_rename()
 {
     local -r _test_name="RENAME ${1}"
-    local -r _sample_file="$(aw_utils.abspath_testfile "${2}")"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "${2}")"
     local -r _expected_basename="$3"
     local _sample_file_basename
     local _temp_dir
@@ -84,8 +84,8 @@ test_automagic_rename()
 # 3. The expected basename of the file after having been renamed.
 test_automagic_dryrun()
 {
-    local -r _test_name="DRY-RUN ${1}"
-    local -r _sample_file="$(aw_utils.abspath_testfile "${2}")"
+    local -r _test_name="DRY-RUN $1"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "$2")"
     local -r _expected_basename="$3"
 
     aw_utils.assert_bulk_test "$_sample_file" e f r
@@ -126,7 +126,7 @@ aw_utils.assert_true 'aw_utils.command_exists python3' \
 
 aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_1.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_1.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
@@ -143,7 +143,7 @@ test_automagic_dryrun 'samplefiles simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FIL
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_filetags.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_filetags.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE='2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
@@ -153,7 +153,7 @@ test_automagic_dryrun 'samplefiles Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$S
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_add-ext_1.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE='empty'
@@ -169,7 +169,7 @@ test_automagic_dryrun 'Fix incorrect extensions Method 1 samplefiles/simple-lexi
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_add-ext_2.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 test_automagic_rename 'Fix incorrect extensions Method 2 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
@@ -183,14 +183,14 @@ test_automagic_dryrun 'Fix incorrect extensions Method 2 samplefiles/magic_txt.m
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/default.yaml")"
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/default.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 assert_unable_to_find_new_name()
 {
     local -r _test_name="Expect unable to find new name for \"${1}\""
-    local -r _sample_file="$(aw_utils.abspath_testfile "${1}")"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "$1")"
 
     aw_utils.assert_bulk_test "$_sample_file" e f r
 
