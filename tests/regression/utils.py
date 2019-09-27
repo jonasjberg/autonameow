@@ -480,10 +480,10 @@ class RegressionTestLoader(object):
                --> 'config_path': (Path to the default config)
 
           * .. starts with '$TESTFILES/', the full absolute path to the
-               'test_files' directory is inserted in place of '$TESTFILES/'.
+               'samplefiles' directory is inserted in place of '$TESTFILES/'.
 
                    'config_path': '$TESTFILES/config.yaml'
-               --> 'config_path': '$SRCROOT/test_files/config.yaml'
+               --> 'config_path': '$SRCROOT/tests/samplefiles/config.yaml'
 
           * .. starts with '$THISTEST/', the full absolute path to the current
                regression test directory is inserted in place of '$THISTEST/'.
@@ -566,9 +566,9 @@ def normalize_description_whitespace(s):
 
 def _expand_input_paths_variables(input_paths):
     """
-    Replaces '$TESTFILES' with the full absolute path to the 'test_files'
+    Replaces '$TESTFILES' with the full absolute path to the 'samplefiles'
     directory.
-    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
+    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt',
     where '$SRCROOT' is the full absolute path to the autonameow sources.
     """
     assert isinstance(input_paths, list)
@@ -577,7 +577,7 @@ def _expand_input_paths_variables(input_paths):
     for path in input_paths:
         if path == '$TESTFILES':
             # Substitute "variable".
-            modified_path = uuconst.PATH_TEST_FILES
+            modified_path = uuconst.PATH_SAMPLEFILES
         elif path.startswith('$TESTFILES/'):
             # Substitute "variable".
             path_basename = path.replace('$TESTFILES/', '')

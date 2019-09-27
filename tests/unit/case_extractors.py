@@ -88,8 +88,8 @@ class CaseExtractorOutputTypes(object):
         )
 
 
-ALL_TESTFILES = [
-    uu.fileobject_testfile(f) for f in uu.all_testfiles()
+ALL_SAMPLEFILES = [
+    uu.fileobject_testfile(f) for f in uu.all_samplefiles()
 ]
 
 
@@ -232,7 +232,7 @@ class CaseExtractorBasics(object):
     def test_method_can_handle_returns_expected_type(self):
         actual_list = list()
 
-        for f in ALL_TESTFILES:
+        for f in ALL_SAMPLEFILES:
             actual = self.extractor.can_handle(f)
             actual_list.append(actual)
 

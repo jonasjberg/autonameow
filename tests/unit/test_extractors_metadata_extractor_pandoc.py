@@ -214,7 +214,7 @@ class TestExtractDocumentMetadataWithPandocTestFile4123Epub(TestCase):
 
 class TestParsePandocOutput(TestCase):
     def test_parses_example_pandoc_output_json_string_4123_epub(self):
-        pandoc_output_for_test_files_4123_epub = '''
+        pandoc_output_for_samplefiles_4123_epub = '''
 {
     "author": "Bertrand Russell",
     "coverage": "",
@@ -242,13 +242,13 @@ class TestParsePandocOutput(TestCase):
     "title": "Mysticism and Logic and Other Essays"
 }
 '''
-        actual = _parse_pandoc_output(pandoc_output_for_test_files_4123_epub)
+        actual = _parse_pandoc_output(pandoc_output_for_samplefiles_4123_epub)
         self.assertIsInstance(actual, dict)
         self.assertIn('publisher', actual)
         self.assertEqual('Feedbooks', actual['publisher'])
 
     def test_parses_example_pandoc_output_json_string_pg38145_images_epub(self):
-        pandoc_output_for_test_files_pg38145_images_epub = '''
+        pandoc_output_for_samplefiles_pg38145_images_epub = '''
 {
     "author": "Friedrich Wilhelm Nietzsche",
     "contributor": "Alexander Harvey",
@@ -264,7 +264,7 @@ class TestParsePandocOutput(TestCase):
     "title": "Human, All Too Human: A Book for Free Spirits"
 }
 '''
-        actual = _parse_pandoc_output(pandoc_output_for_test_files_pg38145_images_epub)
+        actual = _parse_pandoc_output(pandoc_output_for_samplefiles_pg38145_images_epub)
         self.assertIsInstance(actual, dict)
         self.assertIn('author', actual)
         self.assertEqual('Friedrich Wilhelm Nietzsche', actual['author'])

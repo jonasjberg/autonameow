@@ -228,11 +228,11 @@ If the `config_path` entry..
     ```
 
 * .. starts with `$TESTFILES/`, the full absolute path to the
-     "test_files" directory is inserted in place of `$TESTFILES/`.
+     "samplefiles" directory is inserted in place of `$TESTFILES/`.
 
     ```
          'config_path': '$TESTFILES/config.yaml'
-    -->  'config_path': '$SRCROOT/test_files/config.yaml'
+    -->  'config_path': '$SRCROOT/tests/samplefiles/config.yaml'
     ```
 
 * .. starts with `$THISTEST/`, the full absolute path to the current
@@ -245,8 +245,8 @@ If the `config_path` entry..
 
 #### The `input_paths` field
 The string `$TESTFILES` is replaced with the full absolute path to the
-`test_files` directory.
-For instance; `'$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt'`,
+`samplefiles` directory.
+For instance; `'$TESTFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt'`,
 where `$SRCROOT` is the full absolute path to the autonameow sources.
 
 

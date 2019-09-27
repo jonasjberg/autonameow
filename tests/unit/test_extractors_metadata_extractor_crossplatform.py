@@ -87,7 +87,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
             self.assertEqual(actual, expected)
 
         self.assertTrue(self.actual.get('abspath_full', b'').endswith(
-            b'test_files/magic_txt.txt'
+            b'samplefiles/magic_txt.txt'
         ))
         _aE('basename_full', b'magic_txt.txt')
         _aE('extension', b'txt')
@@ -126,7 +126,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
             self.assertEqual(actual, expected)
 
         self.assertTrue(self.actual.get('abspath_full', b'').endswith(
-            b'test_files/empty'
+            b'samplefiles/empty'
         ))
         _aE('basename_full', b'empty')
         _aE('extension', b'')

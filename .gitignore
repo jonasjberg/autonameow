@@ -189,7 +189,7 @@ Session.vim
 
 ### Project-specific
 # Test files
-#test_files/
+#samplefiles/
 docs/test_results/.integrationlog.toreport
 docs/test_results/.unittestlog.toreport
 .regressionrunner_lastrun

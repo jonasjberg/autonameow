@@ -33,7 +33,7 @@ PERSISTENCE:
     cache_directory: null
     history_file_path: null
 RULES:
-    test_files Gmail print-to-pdf:
+    samplefiles Gmail print-to-pdf:
         CONDITIONS:
             extractor.filesystem.xplat.extension: pdf
             extractor.filesystem.xplat.basename_full: gmail.pdf
@@ -45,7 +45,7 @@ RULES:
         NAME_TEMPLATE: default_simple
         exact_match: true
         ranking_bias: null
-    test_files simplest_pdf.md.pdf:
+    samplefiles simplest_pdf.md.pdf:
         CONDITIONS:
             extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
         DATA_SOURCES:

@@ -35,7 +35,7 @@ RULES:
         NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
         exact_match: true
         weight: 1
-    test_files Gmail print-to-pdf:
+    samplefiles Gmail print-to-pdf:
         CONDITIONS:
             contents:
                 mime_type: application/pdf
@@ -49,7 +49,7 @@ RULES:
         NAME_TEMPLATE: "{datetime}\_{title}.{extension}"
         exact_match: true
         weight: null
-    test_files smulan.jpg:
+    samplefiles smulan.jpg:
         CONDITIONS:
             contents:
                 mime_type: image/jpeg

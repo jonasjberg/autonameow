@@ -57,7 +57,7 @@ DEFAULT_CONFIG = {
     #   TODO: Document all fields ..
     #
     'RULES': {
-        'test_files Gmail print-to-pdf': {
+        'samplefiles Gmail print-to-pdf': {
             'exact_match': True,
             'ranking_bias': None,
             'NAME_TEMPLATE': '{datetime} {title}.{extension}',
@@ -73,7 +73,7 @@ DEFAULT_CONFIG = {
             }
         },
         # ____________________________________________________________________
-        'test_files smulan.jpg': {
+        'samplefiles smulan.jpg': {
             'exact_match': True,
             'ranking_bias': 1,
             'NAME_TEMPLATE': '{datetime} {description}.{extension}',
@@ -88,7 +88,7 @@ DEFAULT_CONFIG = {
             }
         },
         # ____________________________________________________________________
-        'test_files simplest_pdf.md.pdf': {
+        'samplefiles simplest_pdf.md.pdf': {
             'exact_match': True,
             'ranking_bias': 1,
             'NAME_TEMPLATE': 'simplest_pdf.md.{extension}',

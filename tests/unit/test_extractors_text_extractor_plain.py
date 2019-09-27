@@ -128,10 +128,10 @@ Test test. This file contains no digits whatsoever.
 
 class TestReadEntireTextFileStressTest(TestCase):
     def setUp(self):
-        self.sample_files = [f for f in uu.all_testfiles()
+        self.sample_files = [f for f in uu.all_samplefiles()
                              if os.path.basename(f).endswith('.txt')]
 
-    def reads_all_test_files_with_txt_extension(self):
+    def reads_all_samplefiles_with_txt_extension(self):
         for f in self.sample_files:
             self.assertTrue(uu.file_exists(f))
             actual = read_entire_text_file(f)

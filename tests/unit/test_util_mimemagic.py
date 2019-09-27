@@ -49,7 +49,7 @@ class TestFileMimetype(TestCase):
             for basename, mimetype in cls.TESTFILE_BASENAME_EXPECTED_MIMETYPE
         ]
 
-    def test_test_files_exist_and_are_readable(self):
+    def test_samplefiles_exist_and_are_readable(self):
         for filepath, _ in self.FILEPATH_EXPECTED:
             self.assertTrue(uu.file_exists(filepath))
             self.assertTrue(uu.path_is_readable(filepath))
@@ -58,7 +58,7 @@ class TestFileMimetype(TestCase):
         for _, expected_mime in self.FILEPATH_EXPECTED:
             self.assertIn('/', expected_mime)
 
-    def test_file_mimetype_returns_expected_mime_types_given_test_files(self):
+    def test_file_mimetype_returns_expected_mime_types_given_samplefiles(self):
         for filepath, expected_mime in self.FILEPATH_EXPECTED:
             actual = file_mimetype(filepath)
             self.assertEqual(expected_mime, actual)

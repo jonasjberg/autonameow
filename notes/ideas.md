@@ -575,7 +575,7 @@ that might contain date/time-information.
 
 ### Example Practical Application
 How would template fields map to actual "raw" data extracted from
-`$AUTONAMEOW_SRCROOT_DIR/test_files/gmail.pdf`.
+`$AUTONAMEOW_SRCROOT_DIR/tests/samplefiles/gmail.pdf`.
 
 
 #### Example will be using the following name template fields:
@@ -596,10 +596,10 @@ How would template fields map to actual "raw" data extracted from
 
 ```python
 SessionRepository.data = {
-    'metadata.exiftool.SourceFile': '/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf',
+    'metadata.exiftool.SourceFile': '/Users/jonas/PycharmProjects/autonameow.git/tests/samplefiles/gmail.pdf',
     'metadata.exiftool.ExifTool:ExifToolVersion': 10.55,
     'metadata.exiftool.File:FileName': 'gmail.pdf',
-    'metadata.exiftool.File:Directory': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
+    'metadata.exiftool.File:Directory': '/Users/jonas/PycharmProjects/autonameow.git/tests/samplefiles',
     'metadata.exiftool.File:FileSize': 141636,
     'metadata.exiftool.File:FileModifyDate': datetime.datetime(2017, 6, 10, 16, 36, 18, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)),),
     'metadata.exiftool.File:FileAccessDate': datetime.datetime(2017, 9, 3, 15, 41, 54, tzinfo=datetime.timezone(datetime.timedelta(0, 7200)),),
@@ -631,8 +631,8 @@ SessionRepository.data = {
     'filesystem.extension': 'pdf',
     'filesystem.basename_suffix': 'pdf',
     'filesystem.basename_prefix': 'gmail',
-    'filesystem.pathname_full': '/Users/jonas/PycharmProjects/autonameow.git/test_files',
-    'filesystem.pathname_parent': 'test_files',
+    'filesystem.pathname_full': '/Users/jonas/PycharmProjects/autonameow.git/tests/samplefiles',
+    'filesystem.pathname_parent': 'samplefiles',
     'filesystem.mime_type': 'application/pdf',
     'filesystem.date_accessed': datetime.datetime(2017, 9, 3, 15, 41, 54,),
     'filesystem.date_created': datetime.datetime(2017, 6, 10, 16, 36, 18,),
@@ -650,13 +650,13 @@ SessionRepository.data = {
 | "MeowURI"                                       | Raw Data                                                             | Populateable (?) Fields                            |
 |:------------------------------------------------|:---------------------------------------------------------------------|----------------------------------------------------|
 | `'contents.textual.raw_text'`                   | `'''1/11/2016 Gmail - .. TRUNCATED to 500/1981 characters)'''`       | ?                                                  |
-| `'filesystem.abspath_full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/test_files/gmail.pdf'` | ?                                                  |
+| `'filesystem.abspath_full'`                     | `'/Users/jonas/PycharmProjects/autonameow.git/tests/samplefiles/gmail.pdf'` | ?                                           |
 | `'filesystem.basename_full'`                    | `'gmail.pdf'`                                                        | ?                                                  |
 | `'filesystem.extension'`                        | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename_suffix'`                  | `'pdf'`                                                              | `{extension}`                                      |
 | `'filesystem.basename_prefix'`                  | `'gmail'`                                                            | ?                                                  |
-| `'filesystem.pathname_full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/test_files'`           | ?                                                  |
-| `'filesystem.pathname_parent'`                  | `'test_files'`                                                       | ?                                                  |
+| `'filesystem.pathname_full'`                    | `'/Users/jonas/PycharmProjects/autonameow.git/tests/samplefiles'`    | ?                                                  |
+| `'filesystem.pathname_parent'`                  | `'samplesfiles'`                                                     | ?                                                  |
 | `'filesystem.mime_type'`                        | `'application/pdf'`                                                  | `{extension}`                                      |
 | `'filesystem.date_accessed'`                    | `datetime.datetime(2017, 9, 3, 15, 41, 54,)`                         | `{date}` `{datetime}`                              |
 | `'filesystem.date_created'`                     | `datetime.datetime(2017, 6, 10, 16, 36, 18,)`                        | `{date}` `{datetime}`                              |

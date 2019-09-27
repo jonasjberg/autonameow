@@ -16,7 +16,7 @@ NAME_TEMPLATES:
     default_document: '{title} - {author} {datetime}.{extension}'
     default_photo: '{datetime} {description} -- {tags}.{extension}'
 RULES:
-    test_files Gmail print-to-pdf:
+    samplefiles Gmail print-to-pdf:
         CONDITIONS:
             extractor.filesystem.xplat.extension: pdf
             extractor.filesystem.xplat.basename_full: gmail.pdf
@@ -29,7 +29,7 @@ RULES:
         description: 
         exact_match: true
         ranking_bias: null
-    test_files smulan.jpg:
+    samplefiles smulan.jpg:
         CONDITIONS:
             extractor.filesystem.xplat.basename_full: smulan.jpg
             extractor.filesystem.xplat.mime_type: image/jpeg
@@ -41,7 +41,7 @@ RULES:
         description: 
         exact_match: true
         ranking_bias: 1
-    test_files simplest_pdf.md.pdf:
+    samplefiles simplest_pdf.md.pdf:
         CONDITIONS:
             extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
         DATA_SOURCES:

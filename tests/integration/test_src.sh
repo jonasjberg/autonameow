@@ -143,7 +143,7 @@ aw_utils.assert_true '"${_todo_helper_script_path}"' \
 # Check text file style violations, whitespace, line separators, etc.
 
 text_files=(
-    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|write_sample_textfiles.py\|test_extractors_text_rtf.py')
+    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 | grep -v -- 'tests.*\.yaml$\|.md$\|test_results\|local\|junk\|samplefiles\|notes\|thirdparty\|write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
 _check_committed_textfiles_exist_and_readable()
 {
@@ -158,7 +158,7 @@ aw_utils.assert_true '_check_committed_textfiles_exist_and_readable' \
 
 
 python_source_files=(
-    $(git ls-files '*.py' | grep -v -- 'junk\|local\|notes\|test_files\|thirdparty\|vendor')
+    $(git ls-files '*.py' | grep -v -- 'junk\|local\|notes\|samplefiles\|thirdparty\|vendor')
 )
 _check_python_source_files_exist_and_readable()
 {

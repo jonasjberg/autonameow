@@ -88,7 +88,7 @@ class CaseTextExtractorOutputTypes(object):
 
 
 ALL_TESTFILES = [
-    uu.fileobject_testfile(f) for f in uu.all_testfiles()
+    uu.fileobject_testfile(f) for f in uu.all_samplefiles()
 ]
 
 

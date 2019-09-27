@@ -215,7 +215,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --config-path "$BAD_CONFIG_FILE_EMPTY
 set -o pipefail
 
 
-# Find all files matching "test_files/configs/bad_0*.yaml"
+# Find all files matching "samplefiles/configs/bad_0*.yaml"
 # and check for non-zero return codes in various options.
 while IFS= read -r -d '' bad_config_file
 do
@@ -245,7 +245,7 @@ do
     aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --quiet --dry-run --config-path "$BAD_CONFIG_FILE"' \
                  "Expect non-zero exit code for bad config: \"${config_file_basename}\" in quiet mode"
 
-done < <(find "${AUTONAMEOW_TESTFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)
+done < <(find "${AUTONAMEOW_SAMPLEFILES_DIR}/configs" -maxdepth 1 -xdev -type f -name 'bad_0*.yaml' -print0 | sort -z)
 
 
 # ______________________________________________________________________________
@@ -273,7 +273,7 @@ aw_utils.assert_true '[ "$_number_files_in_temp_persistence_dir" -eq "0" ]' \
             'Temporary persistence directory should initially not contain any files'
 
 # Arbitrary execution just to do *something* with the persistence directory.
-"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_TESTFILES_DIR}" &>/dev/null
+"$AUTONAMEOW_RUNNER" --quiet --dry-run --batch --config-path "$TEMPLATED_DEFAULT_CONFIG" -- "${AUTONAMEOW_SAMPLEFILES_DIR}" &>/dev/null
 
 _number_files_in_temp_persistence_dir="$(find "$TEMP_PERSISTENCE_DIR" -type f -mindepth 1 -type f | wc -l)"
 aw_utils.assert_true '[ "$_number_files_in_temp_persistence_dir" -ge "1" ]' \

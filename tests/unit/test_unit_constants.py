@@ -42,8 +42,8 @@ class TestUnitUtilityConstants(TestCase):
         self.assertTrue(os.access(given_path, os.R_OK))
         self.assertTrue(os.access(given_path, os.X_OK))
 
-    def test_constant_path_test_files(self):
-        self._check_directory_path(uuconst.PATH_TEST_FILES)
+    def test_constant_path_samplefiles(self):
+        self._check_directory_path(uuconst.PATH_SAMPLEFILES)
 
     def test_constant_path_autonameow_srcroot(self):
         self._check_directory_path(uuconst.PATH_AUTONAMEOW_SRCROOT)

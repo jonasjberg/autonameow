@@ -41,8 +41,9 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # expected base name.  Finally, the used files are deleted.
 # Arguments:
 # 1. A name for this group of tests.
-# 2. Basename of a file in the "$SRCROOT/test_files" directory to be copied
-#    to a temporary directory. Only this copy can be modified during the test.
+# 2. Basename of a file in the "$SRCROOT/tests/samplefiles" directory to be
+#    copied to a temporary directory. Only this copy can be modified during
+#    the test.
 # 3. The expected basename of the file after having been renamed.
 test_automagic_rename()
 {
@@ -79,7 +80,7 @@ test_automagic_rename()
 # The given sample file should NOT be renamed.
 # Arguments:
 # 1. A name for this group of tests.
-# 2. Basename of a file in the "$SRCROOT/test_files" directory.
+# 2. Basename of a file in the "$SRCROOT/tests/samplefiles" directory.
 # 3. The expected basename of the file after having been renamed.
 test_automagic_dryrun()
 {
@@ -131,14 +132,14 @@ aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_PDF_FILE='gmail.pdf'
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
-test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+test_automagic_rename 'samplefiles Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 
 
 SAMPLE_SIMPLESTPDF_FILE='simplest_pdf.md.pdf'
 SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
-test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
-test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_rename 'samplefiles simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 
 
 # ==============================================================================
@@ -147,8 +148,8 @@ aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE='2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
-test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
-test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+test_automagic_rename 'samplefiles Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 
 
 # ==============================================================================
@@ -157,28 +158,28 @@ aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE='empty'
 SAMPLE_EMPTY_FILE_EXPECTED='empty'
-test_automagic_rename 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 
 
 SAMPLE_NOEXT_FILE='simple-lexical-analysis'
 SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
-test_automagic_rename 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 samplefiles/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 samplefiles/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
 
 
 # ==============================================================================
 ACTIVE_CONFIG="$(aw_utils.abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
 aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
-test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 2 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 
 
 SAMPLE_MAGICTXTMD_FILE='magic_txt.md'
 SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
-test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 2 samplefiles/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 samplefiles/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 
 
 # ==============================================================================

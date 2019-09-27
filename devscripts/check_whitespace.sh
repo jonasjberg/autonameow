@@ -64,7 +64,7 @@ msg_success()
 # Check that (most) committed files do not contain carriage returns (\r) (0x0D)
 find_files_with_carriage_returns()
 {
-    git grep -l -I $'\r''$' | grep -v 'test_files\|local\|junk\|vendor'
+    git grep -l -I $'\r''$' | grep -v 'samplefiles\|local\|junk\|vendor'
 }
 
 if [ "$(find_files_with_carriage_returns | wc -l)" -ne "0" ]
@@ -81,7 +81,7 @@ textfiles_to_check=(
       xargs file --mime-type -- |
       grep ' text/' |
       cut -d':' -f1 |
-      grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|.gitmodules\|vendor' |
+      grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|samplefiles\|notes\|thirdparty\|.gitmodules\|vendor' |
       grep -v -- 'write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
 

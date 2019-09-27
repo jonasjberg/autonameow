@@ -21,7 +21,7 @@
 
 set -o nounset
 
-IGNORE_DIRS='test_files,thirdparty,license,docs,notes,.idea,.cache'
+IGNORE_DIRS='samplefiles,thirdparty,license,docs,notes,.idea,.cache'
 
 
 if ! command -v cloc &>/dev/null

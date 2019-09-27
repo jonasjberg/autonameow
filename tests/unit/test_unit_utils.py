@@ -109,20 +109,20 @@ class TestUnitUtilityFileObjectTestFile(TestCase):
 
 class TestUnitUtilityAllTestFiles(TestCase):
     def test_returns_expected_encoding(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         self.assertIsInstance(actual, list)
         for a in actual:
             self.assertIsInstance(a, str)
 
     def test_returns_existing_absolute_paths(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         for f in actual:
             self.assertTrue(os.path.exists(f))
             self.assertTrue(os.path.isfile(f) | os.path.islink(f))
             self.assertTrue(os.path.isabs(f))
 
     def test_does_not_return_symbolic_links(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         for f in actual:
             self.assertFalse(os.path.islink(f))
 

@@ -41,8 +41,8 @@ _autonameow_setup_environment_main()
     # Absolute path to the main executable for running autonameow.
     export AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/autonameow"
 
-    # Absolute path to the "test_files" directory.
-    export AUTONAMEOW_TESTFILES_DIR="${AUTONAMEOW_ROOT_DIR}/test_files"
+    # Absolute path to the "samplefiles" directory.
+    export AUTONAMEOW_SAMPLEFILES_DIR="${AUTONAMEOW_ROOT_DIR}/tests/samplefiles"
 
     # Create the test results directory if missing and export the absolute path.
     AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIR}/docs/test_results/"

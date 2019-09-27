@@ -96,12 +96,12 @@ class TestFileObject(TestCase):
         self.assertEqual(b'magic_txt.txt', self.fo.filename)
 
     def test_pathname(self):
-        expected = uu.normpath(uuconst.PATH_TEST_FILES)
+        expected = uu.normpath(uuconst.PATH_SAMPLEFILES)
         self.assertEqual(expected, self.fo.pathname)
 
     def test_pathparent(self):
         expected = uu.encode(os.path.basename(os.path.normpath(
-            enc.syspath(uuconst.PATH_TEST_FILES)
+            enc.syspath(uuconst.PATH_SAMPLEFILES)
         )))
         self.assertEqual(expected, self.fo.pathparent)
 
@@ -345,7 +345,7 @@ class TestFileObjectSerialization(TestCase):
 class TestValidatePathArgument(TestCase):
     @classmethod
     def setUpClass(cls):
-        all_available_testfiles = uu.all_testfiles()
+        all_available_testfiles = uu.all_samplefiles()
         # Use at most 5 test files.
         num_testfiles_to_use = min(len(all_available_testfiles), 5)
         cls.bytestr_paths = [
@@ -377,12 +377,12 @@ class TestValidatePathArgument(TestCase):
                     _validate_path_argument(bad_path)
 
     def test_raises_exception_given_unicode_path(self):
-        unicodestr_path = uu.all_testfiles()[:1]
+        unicodestr_path = uu.all_samplefiles()[:1]
         with self.assertRaises(InvalidFileArgumentError):
             _validate_path_argument(unicodestr_path)
 
     def test_raises_exception_given_directory_path(self):
-        path_to_dir = uu.bytestring_path(uuconst.PATH_TEST_FILES)
+        path_to_dir = uu.bytestring_path(uuconst.PATH_SAMPLEFILES)
         self.assertTrue(uu.is_internalbytestring(path_to_dir))
         self.assertTrue(uu.dir_exists(path_to_dir))
         with self.assertRaises(InvalidFileArgumentError):

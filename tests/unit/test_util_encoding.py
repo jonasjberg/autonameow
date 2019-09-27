@@ -279,7 +279,7 @@ def get_sample_text_files(prefix, suffix='.txt'):
     Returns:  A list of tuples; ('absolute_path', 'expected_encoding')
     """
     _sample_files = [
-        f for f in uu.all_testfiles()
+        f for f in uu.all_samplefiles()
         if os.path.basename(f).startswith(prefix)
         and os.path.basename(f).endswith(suffix)
     ]

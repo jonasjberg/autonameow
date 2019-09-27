@@ -115,7 +115,7 @@ class TestTesseractWrapper(TestCase):
             uu.abspath_testfile('magic_txt.txt')
         ]
         # TODO: Fix ResourceWarning: unclosed file <_io.BufferedReader
-        #           name='<SNIP>/test_files/empty'>
+        #           name='<SNIP>/tests/samplefiles/empty'>
         #           actual = tesseractocr.pil_read_image(_test_file)
         for _test_file in _test_files:
             with self.assertRaises(ExtractorError):

@@ -37,26 +37,26 @@ from util import encoding as enc
 def abspath_testfile(testfile_basename):
     """
     Utility function used by tests to construct a full path to individual test
-    files in the 'test_files' directory.
+    files in the 'samplefiles' directory.
 
     Args:
-        testfile_basename: The basename of a file in the 'test_files' directory
-            as a Unicode string (internal string format)
+        testfile_basename: Basename of a file in the 'samplefiles' directory as
+                           a Unicode string (internal string format)
 
     Returns:
         The full absolute path to the given file.
     """
-    return os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES,
+    return os.path.abspath(os.path.join(uuconst.PATH_SAMPLEFILES,
                                         testfile_basename))
 
 
 def abspath_testconfig(testconfig_basename=None):
     """
     Utility function used by tests to construct a full path to individual
-    configuration files in the 'test_files/configs' directory.
+    configuration files in the 'samplefiles/configs' directory.
 
     Args:
-        testconfig_basename: The basename of a file in the 'test_files/configs'
+        testconfig_basename: Basename of a file in the 'samplefiles/configs'
                              directory as a Unicode string.
 
     Returns:
@@ -70,7 +70,7 @@ def abspath_testconfig(testconfig_basename=None):
     assert isinstance(_basename, str), type(_basename)
 
     return os.path.abspath(
-        os.path.join(uuconst.PATH_TEST_FILES, 'configs', _basename)
+        os.path.join(uuconst.PATH_SAMPLEFILES, 'configs', _basename)
     )
 
 
@@ -90,14 +90,14 @@ def normpath(path):
     return enc.normpath(path)
 
 
-def all_testfiles():
+def all_samplefiles():
     """
-    Returns: Absolute paths to all files in 'uuconst.TEST_FILES_DIR',
+    Returns: Absolute paths to all files in the "samplefiles" directory
         as a list of Unicode strings.
     """
     _abs_paths = [
-        os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES, f))
-        for f in os.listdir(uuconst.PATH_TEST_FILES)
+        os.path.abspath(os.path.join(uuconst.PATH_SAMPLEFILES, f))
+        for f in os.listdir(uuconst.PATH_SAMPLEFILES)
     ]
     return [
         f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)
@@ -536,12 +536,12 @@ def get_expected_text_for_testfile(testfile_basename):
     """
     Returns any text that should be extracted from a given test file.
 
-    If the given basename is found in the 'test_files' directory and
-    a accompanying file containing reference text is found, it is returned.
+    If the given basename is found in the 'samplefiles' directory and a
+    accompanying file containing reference text is found, it is returned.
 
     Args:
-        testfile_basename: The basename of a file in the 'test_files' directory
-            as a Unicode string (internal string format)
+        testfile_basename: Basename of a file in the 'samplefiles' directory as
+                           a Unicode string (internal string format)
 
     Returns:
         Reference, expected text contained in file as a Unicode string or None

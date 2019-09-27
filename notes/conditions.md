@@ -202,7 +202,7 @@ Current format for a file rule in the configuration file:
         description: extractor.filesystem.filetags.description
         extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
-    description: test_files smulan.jpg
+    description: samplefiles smulan.jpg
     exact_match: true
     weight: 1
 ```

@@ -54,7 +54,7 @@ fi
 
 # -H  Always print filename headers with output lines.
 grep --color=auto \
-     --exclude-dir={.git,.idea,.cache,docs,license,notes,test_files,thirdparty} \
+     --exclude-dir={.git,.idea,.cache,docs,license,notes,samplefiles,thirdparty} \
      --include={*.py,*.sh} \
      --ignore-case \
      --recursive \

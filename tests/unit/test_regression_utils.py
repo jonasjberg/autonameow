@@ -273,7 +273,7 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
     def test_description(self):
         self.assertEqual(
             self.actual.get('description'),
-            'Good old "test_files/gmail.pdf" integration test ..'
+            'Good old "samplefiles/gmail.pdf" integration test ..'
         )
 
     def test_options(self):
@@ -420,7 +420,7 @@ class TestExpandInputPathsVariables(TestCase):
 
     def test_testfiles_directory_only_is_replaced(self):
         self._assert_that_it_returns(
-            expected=[uuconst.PATH_TEST_FILES],
+            expected=[uuconst.PATH_SAMPLEFILES],
             given=['$TESTFILES']
         )
 
@@ -703,7 +703,7 @@ SAMPLE_TESTSUITE_0000 = {
     'options': {
         'automagic': True,
         'batch': True,
-        'config_path': b'foo/test_files/configs/default.yaml',
+        'config_path': b'foo/tests/samplefiles/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -728,7 +728,7 @@ SAMPLE_TESTSUITE_0006 = {
     },
     'description': 'All *.jpg test files with minimal settings for output and actions',
     'options': {
-        'config_path': b'foo/test_files/configs/default.yaml',
+        'config_path': b'foo/tests/samplefiles/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
@@ -737,8 +737,8 @@ SAMPLE_TESTSUITE_0006 = {
         'automagic': True,
         'batch': True,
         'input_paths': [
-            'foo/test_files/smulan.jpg',
-            'foo/test_files/magic_jpg.jpg'
+            'foo/tests/samplefiles/smulan.jpg',
+            'foo/tests/samplefiles/magic_jpg.jpg'
         ],
         'interactive': False,
         'list_all': False,
@@ -813,7 +813,7 @@ class TestCommandlineArgsForTestSuite(TestCase):
             '--dry-run',
             '--automagic',
             '--batch',
-            "--config-path 'foo/test_files/configs/default.yaml'",
+            "--config-path 'foo/tests/samplefiles/configs/default.yaml'",
         ])
 
     def test_returns_expected_arguments_for_testsuite_0006(self):
@@ -822,10 +822,10 @@ class TestCommandlineArgsForTestSuite(TestCase):
             '--automagic',
             '--batch',
             '--quiet',
-            "--config-path 'foo/test_files/configs/default.yaml'",
+            "--config-path 'foo/tests/samplefiles/configs/default.yaml'",
             '--',
-            "'foo/test_files/smulan.jpg'",
-            "'foo/test_files/magic_jpg.jpg'",
+            "'foo/tests/samplefiles/smulan.jpg'",
+            "'foo/tests/samplefiles/magic_jpg.jpg'",
         ])
 
     def test_returns_expected_arguments_for_testsuite_0022(self):
@@ -861,13 +861,13 @@ class TestCommandlineForTestSuite(TestCase):
     def test_returns_expected_for_sample_testsuite_0000(self):
         self._assert_commandline_for_testsuite(
             SAMPLE_TESTSUITE_0000,
-            "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'",
+            "autonameow --automagic --batch --dry-run --config-path 'foo/tests/samplefiles/configs/default.yaml'",
         )
 
     def test_returns_expected_for_sample_testsuite_0006(self):
         self._assert_commandline_for_testsuite(
             SAMPLE_TESTSUITE_0006,
-            "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'",
+            "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/tests/samplefiles/configs/default.yaml' -- 'foo/tests/samplefiles/smulan.jpg' 'foo/tests/samplefiles/magic_jpg.jpg'",
         )
 
     def test_returns_expected_for_sample_testsuite_0022(self):

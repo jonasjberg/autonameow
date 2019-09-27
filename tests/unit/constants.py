@@ -34,7 +34,7 @@ def join_path_from_srcroot(*components):
     ))
 
 
-PATH_TEST_FILES = join_path_from_srcroot('test_files')
+PATH_SAMPLEFILES = join_path_from_srcroot('tests', 'samplefiles')
 PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
 PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
 PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
@@ -156,7 +156,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_EXT_GUESSIT_TYPE,
 ])
 
-# Collected 2018-02-03 when running autonameow on all files in 'test_files'.
+# Collected 2018-02-03 when running autonameow on all files in 'samplefiles'.
 # Modified 2018-02-20 with changes to CrossPlatformFileSystemExtractor leaves.
 DUMPED_MEOWURIS = frozenset([
     'analyzer.document.publisher',

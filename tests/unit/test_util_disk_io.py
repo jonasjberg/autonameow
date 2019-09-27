@@ -309,7 +309,7 @@ class TestJoinPaths(TestCase):
 
 class TestListDir(TestCase):
     def test_returns_directory_contents(self):
-        given = uuconst.PATH_TEST_FILES
+        given = uuconst.PATH_SAMPLEFILES
         actual = listdir(given)
         self.assertIsNotNone(actual)
         self.assertGreater(len(actual), 1)
@@ -521,23 +521,23 @@ class TestFileByteSize(TestCase):
     @classmethod
     def setUpClass(cls):
         # List of (path to existing file, size in bytes) tuples
-        cls.test_files = [
+        cls.samplefiles = [
             (uu.abspath_testfile('magic_pdf.pdf'), 10283),
             (uu.abspath_testfile('magic_jpg.jpg'), 547),
             (uu.abspath_testfile('empty'), 0)
         ]
 
     def test_setup_class(self):
-        for test_filepath, _ in self.test_files:
+        for test_filepath, _ in self.samplefiles:
             self.assertTrue(uu.file_exists(test_filepath))
 
     def test_returns_expected_type(self):
-        for test_filepath, _ in self.test_files:
+        for test_filepath, _ in self.samplefiles:
             actual = file_bytesize(test_filepath)
             self.assertIsInstance(actual, int)
 
     def test_returns_expected_size(self):
-        for test_filepath, test_file_size in self.test_files:
+        for test_filepath, test_file_size in self.samplefiles:
             actual = file_bytesize(test_filepath)
             self.assertEqual(test_file_size, actual)
 
