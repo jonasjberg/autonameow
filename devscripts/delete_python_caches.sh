@@ -23,17 +23,17 @@
 set -o nounset
 
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     # Try to get the absolute path to the autonameow source root ..
     self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
-    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${self_dirpath}/..")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
 fi
 
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
 then
-    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
-    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIRPATH". Aborting.\n' >&2
     exit 1
 fi
 
@@ -49,7 +49,7 @@ then
   CAUTION:  Do NOT run this script haphazaradly! ABORT NOW!
 
   This script DELETES files and directories RECURSIVELY!
-  Starting from path: "${AUTONAMEOW_ROOT_DIR}"
+  Starting from path: "${AUTONAMEOW_ROOT_DIRPATH}"
 
   Files matching "*.pyc" and directories named "__pycache__" will be DELETED!
 
@@ -59,6 +59,6 @@ EOF
 fi
 
 
-find "$AUTONAMEOW_ROOT_DIR" -xdev -type f -name "*.pyc" -delete
-find "$AUTONAMEOW_ROOT_DIR" -xdev -type d -name '__pycache__' -delete
+find "$AUTONAMEOW_ROOT_DIRPATH" -xdev -type f -name "*.pyc" -delete
+find "$AUTONAMEOW_ROOT_DIRPATH" -xdev -type d -name '__pycache__' -delete
 

@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,7 +31,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
+source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 
 
 
@@ -46,12 +46,12 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 
 
 
-DOC_PATH="$(realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIR}/docs/")"
+DOC_PATH="$(realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIRPATH}/docs/")"
 doc_path_basename="$(basename -- "$DOC_PATH")"
 aw_utils.assert_true '[ -d "$DOC_PATH" ]' \
             "Documentation directory \"${doc_path_basename}\" should exist"
 
-_srcroot_readme="${AUTONAMEOW_ROOT_DIR}/README.md"
+_srcroot_readme="${AUTONAMEOW_ROOT_DIRPATH}/README.md"
 aw_utils.assert_bulk_test "$_srcroot_readme" n e f r
 
 aw_utils.assert_true '[ -f "$_srcroot_readme" ]' \

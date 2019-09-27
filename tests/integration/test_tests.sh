@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,7 +31,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 
 check_testfiles_directory()
@@ -73,14 +73,14 @@ aw_utils.assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 #
 # Check shared environment variables, used by all tests.
 
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" n d r w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" n d r w x
 
 
 # ______________________________________________________________________________
 #
 # Check script for setting environment variables, used by all tests.
 
-_setup_environment_path="${AUTONAMEOW_ROOT_DIR}/tests/setup_environment.sh"
+_setup_environment_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/setup_environment.sh"
 aw_utils.assert_bulk_test "$_setup_environment_path" n f r x
 
 
@@ -120,21 +120,21 @@ aw_utils.assert_has_command 'aspell'  # devscripts/check_spelling.sh
 #
 # Basic checks of the test runner scripts.
 
-_integration_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_integration_tests.sh"
+_integration_runner_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/run_integration_tests.sh"
 aw_utils.assert_bulk_test "$_integration_runner_path" n e r x
 
 aw_utils.assert_true '"$_integration_runner_path" -h' \
             "Expect exit code 0 when running \"${_integration_runner_path} -h\""
 
 
-_unit_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_unit_tests.sh"
+_unit_runner_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/run_unit_tests.sh"
 aw_utils.assert_bulk_test "$_unit_runner_path" n e r x
 
 aw_utils.assert_true '"$_unit_runner_path" -h' \
             "Expect exit code 0 when running \"${_unit_runner_path} -h\""
 
 
-_regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
+_regression_runner_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/run_regression_tests.sh"
 aw_utils.assert_bulk_test "$_regression_runner_path" n e r x
 
 aw_utils.assert_true '"$_regression_runner_path" -h' \
@@ -145,7 +145,7 @@ aw_utils.assert_true '"$_regression_runner_path" -h' \
 #
 # Check developer scripts and utilities in 'devscripts'.
 
-_devscripts_path="${AUTONAMEOW_ROOT_DIR}/devscripts"
+_devscripts_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts"
 aw_utils.assert_bulk_test "$_devscripts_path" n e d r w x
 
 _todo_helper_script_path="${_devscripts_path}/todo_id.py"
@@ -183,22 +183,22 @@ aw_utils.assert_true '[ "$(aw_utils.calculate_execution_time 1501987087187088013
 aw_utils.assert_true '[ "$(aw_utils.calculate_execution_time 1501987193168368101 1501987208094155073)" -eq "14925" ]' \
             'aw_utils.calculate_execution_time returns expected (14925ms)'
 
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR"
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" d
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" r
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" w
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" x
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r w
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e d r x
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r w
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e r x
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e w x
-aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIR" e x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH"
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" d
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e d
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e d r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e d r w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e d r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e r
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e r w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e w
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" e x
 
 
 _temporary_file='___temporary_file___'
@@ -326,9 +326,9 @@ check_testfiles_file      'subdir/subsubdir_B/file_A3'
 check_testfiles_file      'subdir/subsubdir_B/file_B1'
 check_testfiles_file      'subdir/subsubdir_B/file_B2'
 
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_creatortool.yaml" e f r
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_language.yaml" e f r
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/tests/unit/test_core_metadata_canonicalize_creatortool.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/tests/unit/test_core_metadata_canonicalize_language.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/tests/unit/test_core_metadata_canonicalize_publisher.yaml" e f r
 
 
 

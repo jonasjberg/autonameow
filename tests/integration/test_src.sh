@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,13 +31,13 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
+source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 
 
 check_git_ls_files_does_not_match()
 {
     local -r _pattern="$1"
-    aw_utils.assert_false 'cd "$AUTONAMEOW_ROOT_DIR" && git ls-files | grep --fixed-strings -- "$_pattern"' \
+    aw_utils.assert_false 'cd "$AUTONAMEOW_ROOT_DIRPATH" && git ls-files | grep --fixed-strings -- "$_pattern"' \
                  "git repository does not contain files matching \"${_pattern}\""
 }
 
@@ -77,28 +77,28 @@ check_git_ls_files_does_not_match '.regressionrunner_lastrun'
 #
 # Make sure that data files are available.
 
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.mappings" e f r
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/util/mimemagic.preferred" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/util/mimemagic.mappings" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/util/mimemagic.preferred" e f r
 
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/analyzers/probable_extension_lookup" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/analyzers/probable_extension_lookup" e f r
 
 declare -a _FIELDMETA_YAML_FILES=(
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_crossplatform_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_filetags_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_guessit_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml"
-    "${AUTONAMEOW_ROOT_DIR}/autonameow/extractors/metadata/extractor_pandoc_template.plain"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_crossplatform_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_exiftool_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_filetags_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_guessit_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_jpeginfo_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_pandoc_fieldmeta.yaml"
+    "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/extractors/metadata/extractor_pandoc_template.plain"
 )
 for fieldmeta_file in "${_FIELDMETA_YAML_FILES[@]}"
 do
     aw_utils.assert_bulk_test "$fieldmeta_file" e f r
 done
 
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/creatortool.yaml" e f r
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/language.yaml" e f r
-aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIR}/autonameow/core/truths/data/publisher.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/core/truths/data/creatortool.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/core/truths/data/language.yaml" e f r
+aw_utils.assert_bulk_test "${AUTONAMEOW_ROOT_DIRPATH}/autonameow/core/truths/data/publisher.yaml" e f r
 
 
 # ______________________________________________________________________________
@@ -132,7 +132,7 @@ done
 #
 # Check TODO-list identifiers with stand-alone TODO-list utility script.
 
-_todo_helper_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/todo_id.py"
+_todo_helper_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/todo_id.py"
 
 aw_utils.assert_true '"${_todo_helper_script_path}"' \
             'TODO-list utility script checks pass ("todo_id.py --check" returns 0)'
@@ -184,7 +184,7 @@ aw_utils.assert_true '_check_python_source_files_do_not_use_grouped_imports' \
             'None of the committed Python source files (some excluded, see test for details) use grouped import statements'
 
 
-_whitespace_check_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_whitespace.sh"
+_whitespace_check_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/check_whitespace.sh"
 aw_utils.assert_bulk_test "$_whitespace_check_script_path" e x
 
 aw_utils.assert_true '$_whitespace_check_script_path' \
@@ -195,7 +195,7 @@ aw_utils.assert_true '$_whitespace_check_script_path' \
 #
 # Check spelling with external script.
 
-_check_spelling_script_path="${AUTONAMEOW_ROOT_DIR}/devscripts/check_spelling.sh"
+_check_spelling_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/check_spelling.sh"
 aw_utils.assert_bulk_test "$_check_spelling_script_path" e x
 
 aw_utils.assert_true '$_check_spelling_script_path' \

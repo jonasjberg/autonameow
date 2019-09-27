@@ -26,30 +26,28 @@ _autonameow_setup_environment_main()
     _self_absolute_filepath="$(
         dirname -- "$(realpath -- "$_self_relative_filepath")"
     )"
-    declare -p _self_relative_filepath
-    declare -p _self_absolute_filepath
 
     # Absolute path to the autonameow source root.
-    AUTONAMEOW_ROOT_DIR="$(realpath -- "${_self_absolute_filepath}/..")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -- "${_self_absolute_filepath}/..")"
 
     unset _self_relative_filepath
     unset _self_absolute_filepath
 
-    if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+    if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
     then
-        printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR" >&2
+        printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH" >&2
         return 1
     fi
-    export AUTONAMEOW_ROOT_DIR
+    export AUTONAMEOW_ROOT_DIRPATH
 
     # Absolute path to the main executable for running autonameow.
-    export AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIR}/bin/autonameow"
+    export AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIRPATH}/bin/autonameow"
 
     # Absolute path to the "samplefiles" directory.
-    export AUTONAMEOW_SAMPLEFILES_DIR="${AUTONAMEOW_ROOT_DIR}/tests/samplefiles"
+    export AUTONAMEOW_SAMPLEFILES_DIR="${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles"
 
     # Create the test results directory if missing and export the absolute path.
-    AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIR}/docs/test_results/"
+    AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIRPATH}/docs/test_results/"
     [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ] && mkdir -p "$AUTONAMEOW_TESTRESULTS_DIR"
     export AUTONAMEOW_TESTRESULTS_DIR
 

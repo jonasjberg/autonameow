@@ -38,11 +38,11 @@ EOF
     exit "$EXIT_CRITICAL"
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+if ! source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
         Shared test utility library is missing. Aborting ..
 
 EOF

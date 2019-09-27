@@ -38,11 +38,11 @@ EOF
     exit "$EXIT_CRITICAL"
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+if ! source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
         Shared test utility library is missing. Aborting ..
 
 EOF
@@ -165,7 +165,7 @@ run_pytest()
     $option_run_last_failed && _pytest_opts+='--last-failed '
 
     (
-        cd "$AUTONAMEOW_ROOT_DIR" || return 1
+        cd "$AUTONAMEOW_ROOT_DIRPATH" || return 1
         PYTHONPATH=autonameow:tests pytest ${_pytest_opts[@]} tests/unit/test_*.py
     )
 }

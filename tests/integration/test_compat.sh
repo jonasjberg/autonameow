@@ -20,7 +20,7 @@
 set -o noclobber -o nounset -o pipefail
 
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -32,7 +32,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
+source "$AUTONAMEOW_ROOT_DIRPATH/tests/integration/utils.sh"
 
 
 
@@ -66,7 +66,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version 2>&1 | grep -o -- "v[0-9]\.
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- "v[0-9]\.[0-9]\.[0-9]"' \
             'Output should contain a version string matching "vX.X.X" when started with "--version -v"'
 
-current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIR" && git rev-parse --short HEAD)"
+current_git_commit_hash="$(cd "$AUTONAMEOW_ROOT_DIRPATH" && git rev-parse --short HEAD)"
 # NOTE(jonas): git rev-parse --short HEAD returns different length.
 #              Hash string is one extra character on MacOS (git version 2.15.1)
 #              compared to Linux (git version 2.7.4).
@@ -85,7 +85,7 @@ aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --version -v 2>&1 | grep -o -- ".*${c
 
 
 # Get version string defined in the sources
-_version_file="${AUTONAMEOW_ROOT_DIR}/autonameow/core/version.py"
+_version_file="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/core/version.py"
 aw_utils.assert_bulk_test "$_version_file" e f r
 
 AUTONAMEOW_SOURCE_VERSION="$(grep -- '__version_info__ = ' "$_version_file" | grep -o -- '[0-9], [0-9], [0-9]' | sed 's/\([0-9]\), \([0-9]\), \([0-9]\)/\1.\2.\3/')"

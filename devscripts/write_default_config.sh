@@ -23,32 +23,32 @@ set -o noclobber -o nounset -o pipefail
 SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
 # Get absolute path to the autonameow source root.
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
-    AUTONAMEOW_ROOT_DIR="$(realpath -e -- "${SELF_DIRPATH}/..")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${SELF_DIRPATH}/..")"
 fi
 
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
 then
-    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
-    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIRPATH". Aborting.\n' >&2
     exit 1
 fi
 
 
-dest_path="${AUTONAMEOW_ROOT_DIR}/tests/samplefiles/configs/default.yaml"
+dest_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles/configs/default.yaml"
 if [ -e "$dest_path" ]
 then
     echo "Destination exists: \"${dest_path}\""
 
     _ts="$(date "+%Y-%m-%dT%H%M%S")"
-    _move_dest="${AUTONAMEOW_ROOT_DIR}/notes/test_files_default_config_${_ts}.yaml"
+    _move_dest="${AUTONAMEOW_ROOT_DIRPATH}/notes/samplefiles_default_config_${_ts}.yaml"
     mv -nvi -- "$dest_path" "$_move_dest" || exit 1
 fi
 
 
 (
-    cd "${AUTONAMEOW_ROOT_DIR}/autonameow" || exit 1
+    cd "${AUTONAMEOW_ROOT_DIRPATH}/autonameow" || exit 1
     PYTHONPATH=. python3 core/config/default_config.py --write-default "$dest_path"
 )
 

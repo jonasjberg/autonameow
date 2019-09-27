@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,9 +31,9 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
-vendor_dirpath="${AUTONAMEOW_ROOT_DIR}/autonameow/vendor"
+vendor_dirpath="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/vendor"
 echo $vendor_dirpath
 
 assert_can_import_python_module()

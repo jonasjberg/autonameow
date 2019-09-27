@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,7 +31,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 
 
@@ -50,7 +50,7 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 #
 # Test shared test functionality in 'common_utils.sh'.
 
-_integration_utils_path="${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+_integration_utils_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 assert_bulk_test "$_integration_utils_path" e r x
 
 source "$_integration_utils_path"

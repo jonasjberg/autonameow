@@ -28,10 +28,10 @@
 # PyCharm and "vulture" probably also have some kind of functionality to
 # ignore usage by test code, but I haven't found it yet..
 #
-# NOTE: Make sure working directory is "AUTONAMEOW_ROOT_DIR/autonameow"
+# NOTE: Make sure working directory is "AUTONAMEOW_ROOT_DIRPATH/autonameow"
 
 set -o noclobber -o pipefail
-SEARCHDIR="${AUTONAMEOW_ROOT_DIR:-.}"
+SEARCHDIR="${AUTONAMEOW_ROOT_DIRPATH:-.}"
 set -o nounset
 
 # Number of usages less or equal to this are included in the results.

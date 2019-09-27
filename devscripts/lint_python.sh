@@ -36,16 +36,16 @@ fi
 
 
 # Get absolute path to the autonameow source root.
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
-    AUTONAMEOW_ROOT_DIR="$(realpath --canonicalize-existing -- "${self_dirpath}/..")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath --canonicalize-existing -- "${self_dirpath}/..")"
 fi
 
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
 then
-    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
-    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIRPATH". Aborting.\n' >&2
     exit 1
 fi
 
@@ -53,8 +53,8 @@ fi
 
 (
     # Export variable for use in 'init-hook' call in the 'pylintrc' file.
-    export AUTONAMEOW_SYSPATH="${AUTONAMEOW_ROOT_DIR}/autonameow"
+    export AUTONAMEOW_SYSPATH="${AUTONAMEOW_ROOT_DIRPATH}/autonameow"
 
-    cd "$AUTONAMEOW_ROOT_DIR" && PYTHONPATH=autonameow:tests \
+    cd "$AUTONAMEOW_ROOT_DIRPATH" && PYTHONPATH=autonameow:tests \
     pylint --rcfile='./devscripts/pylintrc' autonameow bin
 )

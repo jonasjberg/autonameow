@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,7 +31,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 
 
@@ -50,14 +50,14 @@ aw_utils.log_msg "Running the ${TESTSUITE_NAME} test suite .."
 #
 # Check shared environment variables, used by all tests.
 
-aw_utils.assert_false '[ -z "$AUTONAMEOW_ROOT_DIR" ]' \
-             'Environment variable "AUTONAMEOW_ROOT_DIR" should not be unset'
+aw_utils.assert_false '[ -z "$AUTONAMEOW_ROOT_DIRPATH" ]' \
+             'Environment variable "AUTONAMEOW_ROOT_DIRPATH" should not be unset'
 
-aw_utils.assert_true '[ -d "$AUTONAMEOW_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a directory'
+aw_utils.assert_true '[ -d "$AUTONAMEOW_ROOT_DIRPATH" ]' \
+            'Environment variable "AUTONAMEOW_ROOT_DIRPATH" should be a directory'
 
-aw_utils.assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
-            'Environment variable "AUTONAMEOW_ROOT_DIR" should be a existing readable path'
+aw_utils.assert_true '[ -r "$AUTONAMEOW_ROOT_DIRPATH" ]' \
+            'Environment variable "AUTONAMEOW_ROOT_DIRPATH" should be a existing readable path'
 
 
 # ______________________________________________________________________________
@@ -65,7 +65,7 @@ aw_utils.assert_true '[ -r "$AUTONAMEOW_ROOT_DIR" ]' \
 # Smoke-test the regression runner.
 
 
-_regression_runner_path="${AUTONAMEOW_ROOT_DIR}/tests/run_regression_tests.sh"
+_regression_runner_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/run_regression_tests.sh"
 aw_utils.assert_bulk_test "$_regression_runner_path" n e r x
 
 _regression_runner_basename="$(basename -- "$_regression_runner_path")"
