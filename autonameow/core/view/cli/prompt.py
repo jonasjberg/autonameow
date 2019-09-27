@@ -31,15 +31,7 @@ from util import disk
 from util import encoding as enc
 
 try:
-    from prompt_toolkit import prompt
-    from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-    from prompt_toolkit.completion import Completer
-    from prompt_toolkit.completion import Completion
-    from prompt_toolkit.history import FileHistory
-    from prompt_toolkit.history import InMemoryHistory
-    from prompt_toolkit.shortcuts import confirm
-    from prompt_toolkit.validation import ValidationError
-    from prompt_toolkit.validation import Validator
+    import prompt_toolkit
 except ImportError:
     raise DependencyError(missing_modules='prompt_toolkit')
 
@@ -87,7 +79,7 @@ class ConfigHistoryPathStore(object):
 _config_history_path_store = ConfigHistoryPathStore()
 
 
-class NumberSelectionValidator(Validator):
+class NumberSelectionValidator(prompt_toolkit.validation.Validator):
     def __init__(self, candidates=None):
         super(NumberSelectionValidator, self).__init__()
         self.candidates = candidates
@@ -96,25 +88,25 @@ class NumberSelectionValidator(Validator):
         _text = document.text
         if _text not in self.candidates:
             _valid = ', '.join(c for c in self.candidates)
-            raise ValidationError(
+            raise prompt_toolkit.validation.ValidationError(
                 message='Enter one of; {!s}'.format(_valid),
                 cursor_position=len(_text)  # Move cursor to end of input.
             )
 
 
-class MeowURIValidator(Validator):
+class MeowURIValidator(prompt_toolkit.validation.Validator):
     def validate(self, document):
         _text = document.text
         try:
             MeowURI(_text)
         except InvalidMeowURIError as e:
-            raise ValidationError(
+            raise prompt_toolkit.validation.ValidationError(
                 message=str(e),
                 cursor_position=len(_text)  # Move cursor to end of input.
             )
 
 
-class MeowURICompleter(Completer):
+class MeowURICompleter(prompt_toolkit.completion.Completer):
     def __init__(self):
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
         self.all_meowuris = list(master_provider.Registry.mapped_meowuris)
@@ -124,11 +116,11 @@ class MeowURICompleter(Completer):
         text = document.text_before_cursor
         if not text:
             for suggestion in C.MEOWURI_ROOTS:
-                yield Completion(suggestion, start_position=0)
+                yield prompt_toolkit.completion.Completion(suggestion, start_position=0)
 
         if text:
             for match in self._match_start(text):
-                yield Completion(match, start_position=-len(text))
+                yield prompt_toolkit.completion.Completion(match, start_position=-len(text))
 
     def _match_start(self, string):
         for uri in self.all_meowuris:
@@ -145,12 +137,12 @@ def meowuri_prompt(message=None):
 
     history_filepath = _config_history_path_store.config_history_path
     if history_filepath:
-        history = FileHistory(history_filepath)
+        history = prompt_toolkit.history.FileHistory(history_filepath)
         log.debug('Prompt history file: "%s"',
                   enc.displayable_path(history_filepath))
     else:
         log.debug('Prompt history file: in-memory (volatile)')
-        history = InMemoryHistory()
+        history = prompt_toolkit.history.InMemoryHistory()
 
     meowuri_completer = MeowURICompleter()
 
@@ -165,10 +157,10 @@ def meowuri_prompt(message=None):
     cli.msg('\n', ignore_quiet=True)
 
     try:
-        response = prompt(
+        response = prompt_toolkit.prompt(
             'Enter MeowURI: ',
             history=history,
-            auto_suggest=AutoSuggestFromHistory(),
+            auto_suggest=prompt_toolkit.auto_suggest.AutoSuggestFromHistory(),
             completer=meowuri_completer,
             enable_history_search=True,
             validator=MeowURIValidator()
@@ -187,7 +179,7 @@ def field_selection_prompt(candidates):
 
     _candidate_numbers = list(candidates.keys())
     try:
-        response = prompt(
+        response = prompt_toolkit.prompt(
             'Enter #: ',
             validator=NumberSelectionValidator(candidates=_candidate_numbers)
         )
@@ -206,7 +198,7 @@ def ask_confirm(message):
     assert isinstance(message, str)
 
     # TODO: Test this!
-    answer = confirm(message + ' ')
+    answer = prompt_toolkit.shortcuts.confirm(message + ' ')
     return answer
 
 
