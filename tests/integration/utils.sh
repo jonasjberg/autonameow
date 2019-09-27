@@ -194,23 +194,29 @@ aw_utils.update_global_test_results()
 
 aw_utils.assert_true()
 {
-    ( eval "${1}" &>/dev/null ) >/dev/null
-    if [ "$?" -ne "0" ]
+    ( eval "$1" &>/dev/null ) >/dev/null
+    local _eval_exitstatus="$?"
+    shift
+
+    if [ "$_eval_exitstatus" -ne '0' ]
     then
-        shift ; aw_utils.test_fail "$*"
+        aw_utils.test_fail "$*"
     else
-        shift ; aw_utils.test_pass "$*"
+        aw_utils.test_pass "$*"
     fi
 }
 
 aw_utils.assert_false()
 {
-    ( eval "${1}" &>/dev/null ) >/dev/null
-    if [ "$?" -ne "0" ]
+    ( eval "$1" &>/dev/null ) >/dev/null
+    local _eval_exitstatus="$?"
+    shift
+
+    if [ "$_eval_exitstatus" -ne '0' ]
     then
-        shift ; aw_utils.test_pass "$*"
+        aw_utils.test_pass "$*"
     else
-        shift ; aw_utils.test_fail "$*"
+        aw_utils.test_fail "$*"
     fi
 }
 
