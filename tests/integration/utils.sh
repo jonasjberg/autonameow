@@ -43,9 +43,9 @@ suite_tests_failed=0
 # Should be called once at the start of a test run.
 aw_utils.initialize_logging()
 {
-    if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ]
+    if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIRPATH" ]
     then
-        echo "Not a directory: \"${AUTONAMEOW_TESTRESULTS_DIR}\" .. Aborting" >&2
+        echo "Not a directory: \"${AUTONAMEOW_TESTRESULTS_DIRPATH}\" .. Aborting" >&2
         exit 1
     fi
 
@@ -53,7 +53,7 @@ aw_utils.initialize_logging()
     AUTONAMEOW_INTEGRATION_TIMESTAMP="$(date "+%Y-%m-%dT%H%M%S")"
     export AUTONAMEOW_INTEGRATION_TIMESTAMP
 
-    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIR}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
+    AUTONAMEOW_INTEGRATION_LOG="${AUTONAMEOW_TESTRESULTS_DIRPATH}/integration_log_${AUTONAMEOW_INTEGRATION_TIMESTAMP}.raw"
     export AUTONAMEOW_INTEGRATION_LOG
 
     aw_utils.log_msg "Logging to file: \"${AUTONAMEOW_INTEGRATION_LOG}\""

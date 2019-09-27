@@ -149,7 +149,7 @@ fi
 
 
 _timestamp="$(date "+%Y-%m-%dT%H%M%S")"
-_unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
+_unittest_log="${AUTONAMEOW_TESTRESULTS_DIRPATH}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     printf 'File exists: "%s" .. Aborting\n' "$_unittest_log" >&2
@@ -180,7 +180,7 @@ then
     printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
-    echo "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
+    echo "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIRPATH}/.unittestlog.toreport"
 fi
 
 

@@ -44,12 +44,12 @@ _autonameow_setup_environment_main()
     export AUTONAMEOW_RUNNER="${AUTONAMEOW_ROOT_DIRPATH}/bin/autonameow"
 
     # Absolute path to the "samplefiles" directory.
-    export AUTONAMEOW_SAMPLEFILES_DIR="${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles"
+    export AUTONAMEOW_SAMPLEFILES_DIRPATH="${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles"
 
     # Create the test results directory if missing and export the absolute path.
-    AUTONAMEOW_TESTRESULTS_DIR="${AUTONAMEOW_ROOT_DIRPATH}/docs/test_results/"
-    [ ! -d "$AUTONAMEOW_TESTRESULTS_DIR" ] && mkdir -p "$AUTONAMEOW_TESTRESULTS_DIR"
-    export AUTONAMEOW_TESTRESULTS_DIR
+    AUTONAMEOW_TESTRESULTS_DIRPATH="${AUTONAMEOW_ROOT_DIRPATH}/docs/test_results/"
+    [ ! -d "$AUTONAMEOW_TESTRESULTS_DIRPATH" ] && mkdir -p "$AUTONAMEOW_TESTRESULTS_DIRPATH"
+    export AUTONAMEOW_TESTRESULTS_DIRPATH
 
     return 0
 }

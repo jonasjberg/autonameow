@@ -74,6 +74,9 @@ aw_utils.assert_false '[ "1" -eq "0" ]' 'Expect success .. (true positive)'
 # Check shared environment variables, used by all tests.
 
 aw_utils.assert_bulk_test "$AUTONAMEOW_ROOT_DIRPATH" n d r w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n f r
+aw_utils.assert_bulk_test "$AUTONAMEOW_SAMPLEFILES_DIRPATH" n d r w x
+aw_utils.assert_bulk_test "$AUTONAMEOW_TESTRESULTS_DIRPATH" n d r w x
 
 
 # ______________________________________________________________________________
