@@ -59,7 +59,7 @@ _autonameow_setup_environment_main
 _autonameow_setup_environment_main_retval=$?
 
 # Handle either case of this script being sourced or executed.
-if [ "$0" != "$BASH_SOURCE" ]
+if [ "$0" != "${BASH_SOURCE[0]}" ]
 then
     return $_autonameow_setup_environment_main_retval
 else
