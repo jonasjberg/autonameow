@@ -228,10 +228,10 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         }
         self._check(input_options, expected)
 
-    def test_replaces_config_path_variable_testfiles(self):
+    def test_replaces_config_path_variable_samplefiles(self):
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/configs/default.yaml',
+            'config_path': '$SAMPLEFILES/configs/default.yaml',
             'batch': True,
         }
         expected = {
@@ -407,21 +407,21 @@ class TestExpandInputPathsVariables(TestCase):
     def test_input_path_is_replaced(self):
         self._assert_that_it_returns(
             expected=[uu.samplefile_abspath('gmail.pdf')],
-            given=['$TESTFILES/gmail.pdf']
+            given=['$SAMPLEFILES/gmail.pdf']
         )
 
     def test_input_paths_are_replaced(self):
         self._assert_that_it_returns(
             expected=[uu.samplefile_abspath('gmail.pdf'),
                       uu.samplefile_abspath('magic_txt.txt')],
-            given=['$TESTFILES/gmail.pdf',
-                   '$TESTFILES/magic_txt.txt']
+            given=['$SAMPLEFILES/gmail.pdf',
+                   '$SAMPLEFILES/magic_txt.txt']
         )
 
-    def test_testfiles_directory_only_is_replaced(self):
+    def test_samplefiles_directory_only_is_replaced(self):
         self._assert_that_it_returns(
             expected=[uuconst.DIRPATH_SAMPLEFILES],
-            given=['$TESTFILES']
+            given=['$SAMPLEFILES']
         )
 
     def test_paths_are_normalized(self):

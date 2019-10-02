@@ -1,4 +1,4 @@
-config_path: $TESTFILES/configs/default.yaml
+config_path: $SAMPLEFILES/configs/default.yaml
 debug: false
 dry_run: false
 dump_config: false

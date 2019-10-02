@@ -5,7 +5,7 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- '$TESTFILES/2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
+- '$SAMPLEFILES/2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 list_all: false
 automagic: true
 batch: true

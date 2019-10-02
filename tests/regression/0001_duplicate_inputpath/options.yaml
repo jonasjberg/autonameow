@@ -1,12 +1,12 @@
-config_path: $TESTFILES/configs/default.yaml
+config_path: $SAMPLEFILES/configs/default.yaml
 debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/gmail.pdf
-- $TESTFILES/gmail.pdf
+- $SAMPLEFILES/gmail.pdf
+- $SAMPLEFILES/gmail.pdf
 list_all: true
 automagic: true
 batch: true

@@ -1,11 +1,11 @@
-config_path: $TESTFILES/configs/default.yaml
+config_path: $SAMPLEFILES/configs/default.yaml
 debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- '$TESTFILES/2017-11-20T020738 filetags-style name -- tag1.txt'
+- '$SAMPLEFILES/2017-11-20T020738 filetags-style name -- tag1.txt'
 list_all: true
 automagic: false
 batch: true

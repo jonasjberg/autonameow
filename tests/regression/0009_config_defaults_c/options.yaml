@@ -1,4 +1,4 @@
-config_path: $TESTFILES/configs/bad_empty_but_version.yaml
+config_path: $SAMPLEFILES/configs/bad_empty_but_version.yaml
 debug: false
 dry_run: false
 dump_config: false

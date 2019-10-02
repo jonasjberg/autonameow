@@ -479,10 +479,10 @@ class RegressionTestLoader(object):
 
                --> 'config_path': (Path to the default config)
 
-          * .. starts with '$TESTFILES/', the full absolute path to the
-               'samplefiles' directory is inserted in place of '$TESTFILES/'.
+          * .. starts with '$SAMPLEFILES/', the full absolute path to the
+               'samplefiles' directory is inserted in place of '$SAMPLEFILES/'.
 
-                   'config_path': '$TESTFILES/config.yaml'
+                   'config_path': '$SAMPLEFILES/config.yaml'
                --> 'config_path': '$SRCROOT/tests/samplefiles/config.yaml'
 
           * .. starts with '$THISTEST/', the full absolute path to the current
@@ -497,9 +497,9 @@ class RegressionTestLoader(object):
         if not config_path:
             # Use default config.
             modified_path = uu.samplefile_config_abspath()
-        elif config_path.startswith('$TESTFILES/'):
+        elif config_path.startswith('$SAMPLEFILES/'):
             # Substitute "variable".
-            config_path_basename = config_path.replace('$TESTFILES/', '').strip()
+            config_path_basename = config_path.replace('$SAMPLEFILES/', '').strip()
             modified_path = uu.samplefile_abspath(config_path_basename)
         elif config_path.startswith('$THISTEST/'):
             # Substitute "variable".
@@ -566,21 +566,21 @@ def normalize_description_whitespace(s):
 
 def _expand_input_paths_variables(input_paths):
     """
-    Replaces '$TESTFILES' with the full absolute path to the 'samplefiles'
+    Replaces '$SAMPLEFILES' with the full absolute path to the 'samplefiles'
     directory.
-    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt',
+    For instance; '$SAMPLEFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt',
     where '$SRCROOT' is the full absolute path to the autonameow sources.
     """
     assert isinstance(input_paths, list)
 
     results = list()
     for path in input_paths:
-        if path == '$TESTFILES':
+        if path == '$SAMPLEFILES':
             # Substitute "variable".
             modified_path = uuconst.DIRPATH_SAMPLEFILES
-        elif path.startswith('$TESTFILES/'):
+        elif path.startswith('$SAMPLEFILES/'):
             # Substitute "variable".
-            path_basename = path.replace('$TESTFILES/', '')
+            path_basename = path.replace('$SAMPLEFILES/', '')
             modified_path = uu.samplefile_abspath(path_basename)
         else:
             # Normalize path.

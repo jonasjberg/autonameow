@@ -192,7 +192,7 @@ The directory contains the following files:
         dump_meowuris: false
         dump_options: false
         input_paths:
-        - '$TESTFILES/2017-11-20 bar -- tag1.txt'
+        - '$SAMPLEFILES/2017-11-20 bar -- tag1.txt'
         - '/tmp/foo/bar.txt'
         list_all: false
         automagic: true
@@ -212,7 +212,7 @@ The directory contains the following files:
 
 
 ### Special Variables in `options.yaml`
-Paths can include the special keywords `$THISTEST` and `$TESTFILES`, this is
+Paths can include the special keywords `$THISTEST` and `$SAMPLEFILES`, this is
 pretty ad-hoc and very likely to change. Refer to existing tests for hints on
 how to write your own.
 
@@ -227,11 +227,11 @@ If the `config_path` entry..
     -->  'config_path': (Path to the default config)
     ```
 
-* .. starts with `$TESTFILES/`, the full absolute path to the
-     "samplefiles" directory is inserted in place of `$TESTFILES/`.
+* .. starts with `$SAMPLEFILES/`, the full absolute path to the
+     "samplefiles" directory is inserted in place of `$SAMPLEFILES/`.
 
     ```
-         'config_path': '$TESTFILES/config.yaml'
+         'config_path': '$SAMPLEFILES/config.yaml'
     -->  'config_path': '$SRCROOT/tests/samplefiles/config.yaml'
     ```
 
@@ -244,9 +244,9 @@ If the `config_path` entry..
     ```
 
 #### The `input_paths` field
-The string `$TESTFILES` is replaced with the full absolute path to the
+The string `$SAMPLEFILES` is replaced with the full absolute path to the
 `samplefiles` directory.
-For instance; `'$TESTFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt'`,
+For instance; `'$SAMPLEFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt'`,
 where `$SRCROOT` is the full absolute path to the autonameow sources.
 
 

@@ -1,12 +1,12 @@
-config_path: $TESTFILES/configs/default.yaml
+config_path: $SAMPLEFILES/configs/default.yaml
 debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/smulan.jpg
-- $TESTFILES/magic_jpg.jpg
+- $SAMPLEFILES/smulan.jpg
+- $SAMPLEFILES/magic_jpg.jpg
 list_all: false
 automagic: false
 batch: true

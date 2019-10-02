@@ -5,7 +5,7 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/simplest_pdf.md.pdf
+- $SAMPLEFILES/simplest_pdf.md.pdf
 list_all: true
 automagic: true
 batch: true

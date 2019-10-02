@@ -5,8 +5,8 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/saved-webpage.mhtml
-- $TESTFILES/saved-webpage.html
+- $SAMPLEFILES/saved-webpage.mhtml
+- $SAMPLEFILES/saved-webpage.html
 list_all: true
 automagic: true
 batch: true

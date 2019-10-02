@@ -1,11 +1,11 @@
-config_path: $TESTFILES/configs/default.yaml
+config_path: $SAMPLEFILES/configs/default.yaml
 debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- '$TESTFILES/2007-04-23_12-comments.png'
+- '$SAMPLEFILES/2007-04-23_12-comments.png'
 list_all: true
 automagic: false
 batch: true
