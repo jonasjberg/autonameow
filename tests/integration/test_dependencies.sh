@@ -35,7 +35,6 @@ fi
 source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 vendor_dirpath="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/vendor"
-echo $vendor_dirpath
 
 assert_can_import_python_module()
 {
