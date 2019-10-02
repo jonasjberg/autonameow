@@ -20,13 +20,14 @@
 set -o nounset -o pipefail -o errexit
 
 
-SELF_BASENAME="$(basename -- "$0")"
+self_basename="$(basename -- "$0")"
+readonly self_basename
 
 if [ "$#" -ne '3' ]
 then
     cat >&2 <<EOF
 
-  USAGE:  $SELF_BASENAME [HASH_NEWEST] [HASH_OLDEST] [COMMAND]
+  USAGE:  $self_basename [HASH_NEWEST] [HASH_OLDEST] [COMMAND]
 
   Checks out git revisions from HASH_NEWEST to HASH_OLDEST (inclusive)
   in sequence and executes COMMAND after checking out each revision.

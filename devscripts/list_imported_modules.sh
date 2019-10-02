@@ -21,7 +21,8 @@
 
 set -o noclobber -o nounset -o pipefail -o errexit
 
-SELF_BASENAME="$(basename -- "$0")"
+self_basename="$(basename -- "$0")"
+readonly self_basename
 
 
 # TODO: Figure out if this is stupid. Still not sure whether it is stupid.
@@ -32,7 +33,7 @@ if [ "$#" -ne "1" ] || [ ! -e "$1" ]
 then
     cat <<EOF
 
-  USAGE:  $SELF_BASENAME [PATH TO PYTHON PROGRAM]
+  USAGE:  $self_basename [PATH TO PYTHON PROGRAM]
 
   Lists modules imported by the specified Python program.
   Imports used by a simple "no-op" program is used to filter the

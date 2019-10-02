@@ -24,8 +24,9 @@ declare -r EXIT_SUCCESS=0
 declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
-SELF_BASENAME="$(basename -- "$0")"
+self_basename="$(basename -- "$0")"
 self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+readonly self_basename
 readonly self_dirpath
 
 # shellcheck source=tests/setup_environment.sh
@@ -82,9 +83,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"$SELF_BASENAME"  --  autonameow unit tests runner
+"$self_basename"  --  autonameow unit tests runner
 
-  USAGE:  $SELF_BASENAME ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
@@ -110,7 +111,7 @@ EOF
 
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
     while getopts chlwq opt
     do

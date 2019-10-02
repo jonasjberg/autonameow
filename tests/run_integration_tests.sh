@@ -24,8 +24,9 @@ declare -r EXIT_SUCCESS=0
 declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
-SELF_BASENAME="$(basename -- "$0")"
+self_basename="$(basename -- "$0")"
 self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_basename
 readonly self_dirpath
 
 # shellcheck source=tests/setup_environment.sh
@@ -61,9 +62,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"$SELF_BASENAME"  --  autonameow integration test suite runner
+"$self_basename"  --  autonameow integration test suite runner
 
-  USAGE:  $SELF_BASENAME ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
                           Argument [EXP] is passed to grep as-is.
@@ -88,7 +89,7 @@ EOF
 
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
     while getopts f:hq opt
     do
@@ -115,7 +116,7 @@ aw_utils.initialize_logging
 aw_utils.initialize_global_stats
 
 readonly search_dir="${self_dirpath}/integration"
-aw_utils.log_msg_timestamped "Started integration test runner \"${SELF_BASENAME}\""
+aw_utils.log_msg_timestamped "Started integration test runner \"${self_basename}\""
 aw_utils.log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
@@ -185,7 +186,7 @@ do
 done < "$AUTONAMEOW_INTEGRATION_STATS"
 
 aw_utils.log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
-aw_utils.log_msg_timestamped "Exiting integration test runner \"${SELF_BASENAME}\""
+aw_utils.log_msg_timestamped "Exiting integration test runner \"${self_basename}\""
 
 if [ "$_total_failed" -eq "0" ]
 then

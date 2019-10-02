@@ -19,8 +19,9 @@
 
 set -o nounset
 
-SELF_BASENAME="$(basename -- "$0")"
+self_basename="$(basename -- "$0")"
 self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_basename
 readonly self_dirpath
 
 
@@ -32,9 +33,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"$SELF_BASENAME"  --  skipped test helper
+"$self_basename"  --  skipped test helper
 
-  USAGE:  $SELF_BASENAME ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -c   Clear ("unskip") all skipped tests.
@@ -49,7 +50,7 @@ EOF
 
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
     while getopts hc opt
     do
