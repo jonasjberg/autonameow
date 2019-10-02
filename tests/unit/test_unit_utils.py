@@ -100,9 +100,9 @@ class TestUnitUtilityAsFileObject(TestCase):
         self.assertTrue(os.path.isabs(actual.abspath))
 
 
-class TestUnitUtilityFileObjectTestFile(TestCase):
+class TestUnitUtilityFileobjectFromSamplefile(TestCase):
     def test_returns_expected_type(self):
-        actual = uu.fileobject_testfile('empty')
+        actual = uu.fileobject_from_samplefile('empty')
         self.assertIsInstance(actual, FileObject)
         self.assertTrue(os.path.isabs(actual.abspath))
 

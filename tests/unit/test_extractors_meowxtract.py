@@ -39,7 +39,7 @@ def _get_input_paths():
 
 
 def _get_input_fileobject():
-    return uu.fileobject_testfile('magic_txt.txt')
+    return uu.fileobject_from_samplefile('magic_txt.txt')
 
 
 def _get_text_extraction_result():

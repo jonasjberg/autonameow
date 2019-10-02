@@ -78,7 +78,7 @@ class TestFileObjectTypes(TestCase):
 
 class TestFileObject(TestCase):
     def setUp(self):
-        self.fo = uu.fileobject_testfile('magic_txt.txt')
+        self.fo = uu.fileobject_from_samplefile('magic_txt.txt')
 
     def test_abspath(self):
         actual = self.fo.abspath
@@ -226,8 +226,8 @@ class TestFileObjectMembership(TestCase):
 @unittest.skip('TODO: [TD0026] Implement safe handling of symlinks.')
 class TestFileObjectFromSymlink(TestCase):
     def setUp(self):
-        self.fo_orig = uu.fileobject_testfile('empty')
-        self.fo_link = uu.fileobject_testfile('empty.symlink')
+        self.fo_orig = uu.fileobject_from_samplefile('empty')
+        self.fo_link = uu.fileobject_from_samplefile('empty.symlink')
 
     def test_setup(self):
         self.assertIsNotNone(self.fo_orig)
@@ -257,8 +257,8 @@ class TestFileObjectFromSymlink(TestCase):
 
 class TestFileObjectHashWithEmptyTestFile(TestCase):
     def setUp(self):
-        self.fo_a = uu.fileobject_testfile('empty')
-        self.fo_b = uu.fileobject_testfile('empty')
+        self.fo_a = uu.fileobject_from_samplefile('empty')
+        self.fo_b = uu.fileobject_from_samplefile('empty')
 
     def test_same_file_returns_same_hash(self):
         hash_fo_a = hash(self.fo_a)
@@ -270,13 +270,13 @@ class TestFileObjectDoesNotHandleSymlinks(TestCase):
     # TODO: [TD0026] Implement safe handling of symlinks.
     def test_raises_exception_given_symlinks(self):
         with self.assertRaises(InvalidFileArgumentError):
-            _ = uu.fileobject_testfile('empty.symlink')
+            _ = uu.fileobject_from_samplefile('empty.symlink')
 
 
 class TestFileObjectOrdering(TestCase):
     def setUp(self):
-        self.fo_1 = uu.fileobject_testfile('magic_pdf.pdf')
-        self.fo_2 = uu.fileobject_testfile('magic_png.png')
+        self.fo_1 = uu.fileobject_from_samplefile('magic_pdf.pdf')
+        self.fo_2 = uu.fileobject_from_samplefile('magic_png.png')
         self.some_object = 'foo'
 
     def test_setup(self):

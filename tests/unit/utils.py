@@ -263,12 +263,11 @@ def as_fileobject(filepath):
     return FileObject(bytestring_filepath)
 
 
-def fileobject_testfile(testfile_basename):
+def fileobject_from_samplefile(filename):
     """
     Like 'samplefile_abspath' but wraps the result in a 'FileObject' instance.
     """
-    _f = normpath(samplefile_abspath(testfile_basename))
-    return FileObject(_f)
+    return FileObject(normpath(samplefile_abspath(filename)))
 
 
 def get_mock_analyzer():

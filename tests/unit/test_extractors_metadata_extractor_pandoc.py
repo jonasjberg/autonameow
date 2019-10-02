@@ -46,14 +46,14 @@ class TestPandocMetadataExtractor(CaseExtractorBasics, TestCase):
 class TestPandocMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                              TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('sample.md')
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('sample.md')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('author', list, ['Gibson Sjöberg']),
 
@@ -66,7 +66,7 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
 class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('pg38145-images.epub')
     from datetime import datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('author', list, ['Friedrich Wilhelm Nietzsche']),
@@ -99,7 +99,7 @@ class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
 class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('4123.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('4123.epub')
 
     from datetime import datetime
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -133,8 +133,8 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         cls.fo_pdf = uu.get_mock_fileobject(mime_type='application/pdf')
         cls.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         cls.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
-        cls.fo_md = uu.fileobject_testfile('sample.md')
-        cls.fo_epub = uu.fileobject_testfile('pg38145-images.epub')
+        cls.fo_md = uu.fileobject_from_samplefile('sample.md')
+        cls.fo_epub = uu.fileobject_from_samplefile('pg38145-images.epub')
 
     def _assert_can_handle_returns(self, expected, fileobject):
         actual = self.e.can_handle(fileobject)
@@ -155,7 +155,7 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
 class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
     @classmethod
     def setUpClass(cls):
-        fo = uu.fileobject_testfile('sample.md')
+        fo = uu.fileobject_from_samplefile('sample.md')
         cls.actual = extract_document_metadata_with_pandoc(fo.abspath)
 
     def test_does_not_return_none(self):
@@ -176,7 +176,7 @@ class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
 class TestExtractDocumentMetadataWithPandocTestFile4123Epub(TestCase):
     @classmethod
     def setUpClass(cls):
-        fo = uu.fileobject_testfile('4123.epub')
+        fo = uu.fileobject_from_samplefile('4123.epub')
         cls.actual = extract_document_metadata_with_pandoc(fo.abspath)
 
     def _assert_extracted_metadata(self, expected_field, expected_value):

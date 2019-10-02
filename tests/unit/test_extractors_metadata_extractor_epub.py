@@ -44,13 +44,13 @@ class TestEpubMetadataExtractor(CaseExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubMetadataExtractorOutputTypes(CaseExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('pg38145-images.epub')
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('pg38145-images.epub')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('title', str, 'Human, All Too Human: A Book for Free Spirits'),
     ]

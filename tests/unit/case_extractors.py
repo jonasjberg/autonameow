@@ -89,7 +89,7 @@ class CaseExtractorOutputTypes(object):
 
 
 ALL_SAMPLEFILES = [
-    uu.fileobject_testfile(f) for f in uu.all_samplefiles()
+    uu.fileobject_from_samplefile(f) for f in uu.all_samplefiles()
 ]
 
 

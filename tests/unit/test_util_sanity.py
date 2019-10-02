@@ -55,7 +55,7 @@ class TestCheckIsinstanceFileObject(TestCase):
             sanity.check_isinstance_fileobject(test_input)
             sanity.check_isinstance_fileobject(test_input, msg='foo')
 
-        _assert_valid(uu.fileobject_testfile('empty'))
+        _assert_valid(uu.fileobject_from_samplefile('empty'))
 
     def test_raises_exception_for_not_instances_of_fileobject(self):
         def _assert_raises(test_input):

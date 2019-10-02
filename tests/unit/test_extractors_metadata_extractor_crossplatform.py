@@ -70,7 +70,7 @@ class TestDatetimeFromTimestamp(TestCase):
 class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
     @classmethod
     def setUpClass(cls):
-        _fo = uu.fileobject_testfile('magic_txt.txt')
+        _fo = uu.fileobject_from_samplefile('magic_txt.txt')
         _extractor_instance = CrossPlatformFileSystemExtractor()
         cls.actual = _extractor_instance.extract(_fo)
 
@@ -109,7 +109,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
 class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
     @classmethod
     def setUpClass(cls):
-        _fo = uu.fileobject_testfile('empty')
+        _fo = uu.fileobject_from_samplefile('empty')
         _extractor_instance = CrossPlatformFileSystemExtractor()
         cls.actual = _extractor_instance.extract(_fo)
 

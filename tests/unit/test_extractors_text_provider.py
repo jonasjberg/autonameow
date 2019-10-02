@@ -30,15 +30,15 @@ class TestTextProvider(TestCase):
         self.assertTrue(actual)
 
     def test_could_get_plain_text_from_file_with_mime_type_text_plain(self):
-        f = uu.fileobject_testfile('magic_txt.txt')
+        f = uu.fileobject_from_samplefile('magic_txt.txt')
         self._assert_could_get_plain_text_from(f)
 
     def test_get_plain_text_from_plain_text_file_with_mime_type_text_plain(self):
-        f = uu.fileobject_testfile('magic_txt.txt')
+        f = uu.fileobject_from_samplefile('magic_txt.txt')
         actual = get_plain_text(f)
         self.assertIsInstance(actual, str)
 
     def test_get_plain_text_from_file_with_mime_type_application_pdf(self):
-        f = uu.fileobject_testfile('magic_pdf.pdf')
+        f = uu.fileobject_from_samplefile('magic_pdf.pdf')
         actual = get_plain_text(f)
         self.assertIsInstance(actual, str)

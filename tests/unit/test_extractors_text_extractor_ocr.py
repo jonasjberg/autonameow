@@ -82,7 +82,7 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = None
-        cls.TEST_IMAGE_FILE = uu.fileobject_testfile('2007-04-23_12-comments.png')
+        cls.TEST_IMAGE_FILE = uu.fileobject_from_samplefile('2007-04-23_12-comments.png')
         cls.TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
 
         cls.e = TesseractOCRTextExtractor()

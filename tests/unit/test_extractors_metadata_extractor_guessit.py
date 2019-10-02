@@ -61,7 +61,7 @@ class TestRunGuessit(TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestGuessitMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = GuessitMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_mp4.mp4')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_mp4.mp4')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('title', str, 'magic'),
     ]

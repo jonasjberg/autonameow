@@ -105,7 +105,7 @@ class TestFilterAbleToHandle(TestCase):
 
     def test_returns_expected_extractors_for_markdown_file(self):
         self._check_returned_extractors_for(
-            fileobject=uu.fileobject_testfile('sample.md'),
+            fileobject=uu.fileobject_from_samplefile('sample.md'),
             expected=['CrossPlatformFileSystemExtractor', 'FiletagsMetadataExtractor'],
             if_available=['ExiftoolMetadataExtractor', 'PandocMetadataExtractor']
         )

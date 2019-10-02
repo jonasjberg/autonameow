@@ -169,7 +169,7 @@ class TestExtractPdfContentWithPdftotext(TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorInternals(TestCase):
     def setUp(self):
-        self.test_fileobject = uu.fileobject_testfile('gmail.pdf')
+        self.test_fileobject = uu.fileobject_from_samplefile('gmail.pdf')
 
         self.e = PdfTextExtractor()
         # Disable the cache

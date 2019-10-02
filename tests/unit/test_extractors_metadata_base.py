@@ -31,7 +31,7 @@ class TestBaseMetadataExtractor(TestCase):
         self.test_file = uu.make_temporary_file()
         self.e = BaseMetadataExtractor()
 
-        self.fo = uu.fileobject_testfile('magic_jpg.jpg')
+        self.fo = uu.fileobject_from_samplefile('magic_jpg.jpg')
 
     def test_base_metadata_extractor_class_is_available(self):
         self.assertIsNotNone(BaseMetadataExtractor)

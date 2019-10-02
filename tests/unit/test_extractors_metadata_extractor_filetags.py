@@ -49,7 +49,7 @@ class TestFiletagsMetadataExtractor(CaseExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('2017-09-12T224820 filetags-style name -- tag2 a tag1.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('datetime', datetime, uu.str_to_datetime('2017-09-12 224820')),
         ('description', str, 'filetags-style name'),
@@ -62,7 +62,7 @@ class TestFiletagsMetadataExtractorOutputTestFileA(CaseExtractorOutput, TestCase
 @skipIf(*UNMET_DEPENDENCIES)
 class TestFiletagsMetadataExtractorOutputTestFileB(CaseExtractorOutput, TestCase):
     EXTRACTOR_CLASS = FiletagsMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('empty')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('empty')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('description', str, 'empty'),
         ('tags', list, []),
