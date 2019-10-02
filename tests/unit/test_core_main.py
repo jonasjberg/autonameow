@@ -31,7 +31,7 @@ from core.main import cli_main
 class TestMainFileExistsAndIsExecutable(TestCase):
     def setUp(self):
         self.main_file = os.path.normpath(os.path.join(
-            uuconst.PATH_AUTONAMEOW_SRCROOT, '__main__.py'
+            uuconst.DIRPATH_AUTONAMEOW_SRCROOT, '__main__.py'
         ))
 
     def test_assumed_main_source_file_exists(self):

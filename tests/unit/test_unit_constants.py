@@ -43,19 +43,19 @@ class TestUnitUtilityConstants(TestCase):
         self.assertTrue(os.access(given_path, os.X_OK))
 
     def test_constant_path_samplefiles(self):
-        self._check_directory_path(uuconst.PATH_SAMPLEFILES)
+        self._check_directory_path(uuconst.DIRPATH_SAMPLEFILES)
 
     def test_constant_path_autonameow_srcroot(self):
-        self._check_directory_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
+        self._check_directory_path(uuconst.DIRPATH_AUTONAMEOW_SRCROOT)
 
     def test_constant_path_tests_regression(self):
-        self._check_directory_path(uuconst.PATH_TESTS_REGRESSION)
+        self._check_directory_path(uuconst.DIRPATH_TESTS_REGRESSION)
 
     def test_constant_path_tests_unit(self):
-        self._check_directory_path(uuconst.PATH_TESTS_UNIT)
+        self._check_directory_path(uuconst.DIRPATH_TESTS_UNIT)
 
     def test_constant_path_user_home(self):
-        self._check_directory_path(uuconst.PATH_USER_HOME)
+        self._check_directory_path(uuconst.DIRPATH_USER_HOME)
 
 
 class TestConstantAllFullMeowURIs(TestCase):

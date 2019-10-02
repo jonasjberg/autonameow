@@ -204,11 +204,11 @@ class TestUnitUtilityDirExists(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.PATH_AUTONAMEOW_SRCROOT,
+            uuconst.DIRPATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
+            uu.bytestring_path(uuconst.DIRPATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)
@@ -428,7 +428,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
         expected = len([
             f for f in
             os.listdir(
-                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+                os.path.join(uuconst.DIRPATH_AUTONAMEOW_SRCROOT, 'analyzers')
             )
             if f.startswith('analyze_') and f.endswith('.py')
         ])

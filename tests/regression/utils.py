@@ -577,7 +577,7 @@ def _expand_input_paths_variables(input_paths):
     for path in input_paths:
         if path == '$TESTFILES':
             # Substitute "variable".
-            modified_path = uuconst.PATH_SAMPLEFILES
+            modified_path = uuconst.DIRPATH_SAMPLEFILES
         elif path.startswith('$TESTFILES/'):
             # Substitute "variable".
             path_basename = path.replace('$TESTFILES/', '')

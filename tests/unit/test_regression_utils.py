@@ -420,13 +420,13 @@ class TestExpandInputPathsVariables(TestCase):
 
     def test_testfiles_directory_only_is_replaced(self):
         self._assert_that_it_returns(
-            expected=[uuconst.PATH_SAMPLEFILES],
+            expected=[uuconst.DIRPATH_SAMPLEFILES],
             given=['$TESTFILES']
         )
 
     def test_paths_are_normalized(self):
         self._assert_that_it_returns(
-            expected=[os.path.join(uuconst.PATH_USER_HOME, 'foo', 'temp')],
+            expected=[os.path.join(uuconst.DIRPATH_USER_HOME, 'foo', 'temp')],
             given=['~/foo/temp']
         )
 

@@ -30,7 +30,7 @@ GLOB_UNIT_TEST_BASENAME = "test_*.py"
 
 
 def build_testsuite(filename_filter=None):
-    unit_test_directory = uuconst.PATH_TESTS_UNIT
+    unit_test_directory = uuconst.DIRPATH_TESTS_UNIT
     current_dir = os.getcwd()
     os.chdir(unit_test_directory)
 

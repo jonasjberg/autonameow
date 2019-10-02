@@ -136,7 +136,7 @@ class TestNumberOfAvailableAnalyzerClasses(TestCase):
         expected = len([
             f for f in
             os.listdir(
-                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+                os.path.join(uuconst.DIRPATH_AUTONAMEOW_SRCROOT, 'analyzers')
             )
             if f.startswith('analyze_') and f.endswith('.py')
         ])

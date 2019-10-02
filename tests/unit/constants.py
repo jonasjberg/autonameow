@@ -22,25 +22,25 @@ import os
 import re
 
 
-_PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
-    _PATH_THIS_DIR, os.pardir, os.pardir
+_DIRPATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+_DIRPATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
+    _DIRPATH_THIS_DIR, os.pardir, os.pardir
 ))
 
 
 def join_path_from_srcroot(*components):
     return os.path.normpath(os.path.join(
-        _PATH_THIS_DIR_PARENT_PARENT, *components
+        _DIRPATH_THIS_DIR_PARENT_PARENT, *components
     ))
 
 
-PATH_SAMPLEFILES = join_path_from_srcroot('tests', 'samplefiles')
-PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
-PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
-PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
+DIRPATH_SAMPLEFILES = join_path_from_srcroot('tests', 'samplefiles')
+DIRPATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
+DIRPATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
+DIRPATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
-PATH_USER_HOME = os.path.expanduser('~')
+DIRPATH_USER_HOME = os.path.expanduser('~')
 
 
 REGRESSIONTEST_DIR_BASENAMES = [

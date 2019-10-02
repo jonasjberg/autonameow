@@ -827,9 +827,9 @@ class TestTypePath(TestCase, CaseCoercers):
             (b'/tmp', '/tmp'),
             (b'/tmp/foo', '/tmp/foo'),
             (b'/tmp/foo.bar', '/tmp/foo.bar'),
-            (b'~', uuconst.PATH_USER_HOME),
-            (b'~/foo', os.path.join(uuconst.PATH_USER_HOME, 'foo')),
-            (b'~/foo.bar', os.path.join(uuconst.PATH_USER_HOME, 'foo.bar')),
+            (b'~', uuconst.DIRPATH_USER_HOME),
+            (b'~/foo', os.path.join(uuconst.DIRPATH_USER_HOME, 'foo')),
+            (b'~/foo.bar', os.path.join(uuconst.DIRPATH_USER_HOME, 'foo.bar')),
         ]
 
     def test_call_with_null(self):
@@ -1862,9 +1862,9 @@ class TestCoerceToNormalizedPath(TestCase):
         relative_home_foo = uu.normpath(os.path.join(os.path.curdir, 'home/foo'))
         cls.TESTDATA_NORMALIZE = [
             # Expands tilde to user home directory
-            ('~', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
+            ('~', uu.encode(uuconst.DIRPATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.DIRPATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.DIRPATH_USER_HOME, 'foo'))),
 
             # Collapses repeating path separators
             ('/home/foo', b'/home/foo'),
@@ -1902,9 +1902,9 @@ class TestCoerceToNormalizedPathcomponent(TestCase):
     def setUpClass(cls):
         cls.TESTDATA_NORMALIZE = [
             # Path with user home
-            ('~', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/', uu.encode(uuconst.PATH_USER_HOME)),
-            ('~/foo', uu.normpath(os.path.join(uuconst.PATH_USER_HOME, 'foo'))),
+            ('~', uu.encode(uuconst.DIRPATH_USER_HOME)),
+            ('~/', uu.encode(uuconst.DIRPATH_USER_HOME)),
+            ('~/foo', uu.normpath(os.path.join(uuconst.DIRPATH_USER_HOME, 'foo'))),
 
             # Normalizes path components
             ('/', b'/'),

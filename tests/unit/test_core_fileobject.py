@@ -96,12 +96,12 @@ class TestFileObject(TestCase):
         self.assertEqual(b'magic_txt.txt', self.fo.filename)
 
     def test_pathname(self):
-        expected = uu.normpath(uuconst.PATH_SAMPLEFILES)
+        expected = uu.normpath(uuconst.DIRPATH_SAMPLEFILES)
         self.assertEqual(expected, self.fo.pathname)
 
     def test_pathparent(self):
         expected = uu.encode(os.path.basename(os.path.normpath(
-            enc.syspath(uuconst.PATH_SAMPLEFILES)
+            enc.syspath(uuconst.DIRPATH_SAMPLEFILES)
         )))
         self.assertEqual(expected, self.fo.pathparent)
 
@@ -382,7 +382,7 @@ class TestValidatePathArgument(TestCase):
             _validate_path_argument(unicodestr_path)
 
     def test_raises_exception_given_directory_path(self):
-        path_to_dir = uu.bytestring_path(uuconst.PATH_SAMPLEFILES)
+        path_to_dir = uu.bytestring_path(uuconst.DIRPATH_SAMPLEFILES)
         self.assertTrue(uu.is_internalbytestring(path_to_dir))
         self.assertTrue(uu.dir_exists(path_to_dir))
         with self.assertRaises(InvalidFileArgumentError):

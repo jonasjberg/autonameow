@@ -77,7 +77,7 @@ class TestTechniqueForAccessingAttributesWithoutImporting(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.version_filepath = os.path.realpath(
-            os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'core', 'version.py')
+            os.path.join(uuconst.DIRPATH_AUTONAMEOW_SRCROOT, 'core', 'version.py')
         )
 
     def test_version_file_exists(self):
