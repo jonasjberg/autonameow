@@ -200,19 +200,26 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
     Returns:
         The full absolute path of the created file as a bytestring.
     """
-    if basename:
-        f = os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
-        _dest_dir = os.path.realpath(os.path.dirname(f))
-        _dest_path = os.path.join(_dest_dir,
-                                  enc.syspath(basename))
-        os.rename(f, _dest_path)
+    temp_filepath = os.path.realpath(
+        tempfile.NamedTemporaryFile(
+            delete=False,
+            prefix=prefix,
+            suffix=suffix,
+        ).name
+    )
 
-        out = os.path.realpath(_dest_path)
+    if basename:
+        # Rename the file.
+        dest_filepath = os.path.abspath(os.path.join(
+            os.path.dirname(temp_filepath),
+            enc.syspath(basename),
+        ))
+        os.rename(temp_filepath, dest_filepath)
+        resulting_filepath = dest_filepath
     else:
-        out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
-                                                           prefix=prefix,
-                                                           suffix=suffix).name)
-    return bytestring_path(out)
+        resulting_filepath = temp_filepath
+
+    return bytestring_path(resulting_filepath)
 
 
 def get_mock_fileobject(mime_type=None):
