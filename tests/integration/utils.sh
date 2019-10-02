@@ -247,7 +247,8 @@ aw_utils.calculate_execution_time()
 
 aw_utils.samplefile_abspath()
 {
-    realpath --canonicalize-existing -- "${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles/${1}"
+    [ -d "$AUTONAMEOW_SAMPLEFILES_DIRPATH" ] || exit 70
+    realpath --canonicalize-existing -- "${AUTONAMEOW_SAMPLEFILES_DIRPATH}/${1}"
 }
 
 # Test a bunch of '[ -d "foo" ]'-style assertions at once.
