@@ -54,8 +54,6 @@ aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 _integration_utils_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 assert_bulk_test "$_integration_utils_path" e r x
 
-source "$_integration_utils_path"
-
 aw_utils.assert_true 'type -t aw_utils.command_exists' \
             '"aw_utils.command_exists" is defined after sourcing the common integration test utilities'
 
