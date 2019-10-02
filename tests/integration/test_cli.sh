@@ -183,14 +183,14 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --list-all --dry-run --verbose -- "$
 #
 # Tests the recursive option.
 
-TEST_FILES_SUBDIR="$(aw_utils.samplefile_abspath "subdir")"
-aw_utils.assert_bulk_test "$TEST_FILES_SUBDIR" d r w x
+SAMPLE_SUBDIR="$(aw_utils.samplefile_abspath "subdir")"
+aw_utils.assert_bulk_test "$SAMPLE_SUBDIR" d r w x
 
-aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$TEST_FILES_SUBDIR"' \
-            "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${TEST_FILES_SUBDIR}\"\""
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --recurse --dry-run -- "$SAMPLE_SUBDIR"' \
+            "Expect exit code 0 when running \"--batch --recurse --dry-run -- \"${SAMPLE_SUBDIR}\"\""
 
-aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$TEST_FILES_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
-            "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- ${TEST_FILES_SUBDIR}\""
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" --batch --verbose --recurse --dry-run -- "$SAMPLE_SUBDIR" 2>&1 | grep -- ".*Got 8 files to process.*"' \
+            "Expect output to contain \"Got 8 files to process\" when running \"--batch --verbose --recurse --dry-run -- ${SAMPLE_SUBDIR}\""
 
 
 # ______________________________________________________________________________
