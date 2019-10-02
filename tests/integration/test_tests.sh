@@ -146,7 +146,7 @@ aw_utils.assert_true '"$_regression_runner_path" -h' \
 
 # ______________________________________________________________________________
 #
-# Check developer scripts and utilities in 'devscripts'.
+# Check developer scripts and utilities.
 
 _devscripts_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts"
 aw_utils.assert_bulk_test "$_devscripts_path" n e d r w x
