@@ -31,6 +31,7 @@ EOF
 fi
 
 # Resets test suite counter variables.
+# shellcheck source=tests/integration/utils.sh
 source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 

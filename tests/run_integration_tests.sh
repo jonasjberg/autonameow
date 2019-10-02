@@ -27,6 +27,7 @@ declare -r EXIT_CRITICAL=2
 SELF_BASENAME="$(basename -- "$0")"
 SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
 
+# shellcheck source=tests/setup_environment.sh
 if ! source "${SELF_DIRPATH}/setup_environment.sh"
 then
     cat >&2 <<EOF
@@ -38,6 +39,7 @@ EOF
     exit "$EXIT_CRITICAL"
 fi
 
+# shellcheck source=tests/integration/utils.sh
 if ! source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 then
     cat >&2 <<EOF
@@ -158,8 +160,10 @@ do
     aw_utils.log_msg_timestamped "Starting \"${_testscript_base}\" .."
     if $option_quiet
     then
+        # shellcheck disable=SC1090
         source "$testscript" &>/dev/null
     else
+        # shellcheck disable=SC1090
         source "$testscript"
     fi
     aw_utils.log_msg_timestamped "Finished \"${_testscript_base}\""

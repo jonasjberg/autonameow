@@ -21,6 +21,7 @@ set -o nounset
 
 SELF_DIRPATH="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
 
+# shellcheck source=tests/setup_environment.sh
 if ! source "${SELF_DIRPATH}/setup_environment.sh"
 then
     cat >&2 <<EOF
