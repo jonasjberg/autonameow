@@ -226,15 +226,18 @@ def get_mock_fileobject(mime_type=None):
     """
     Returns 'FileObject' instances for use by unit tests.
 
+    The returned instance is either created from a sample file with the
+    specified MIME-type, or from a new temporary file if no MIME-type is given.
+
     Args:
-        mime_type: Optional MIME type of the source file.
+        mime_type: Optional MIME type of an existing sample file.
 
     Returns:
-        A mock FileObject built from an actual (empty) file.
+        An instance of 'FileObject' constructed from a file on disk.
     """
     # TODO: [hardcoded] Might break if options data structure is modified.
 
-    MIME_TYPE_TEST_FILE_LOOKUP = {
+    SAMPLEFILE_FROM_MIMETYPE_LOOKUP = {
         'application/pdf': 'magic_pdf.pdf',
         'image/gif': 'magic_gif.gif',
         'image/jpeg': 'magic_jpg.jpg',
@@ -245,14 +248,12 @@ def get_mock_fileobject(mime_type=None):
         'video/mp4': 'magic_mp4.mp4',
         'inode/x-empty': 'empty',
     }
+    if mime_type and mime_type in SAMPLEFILE_FROM_MIMETYPE_LOOKUP:
+        filename = SAMPLEFILE_FROM_MIMETYPE_LOOKUP[mime_type]
+        return fileobject_from_samplefile(filename)
 
-    if mime_type and mime_type in MIME_TYPE_TEST_FILE_LOOKUP:
-        __test_file_basename = MIME_TYPE_TEST_FILE_LOOKUP[mime_type]
-        temp_file = samplefile_abspath(__test_file_basename)
-    else:
-        temp_file = make_temporary_file()
-
-    return FileObject(normpath(temp_file))
+    filepath = make_temporary_file()
+    return fileobject_from_filepath(filepath)
 
 
 def get_meowuri():
