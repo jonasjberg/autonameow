@@ -20,7 +20,8 @@
 set -o nounset
 
 SELF_BASENAME="$(basename -- "$0")"
-SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
+self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_dirpath
 
 
 # Default configuration.
@@ -69,14 +70,14 @@ printf 'Currently skipped regression tests:\n'
 while IFS= read -r -d '' skipfile_path
 do
     basename -- "$(dirname -- "$skipfile_path")"
-done < <(find "$SELF_DIRPATH" "${common_find_flags[@]}" -print0 | sort -z)
+done < <(find "$self_dirpath" "${common_find_flags[@]}" -print0 | sort -z)
 
 
 if [ "$option_clear_all_skipped" == 'true' ]
 then
     printf '\nClearing all skipped tests .. '
 
-    if find "$SELF_DIRPATH" "${common_find_flags[@]}" -delete
+    if find "$self_dirpath" "${common_find_flags[@]}" -delete
     then
         printf '[SUCCESS]\n'
     else

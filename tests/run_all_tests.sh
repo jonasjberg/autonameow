@@ -25,14 +25,15 @@ declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
 SELF_BASENAME="$(basename -- "$0")"
-SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
+self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_dirpath
 
 # shellcheck source=tests/setup_environment.sh
-if ! source "${SELF_DIRPATH}/setup_environment.sh"
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRPATH}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
@@ -113,9 +114,9 @@ runner_opts=''
 $option_write_reports && runner_opts='-w'
 
 declare -i COUNT_FAIL=0
-run_task "$option_quiet" 'Running unit test runner'        '${SELF_DIRPATH}/run_unit_tests.sh $runner_opts'
-run_task "$option_quiet" 'Running regression test runner'  '${SELF_DIRPATH}/run_regression_tests.sh -f "!*LOCAL*"'
-run_task "$option_quiet" 'Running integration test runner' '${SELF_DIRPATH}/run_integration_tests.sh'
+run_task "$option_quiet" 'Running unit test runner'        '${self_dirpath}/run_unit_tests.sh $runner_opts'
+run_task "$option_quiet" 'Running regression test runner'  '${self_dirpath}/run_regression_tests.sh -f "!*LOCAL*"'
+run_task "$option_quiet" 'Running integration test runner' '${self_dirpath}/run_integration_tests.sh'
 
 printf '\n%s\n' "Completed in $SECONDS seconds"
 

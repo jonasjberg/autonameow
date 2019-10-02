@@ -28,6 +28,7 @@ then
     # Try to get the absolute path to the autonameow source root ..
     self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
     AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]

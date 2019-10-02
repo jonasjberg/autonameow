@@ -29,6 +29,7 @@ if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
     AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]

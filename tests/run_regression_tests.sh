@@ -19,14 +19,15 @@
 
 set -o nounset
 
-SELF_DIRPATH="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+readonly self_dirpath
 
 # shellcheck source=tests/setup_environment.sh
-if ! source "${SELF_DIRPATH}/setup_environment.sh"
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRPATH}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF

@@ -20,12 +20,12 @@
 set -o noclobber -o nounset -o pipefail
 
 
-SELF_DIRPATH="$(realpath -e -- "$(dirname -- "$0")")"
-
 # Get absolute path to the autonameow source root.
 if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
-    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${SELF_DIRPATH}/..")"
+    self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]

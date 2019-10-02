@@ -40,6 +40,7 @@ if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
     AUTONAMEOW_ROOT_DIRPATH="$(realpath --canonicalize-existing -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
 if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]

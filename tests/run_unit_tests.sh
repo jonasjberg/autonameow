@@ -25,14 +25,15 @@ declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
 SELF_BASENAME="$(basename -- "$0")"
-SELF_DIRNAME="$(dirname -- "$0")"
+self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+readonly self_dirpath
 
 # shellcheck source=tests/setup_environment.sh
-if ! source "${SELF_DIRNAME}/setup_environment.sh"
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
