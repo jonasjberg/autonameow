@@ -71,7 +71,7 @@ class TestEbookAnalyzer(TestCase):
         ]
 
     def setUp(self):
-        self.fileobject = uu.get_named_fileobject('2010-01-31_161251.jpg')
+        self.fileobject = uu.get_mock_fileobject()
         self.analyzer = _get_ebook_analyzer(self.fileobject)
 
     def test_setup(self):

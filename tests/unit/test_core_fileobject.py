@@ -46,7 +46,7 @@ class TestFileObjectExceptions(TestCase):
 
 class TestFileObjectTypes(TestCase):
     def setUp(self):
-        self.fo = uu.get_named_fileobject('20160722 Descriptive name.txt')
+        self.fo = uu.get_mock_fileobject()
 
     def test_internal_bytestring_path_type_abspath(self):
         self.assertTrue(uu.is_internalbytestring(self.fo.abspath))

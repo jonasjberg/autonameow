@@ -281,15 +281,6 @@ def get_mock_analyzer():
         n += 1
 
 
-def get_named_fileobject(basename):
-    """
-    Returns: A FileObject based on a temporary file with the given basename.
-    """
-    _tf = make_temporary_file(basename=basename)
-    _f = normpath(_tf)
-    return FileObject(_f)
-
-
 @contextmanager
 def capture_stdout(finally_print=False):
     """Save stdout in a StringIO.
