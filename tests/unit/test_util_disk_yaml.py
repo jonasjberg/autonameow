@@ -73,7 +73,7 @@ class TestLoadYamlFile(TestCase):
         _fail(b'')
         _fail('foo')
         _fail(b'foo')
-        _fail(uu.abspath_testfile('magic_png.png'))
+        _fail(uu.samplefile_abspath('magic_png.png'))
 
 
 class TestWriteYamlFile(TestCase):

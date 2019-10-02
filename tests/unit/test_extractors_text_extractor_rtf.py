@@ -32,10 +32,10 @@ UNMET_DEPENDENCIES = (
 )
 
 # TODO: This will fail. Either normalize text before returning or skip this!
-TESTFILE_A = uu.abspath_testfile('ObjectCalisthenics.rtf')
+TESTFILE_A = uu.samplefile_abspath('ObjectCalisthenics.rtf')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('ObjectCalisthenics.rtf')
 
-TESTFILE_B = uu.abspath_testfile('sample.rtf')
+TESTFILE_B = uu.samplefile_abspath('sample.rtf')
 TESTFILE_B_EXPECTED = uu.get_expected_text_for_testfile('sample.rtf')
 
 

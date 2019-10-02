@@ -500,7 +500,7 @@ class RegressionTestLoader(object):
         elif config_path.startswith('$TESTFILES/'):
             # Substitute "variable".
             config_path_basename = config_path.replace('$TESTFILES/', '').strip()
-            modified_path = uu.abspath_testfile(config_path_basename)
+            modified_path = uu.samplefile_abspath(config_path_basename)
         elif config_path.startswith('$THISTEST/'):
             # Substitute "variable".
             config_path_basename = config_path.replace('$THISTEST/', '').strip()
@@ -581,7 +581,7 @@ def _expand_input_paths_variables(input_paths):
         elif path.startswith('$TESTFILES/'):
             # Substitute "variable".
             path_basename = path.replace('$TESTFILES/', '')
-            modified_path = uu.abspath_testfile(path_basename)
+            modified_path = uu.samplefile_abspath(path_basename)
         else:
             # Normalize path.
             try:

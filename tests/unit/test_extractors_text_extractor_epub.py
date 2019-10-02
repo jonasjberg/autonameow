@@ -38,7 +38,7 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.abspath_testfile('pg38145-images.epub')
+TESTFILE_A = uu.samplefile_abspath('pg38145-images.epub')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('pg38145-images.epub')
 
 
@@ -81,11 +81,11 @@ class TestEpubTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestExtractTextWithEbooklib(TestCase):
     def setUp(self):
-        self.sample_file = uu.abspath_testfile('pg38145-images.epub')
+        self.sample_file = uu.samplefile_abspath('pg38145-images.epub')
         self.assertTrue(uu.file_exists(self.sample_file))
 
     def test_does_not_open_non_epub_files(self):
-        not_epub_file = uu.abspath_testfile('gmail.pdf')
+        not_epub_file = uu.samplefile_abspath('gmail.pdf')
         self.assertTrue(uu.file_exists(not_epub_file))
 
         with self.assertRaises(ExtractorError):

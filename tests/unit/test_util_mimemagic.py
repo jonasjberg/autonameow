@@ -45,7 +45,7 @@ class TestFileMimetype(TestCase):
     def setUpClass(cls):
         cls.null_mimetype = coercers.NULL_AW_MIMETYPE
         cls.FILEPATH_EXPECTED = [
-            (uu.abspath_testfile(basename), mimetype)
+            (uu.samplefile_abspath(basename), mimetype)
             for basename, mimetype in cls.TESTFILE_BASENAME_EXPECTED_MIMETYPE
         ]
 

@@ -406,14 +406,14 @@ class TestExpandInputPathsVariables(TestCase):
 
     def test_input_path_is_replaced(self):
         self._assert_that_it_returns(
-            expected=[uu.abspath_testfile('gmail.pdf')],
+            expected=[uu.samplefile_abspath('gmail.pdf')],
             given=['$TESTFILES/gmail.pdf']
         )
 
     def test_input_paths_are_replaced(self):
         self._assert_that_it_returns(
-            expected=[uu.abspath_testfile('gmail.pdf'),
-                      uu.abspath_testfile('magic_txt.txt')],
+            expected=[uu.samplefile_abspath('gmail.pdf'),
+                      uu.samplefile_abspath('magic_txt.txt')],
             given=['$TESTFILES/gmail.pdf',
                    '$TESTFILES/magic_txt.txt']
         )

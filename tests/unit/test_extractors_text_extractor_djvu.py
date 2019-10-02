@@ -31,7 +31,7 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.abspath_testfile('Critique_of_Pure_Reason.djvu')
+TESTFILE_A = uu.samplefile_abspath('Critique_of_Pure_Reason.djvu')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('Critique_of_Pure_Reason.djvu')
 
 

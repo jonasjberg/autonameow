@@ -215,14 +215,14 @@ class TestAutodetectDecode(TestCase):
 
 class TestDetectEncoding(TestCase):
     def test_detects_ascii(self):
-        sample = uu.abspath_testfile('magic_txt.txt')
+        sample = uu.samplefile_abspath('magic_txt.txt')
         self.assertTrue(uu.file_exists(sample))
         actual = detect_encoding(sample)
         self.assertEqual(actual, 'ascii')
 
     @expectedFailure
     def test_detects_utf8(self):
-        sample = uu.abspath_testfile('README.txt')
+        sample = uu.samplefile_abspath('README.txt')
         self.assertTrue(uu.file_exists(sample))
         actual = detect_encoding(sample)
         self.assertEqual('utf-8', actual)
@@ -256,13 +256,13 @@ class TestDetectEncoding(TestCase):
     @expectedFailure
     def test_returns_none_for_non_text_files(self):
         for test_file in ['magic_jpg.jpg', 'magic_png.png']:
-            sample = uu.abspath_testfile(test_file)
+            sample = uu.samplefile_abspath(test_file)
             self.assertTrue(uu.file_exists(sample))
             actual = detect_encoding(sample)
             self.assertIsNone(actual)
 
     def test_returns_none_for_empty_files(self):
-        sample = uu.abspath_testfile('empty')
+        sample = uu.samplefile_abspath('empty')
         self.assertTrue(uu.file_exists(sample))
         actual = detect_encoding(sample)
         self.assertIsNone(actual)

@@ -273,12 +273,12 @@ class TestIsfile(TestCase):
 
 class TestIsLink(TestCase):
     def test_returns_false_given_file(self):
-        f = uu.abspath_testfile('empty')
+        f = uu.samplefile_abspath('empty')
         actual = islink(f)
         self.assertFalse(actual)
 
     def test_returns_true_given_symlink(self):
-        f = uu.abspath_testfile('empty.symlink')
+        f = uu.samplefile_abspath('empty.symlink')
         actual = islink(f)
         self.assertTrue(actual)
 
@@ -522,9 +522,9 @@ class TestFileByteSize(TestCase):
     def setUpClass(cls):
         # List of (path to existing file, size in bytes) tuples
         cls.samplefiles = [
-            (uu.abspath_testfile('magic_pdf.pdf'), 10283),
-            (uu.abspath_testfile('magic_jpg.jpg'), 547),
-            (uu.abspath_testfile('empty'), 0)
+            (uu.samplefile_abspath('magic_pdf.pdf'), 10283),
+            (uu.samplefile_abspath('magic_jpg.jpg'), 547),
+            (uu.samplefile_abspath('empty'), 0)
         ]
 
     def test_setup_class(self):

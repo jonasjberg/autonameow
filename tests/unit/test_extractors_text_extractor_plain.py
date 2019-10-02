@@ -70,7 +70,7 @@ class TestPlainTextExtractorCanHandle(TestCase):
 class TestReadEntireTextFileA(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.sample_file = uu.abspath_testfile('magic_txt.txt')
+        cls.sample_file = uu.samplefile_abspath('magic_txt.txt')
         cls.actual = read_entire_text_file(cls.sample_file)
 
     def test_prerequisites(self):
@@ -89,7 +89,7 @@ class TestReadEntireTextFileA(TestCase):
 class TestReadEntireTextFileB(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.sample_file = uu.abspath_testfile('simplest_pdf.md.pdf.txt')
+        cls.sample_file = uu.samplefile_abspath('simplest_pdf.md.pdf.txt')
         cls.expected_text = '''Probably a title
 Text following the title, probably.
 

@@ -164,12 +164,12 @@ class TestDefaultConfigFromFile(TestCase):
             _ = self.config_parser.from_file(self.config_path_unicode)
 
     def test_raises_config_error_if_given_path_to_empty_file(self):
-        filepath_empty_file = uu.normpath(uu.abspath_testfile('empty'))
+        filepath_empty_file = uu.normpath(uu.samplefile_abspath('empty'))
         with self.assertRaises(ConfigError):
             _ = self.config_parser.from_file(filepath_empty_file)
 
     def test_raises_config_error_if_given_path_to_png_image_file(self):
-        filepath_empty_file = uu.normpath(uu.abspath_testfile('empty'))
+        filepath_empty_file = uu.normpath(uu.samplefile_abspath('empty'))
         with self.assertRaises(ConfigError):
             _ = self.config_parser.from_file(filepath_empty_file)
 

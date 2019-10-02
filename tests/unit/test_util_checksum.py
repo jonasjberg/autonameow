@@ -26,17 +26,17 @@ from util import checksum
 # NOTE(jonas): Optionally add the absolute path to some big file here.
 TESTFILE_REALLY_BIG_FILE = 'TODO: Insert path to huge file here'
 
-TESTFILE_EMPTY = uu.abspath_testfile('empty')
+TESTFILE_EMPTY = uu.samplefile_abspath('empty')
 TESTFILE_EMPTY_MD5 = 'd41d8cd98f00b204e9800998ecf8427e'
 TESTFILE_EMPTY_SHA1 = 'da39a3ee5e6b4b0d3255bfef95601890afd80709'
 TESTFILE_EMPTY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 
-TESTFILE_MAGICTXT = uu.abspath_testfile('magic_txt.txt')
+TESTFILE_MAGICTXT = uu.samplefile_abspath('magic_txt.txt')
 TESTFILE_MAGICTXT_MD5 = 'e1cbb0c3879af8347246f12c559a86b5'
 TESTFILE_MAGICTXT_SHA1 = 'aa785adca3fcdfe1884ae840e13c6d294a2414e8'
 TESTFILE_MAGICTXT_SHA256 = 'b9e68e1bea3e5b19ca6b2f98b73a54b73daafaa250484902e09982e07a12e733'
 
-TESTFILE_MAGICPNG = uu.abspath_testfile('magic_png.png')
+TESTFILE_MAGICPNG = uu.samplefile_abspath('magic_png.png')
 TESTFILE_MAGICPNG_MD5 = '995b55fce80c125771c40a42a297b4ea'
 TESTFILE_MAGICPNG_SHA1 = '63679a1a5a1f177effbc58cf1cd0dfabc5bd5120'
 TESTFILE_MAGICPNG_SHA256 = '9c138627d827a2efd5ab835098ea3363cc8e13ec6d1745b94663b41e810a6448'

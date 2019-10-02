@@ -37,10 +37,10 @@ UNMET_DEPENDENCIES = (
 # NOTE: It seems that pdftotext strips trailing whitespace on MacOS (v0.57.0)
 #       but not on Linux (v0.41.0) --- gives inconsistent test results (?)
 
-TESTFILE_A = uu.abspath_testfile('simplest_pdf.md.pdf')
+TESTFILE_A = uu.samplefile_abspath('simplest_pdf.md.pdf')
 TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('simplest_pdf.md.pdf')
 
-TESTFILE_B = uu.abspath_testfile('magic_pdf.pdf')
+TESTFILE_B = uu.samplefile_abspath('magic_pdf.pdf')
 TESTFILE_B_EXPECTED = uu.get_expected_text_for_testfile('magic_pdf.pdf')
 
 

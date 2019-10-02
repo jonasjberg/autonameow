@@ -30,13 +30,13 @@ from core import FileObject
 from core.model import MeowURI
 
 
-class TestUnitUtilityAbsPathTestFile(TestCase):
+class TestUnitUtilitySamplefileAbspath(TestCase):
     def test_returns_expected_encoding(self):
-        actual = uu.abspath_testfile('empty')
+        actual = uu.samplefile_abspath('empty')
         self.assertIsInstance(actual, str)
 
     def test_returns_absolute_paths(self):
-        actual = uu.abspath_testfile('empty')
+        actual = uu.samplefile_abspath('empty')
         self.assertTrue(os.path.isabs(actual))
 
 
@@ -80,7 +80,7 @@ class TestUnitUtilityAbsPathTestConfig(TestCase):
 
 class TestUnitUtilityAsFileObject(TestCase):
     def test_returns_fileobject_given_unicode_string_path(self):
-        filepath = uu.abspath_testfile('empty')
+        filepath = uu.samplefile_abspath('empty')
         self.assertIsInstance(filepath, str)
         self.assertTrue(os.path.exists(filepath))
 
@@ -89,7 +89,7 @@ class TestUnitUtilityAsFileObject(TestCase):
         self.assertTrue(os.path.isabs(actual.abspath))
 
     def test_returns_fileobject_given_bytes_path(self):
-        filepath = uu.abspath_testfile('empty')
+        filepath = uu.samplefile_abspath('empty')
 
         bytes_filepath = uu.bytestring_path(filepath)
         self.assertIsInstance(bytes_filepath, bytes)

@@ -39,7 +39,7 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.abspath_testfile('2007-04-23_12-comments.png')
+TESTFILE_A = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
 
 class TestPrerequisites(TestCase):
@@ -96,7 +96,7 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
 
 @skipIf(*PIL_IS_NOT_AVAILABLE)
 class TestTesseractWrapper(TestCase):
-    TEST_FILE = uu.abspath_testfile('2007-04-23_12-comments.png')
+    TEST_FILE = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
     def test_pil_read_image_returns_pil_image_for_valid_images(self):
         # Tests both Unicode or bytestring file names, even though the
@@ -111,8 +111,8 @@ class TestTesseractWrapper(TestCase):
             '/foo/bar/baz',
             '',
             ' ',
-            uu.abspath_testfile('empty'),
-            uu.abspath_testfile('magic_txt.txt')
+            uu.samplefile_abspath('empty'),
+            uu.samplefile_abspath('magic_txt.txt')
         ]
         # TODO: Fix ResourceWarning: unclosed file <_io.BufferedReader
         #           name='<SNIP>/tests/samplefiles/empty'>

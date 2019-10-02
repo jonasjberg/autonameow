@@ -35,7 +35,7 @@ from extractors.meowxtract import TextExtractionResult
 
 
 def _get_input_paths():
-    return [uu.abspath_testfile('magic_txt.txt')]
+    return [uu.samplefile_abspath('magic_txt.txt')]
 
 
 def _get_input_fileobject():

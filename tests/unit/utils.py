@@ -34,20 +34,22 @@ from core import FileObject
 from util import encoding as enc
 
 
-def abspath_testfile(testfile_basename):
+def samplefile_abspath(filename):
     """
     Utility function used by tests to construct a full path to individual test
     files in the 'samplefiles' directory.
 
     Args:
-        testfile_basename: Basename of a file in the 'samplefiles' directory as
-                           a Unicode string (internal string format)
+        filename: Basename of a file in the 'samplefiles' directory as a Unicode
+                  string (internal string format)
 
     Returns:
-        The full absolute path to the given file.
+        The full absolute path to the sample file with the given basename.
     """
-    return os.path.abspath(os.path.join(uuconst.DIRPATH_SAMPLEFILES,
-                                        testfile_basename))
+    return os.path.abspath(os.path.join(
+        uuconst.DIRPATH_SAMPLEFILES,
+        filename,
+    ))
 
 
 def abspath_testconfig(testconfig_basename=None):
@@ -242,7 +244,7 @@ def get_mock_fileobject(mime_type=None):
 
     if mime_type and mime_type in MIME_TYPE_TEST_FILE_LOOKUP:
         __test_file_basename = MIME_TYPE_TEST_FILE_LOOKUP[mime_type]
-        temp_file = abspath_testfile(__test_file_basename)
+        temp_file = samplefile_abspath(__test_file_basename)
     else:
         temp_file = make_temporary_file()
 
@@ -266,9 +268,9 @@ def as_fileobject(filepath):
 
 def fileobject_testfile(testfile_basename):
     """
-    Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
+    Like 'samplefile_abspath' but wraps the result in a 'FileObject' instance.
     """
-    _f = normpath(abspath_testfile(testfile_basename))
+    _f = normpath(samplefile_abspath(testfile_basename))
     return FileObject(_f)
 
 
@@ -550,7 +552,7 @@ def get_expected_text_for_testfile(testfile_basename):
     assert isinstance(testfile_basename, str)
 
     expected_text_basename = testfile_basename + '_expected.txt'
-    p = abspath_testfile(expected_text_basename)
+    p = samplefile_abspath(expected_text_basename)
     try:
         with open(p, 'r', encoding='utf8') as fh:
             return fh.read()
