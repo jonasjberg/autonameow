@@ -52,13 +52,13 @@ class TestDjvuTextExtractor(CaseTextExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestDjvuTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = DjvuTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestDjvuTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = DjvuTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
     EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 

@@ -67,20 +67,20 @@ class TestPdfTextExtractor(CaseTextExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
     EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestPdfTextExtractorOutputTestFileB(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = PdfTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_B)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_B)
     EXPECTED_TEXT = TESTFILE_B_EXPECTED
 
 
@@ -100,8 +100,8 @@ class TestCachingRuntime(TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        source_a = uu.as_fileobject(TESTFILE_A)
-        source_b = uu.as_fileobject(TESTFILE_B)
+        source_a = uu.fileobject_from_filepath(TESTFILE_A)
+        source_b = uu.fileobject_from_filepath(TESTFILE_B)
 
         # Patch to disable caching.
         # "Should" be equivalent to not calling 'init_cache()' in '__init__()'.

@@ -59,13 +59,13 @@ class TestEpubTextExtractor(CaseTextExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
     EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
@@ -75,7 +75,7 @@ class TestEpubTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
 # @skipIf(*UNMET_DEPENDENCIES)
 # class TestEpubTextExtractorOutputTypes(TestCaseExtractorOutputTypes):
 #     EXTRACTOR_CLASS = EpubTextExtractor
-#     SOURCE_FILEOBJECT = uu.as_fileobject('magic_jpg.jpg')
+#     SOURCE_FILEOBJECT = uu.fileobject_from_filepath('magic_jpg.jpg')
 
 
 @skipIf(*UNMET_DEPENDENCIES)

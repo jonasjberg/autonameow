@@ -258,7 +258,7 @@ def get_meowuri():
     return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
-def as_fileobject(filepath):
+def fileobject_from_filepath(filepath):
     bytestring_filepath = bytestring_path(filepath)
     return FileObject(bytestring_filepath)
 

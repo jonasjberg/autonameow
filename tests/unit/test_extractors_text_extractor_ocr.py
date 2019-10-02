@@ -57,7 +57,7 @@ class TestTesseractOCRTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestTesseractOCRTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 class TestTesseractOCRTextExtractorCanHandle(TestCase):

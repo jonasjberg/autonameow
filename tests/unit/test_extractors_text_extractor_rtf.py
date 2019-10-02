@@ -63,7 +63,7 @@ class TestRichTextFormatTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestRichTextFormatTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                                  TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 @skip('TODO: Messy whitespace and unquoted control characters ..')
@@ -71,7 +71,7 @@ class TestRichTextFormatTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
 class TestRichTextFormatTextExtractorOutputTestFileA(CaseTextExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
     EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
@@ -79,7 +79,7 @@ class TestRichTextFormatTextExtractorOutputTestFileA(CaseTextExtractorOutput,
 class TestRichTextFormatTextExtractorOutputTestFileB(CaseTextExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_B)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_B)
     EXPECTED_TEXT = TESTFILE_B_EXPECTED
 
 
@@ -87,7 +87,7 @@ class TestRichTextFormatTextExtractorOutputTestFileB(CaseTextExtractorOutput,
 class TestRichTextFormatTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.test_fileobject = uu.as_fileobject(TESTFILE_A)
+        self.test_fileobject = uu.fileobject_from_filepath(TESTFILE_A)
 
         self.e = RichTextFormatTextExtractor()
         # Disable the cache

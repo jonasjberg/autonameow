@@ -53,14 +53,14 @@ class TestMarkdownTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestMarkdownTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                            TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorOutputTestFileA(CaseTextExtractorOutput,
                                                TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
     EXPECTED_TEXT = TESTFILE_A_EXPECTED
 
 
@@ -68,7 +68,7 @@ class TestMarkdownTextExtractorOutputTestFileA(CaseTextExtractorOutput,
 class TestMarkdownTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.test_fileobject = uu.as_fileobject(TESTFILE_A)
+        self.test_fileobject = uu.fileobject_from_filepath(TESTFILE_A)
 
         self.e = MarkdownTextExtractor()
         # Disable the cache
@@ -91,7 +91,7 @@ class TestMarkdownTextExtractorCanHandle(TestCase):
         self.fo_pdf = uu.get_mock_fileobject(mime_type='application/pdf')
         self.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         self.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
-        self.fo_md = uu.as_fileobject(TESTFILE_A)
+        self.fo_md = uu.fileobject_from_filepath(TESTFILE_A)
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))
