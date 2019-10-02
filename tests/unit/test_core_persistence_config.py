@@ -114,6 +114,6 @@ class TestLoadConfigFromFile(TestCase):
 
     @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_valid_config_from_absolute_path(self):
-        config_filepath = uu.normpath(uu.abspath_testconfig())
+        config_filepath = uu.normpath(uu.samplefile_config_abspath())
         actual = load_config_from_file(config_filepath)
         self.assertIsNotNone(actual)

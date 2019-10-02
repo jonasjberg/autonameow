@@ -58,7 +58,7 @@ class TestLoadYaml(TestCase):
 
 class TestLoadYamlFile(TestCase):
     def test_loads_valid_file(self):
-        _yaml_path = uu.abspath_testconfig()
+        _yaml_path = uu.samplefile_config_abspath()
         actual = load_yaml_file(_yaml_path)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, dict)

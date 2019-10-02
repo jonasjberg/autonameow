@@ -191,7 +191,7 @@ class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
 class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls._default_config_path = uu.normpath(uu.abspath_testconfig())
+        cls._default_config_path = uu.normpath(uu.samplefile_config_abspath())
         cls._regressiontest_dir = _testsuite_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )

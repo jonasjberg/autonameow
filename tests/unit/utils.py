@@ -52,28 +52,25 @@ def samplefile_abspath(filename):
     ))
 
 
-def abspath_testconfig(testconfig_basename=None):
+def samplefile_config_abspath(filename=uuconst.DEFAULT_YAML_CONFIG_BASENAME):
     """
     Utility function used by tests to construct a full path to individual
     configuration files in the 'samplefiles/configs' directory.
 
     Args:
-        testconfig_basename: Basename of a file in the 'samplefiles/configs'
-                             directory as a Unicode string.
+        filename: Basename of a file in the 'samplefiles/configs' directory as
+                  a Unicode string.
 
     Returns:
-        The absolute path to the given configuration file as a Unicode string.
-        Or the default configuration file is no basename is specified.
+        The absolute path to the given configuration file as a Unicode string,
+        or the default configuration file if no basename is specified.
     """
-    if testconfig_basename is None:
-        _basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
-    else:
-        _basename = testconfig_basename
-    assert isinstance(_basename, str), type(_basename)
-
-    return os.path.abspath(
-        os.path.join(uuconst.DIRPATH_SAMPLEFILES, 'configs', _basename)
-    )
+    assert isinstance(filename, str), type(filename)
+    return os.path.abspath(os.path.join(
+        uuconst.DIRPATH_SAMPLEFILES,
+        'configs',
+        filename,
+    ))
 
 
 def encode(s):
@@ -509,7 +506,7 @@ def get_default_config():
     # TODO: [hack][cleanup] Mock properly! Remove?
     init_session_repository()
 
-    _config_path = normpath(abspath_testconfig())
+    _config_path = normpath(samplefile_config_abspath())
     assert isinstance(_config_path, bytes)
 
     from core.config.config_parser import ConfigurationParser

@@ -40,13 +40,13 @@ class TestUnitUtilitySamplefileAbspath(TestCase):
         self.assertTrue(os.path.isabs(actual))
 
 
-class TestUnitUtilityAbsPathTestConfig(TestCase):
+class TestUnitUtilitySamplefileConfigAbspath(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual_specified = uu.abspath_testconfig(
+        cls.actual_specified = uu.samplefile_config_abspath(
             uuconst.DEFAULT_YAML_CONFIG_BASENAME
         )
-        cls.actual_default = uu.abspath_testconfig()
+        cls.actual_default = uu.samplefile_config_abspath()
 
     def test_returns_expected_encoding(self):
         self.assertIsInstance(self.actual_specified, str)
@@ -60,21 +60,21 @@ class TestUnitUtilityAbsPathTestConfig(TestCase):
     def test_returns_path_to_existing_file(self):
         self.assertTrue(os.path.isfile(self.actual_specified))
 
-    def test_returns_default_config_if_basename_is_unspecified(self):
+    def test_returns_default_config_if_filename_is_unspecified(self):
         self.assertTrue(
             self.actual_default.endswith(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
         )
 
-    def test_basename_unspecified_returns_expected_encoding(self):
+    def test_filename_unspecified_returns_expected_encoding(self):
         self.assertIsInstance(self.actual_default, str)
 
-    def test_basename_unspecified_returns_absolute_path(self):
+    def test_filename_unspecified_returns_absolute_path(self):
         self.assertTrue(os.path.isabs(self.actual_default))
 
-    def test_basename_unspecified_returns_existing_path(self):
+    def test_filename_unspecified_returns_existing_path(self):
         self.assertTrue(os.path.exists(self.actual_default))
 
-    def test_basename_unspecified_returns_path_to_existing_file(self):
+    def test_filename_unspecified_returns_path_to_existing_file(self):
         self.assertTrue(os.path.isfile(self.actual_default))
 
 

@@ -138,7 +138,7 @@ class TestConfigurationParserLoadReusableNameTemplates(TestCase):
 class TestDefaultConfigFromFile(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.config_path_unicode = uu.abspath_testconfig()
+        cls.config_path_unicode = uu.samplefile_config_abspath()
         cls.config_path_bytestring = uu.normpath(cls.config_path_unicode)
 
     def setUp(self):

@@ -496,7 +496,7 @@ class RegressionTestLoader(object):
         config_path = coercers.force_string(options.get('config_path'))
         if not config_path:
             # Use default config.
-            modified_path = uu.abspath_testconfig()
+            modified_path = uu.samplefile_config_abspath()
         elif config_path.startswith('$TESTFILES/'):
             # Substitute "variable".
             config_path_basename = config_path.replace('$TESTFILES/', '').strip()
