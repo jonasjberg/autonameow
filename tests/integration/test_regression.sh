@@ -70,6 +70,8 @@ _regression_runner_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/run_regression_tests.s
 aw_utils.assert_bulk_test "$_regression_runner_path" n e r x
 
 _regression_runner_basename="$(basename -- "$_regression_runner_path")"
+readonly _regression_runner_basename
+
 aw_utils.assert_true '[ -n "$_regression_runner_basename" ]' \
             "Regression runner basename is captured by the integration test"
 
@@ -88,6 +90,7 @@ _regression_test_listing="$("$_regression_runner_path" --list 2>/dev/null)"
 _exit_status=$?
 aw_utils.assert_true '[ $_exit_status -eq 0 ]' \
             "Expect exit code 0 when running \"${_regression_runner_basename} --list\""
+unset _exit_status
 
 aw_utils.assert_true '[ -n "$_regression_test_listing" ]' \
             "Output of \"${_regression_runner_basename} --list\" is captured by the integration test"
@@ -141,6 +144,7 @@ _regression_test_verbose_listing="$("$_regression_runner_path" --list --verbose 
 _exit_status=$?
 aw_utils.assert_true '[ $_exit_status -eq 0 ]' \
             "Expect exit code 0 when running \"${_regression_runner_basename} --list --verbose\""
+unset _exit_status
 
 aw_utils.assert_true '[ -n "$_regression_test_verbose_listing" ]' \
             "Output of \"${_regression_runner_basename} --list --verbose\" is captured by the integration test"
@@ -194,6 +198,7 @@ _regression_test_get_cmd_stdout="$("$_regression_runner_path" --get-cmd 2>/dev/n
 _exit_status=$?
 aw_utils.assert_true '[ $_exit_status -eq 0 ]' \
             "Expect exit code 0 when running \"${_regression_runner_basename} --get-cmd\""
+unset _exit_status
 
 aw_utils.assert_true '[ -n "$_regression_test_get_cmd_stdout" ]' \
             "Output of \"${_regression_runner_basename} --get-cmd\" is captured by the integration test"

@@ -34,7 +34,7 @@ fi
 # shellcheck source=tests/integration/utils.sh
 source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
-vendor_dirpath="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/vendor"
+readonly vendor_dirpath="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/vendor"
 
 assert_can_import_python_module()
 {
