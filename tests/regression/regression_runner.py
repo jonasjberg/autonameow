@@ -481,19 +481,19 @@ def main(args):
     return C.EXIT_SUCCESS
 
 
-def print_traceback():
-    def _print_separator():
-        print('_' * 80 + '\n', file=sys.stderr)
-
-    _print_separator()
+def print_exception_with_traceback(exception):
+    # Calling 'str()' on instances of 'AssertionError' returns an empty string.
+    excstr = str(exception) or repr(exception)
+    print(
+        'CRITICAL: Caught {!s} in {!s}.__main__()\n'.format(excstr, __file__),
+        file=sys.stderr,
+    )
     import traceback
-    traceback.print_exc(file=sys.stderr, limit=None, chain=True)
-    _print_separator()
-
-
-def print_exception_error(message, exception):
-    print('\n\n{!s}'.format(message), file=sys.stderr)
-    print(str(exception), file=sys.stderr)
+    traceback.print_exc(
+        chain=True,
+        file=sys.stderr,
+        limit=None,
+    )
 
 
 if __name__ == '__main__':
@@ -503,16 +503,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('\nReceived keyboard interrupt. Exiting ..')
     except AssertionError as e:
-        print_exception_error(
-            'Caught AssertionError in regression_runner.__main__()', e
-        )
-        print_traceback()
+        print_exception_with_traceback(e)
         exit_code = C.EXIT_SANITYFAIL
     except Exception as e:
-        print_exception_error(
-            'Unhandled exception reached regression_runner.__main__()', e
-        )
-        print_traceback()
+        print_exception_with_traceback(e)
         exit_code = C.EXIT_ERROR
     finally:
         sys.exit(exit_code)
