@@ -255,10 +255,6 @@ def msg(message, style=None, ignore_quiet=False):
         if BE_QUIET:
             return
 
-    def _print_default_msg(text):
-        colored_text = colorize(text)
-        print_stdout(colored_text)
-
     def _print_info_msg(text):
         prefix = colorize('[info]', fore='LIGHTBLACK_EX')
         colored_text = colorize(text)
@@ -269,7 +265,7 @@ def msg(message, style=None, ignore_quiet=False):
         return
 
     if not style:
-        _print_default_msg(message)
+        print_stdout(message)
 
     elif style == 'info':
         _print_info_msg(message)
@@ -293,7 +289,7 @@ def msg(message, style=None, ignore_quiet=False):
 
     else:
         log.warning('Unknown message style "%s"', style)
-        _print_default_msg(message)
+        print_stdout(message)
 
 
 def msg_rename(from_basename, dest_basename, dry_run):
