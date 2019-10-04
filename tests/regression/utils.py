@@ -452,6 +452,7 @@ class RegressionTestLoader(object):
         if not options:
             log.warning('Read empty options from file: "%s"', abspath_opts)
             options = dict()
+
         return options
 
     def _load_file_skip(self):
@@ -843,14 +844,14 @@ def _load_assertion_regexes(asserts_dict, filedescriptor, assert_type):
                 filedescriptor, expression, e
             )
             raise RegressionTestError(error_msg)
+
     return regexes
 
 
 def check_stdout_asserts(suite, captured_stdout):
     results = list()
-    if not suite.asserts:
-        return results
-    if 'stdout' not in suite.asserts:
+
+    if not suite.asserts or 'stdout' not in suite.asserts:
         return results
 
     # TODO: Load and validate regexes before running the test!
