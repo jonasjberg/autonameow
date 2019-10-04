@@ -529,27 +529,27 @@ def as_meowuri(s):
         raise AssertionError(e)
 
 
-def get_expected_text_for_testfile(testfile_basename):
+def get_expected_text_for_samplefile(filename):
     """
-    Returns any text that should be extracted from a given test file.
+    Returns any text that should be extracted from a given sample file.
 
     If the given basename is found in the 'samplefiles' directory and a
     accompanying file containing reference text is found, it is returned.
 
     Args:
-        testfile_basename: Basename of a file in the 'samplefiles' directory as
-                           a Unicode string (internal string format)
+        filename: Basename of a file in the 'samplefiles' directory as a Unicode
+                  string (internal string format)
 
     Returns:
         Reference, expected text contained in file as a Unicode string or None
         if there is no file with expected text.
     """
-    assert isinstance(testfile_basename, str)
+    assert isinstance(filename, str)
 
-    expected_text_basename = testfile_basename + '_expected.txt'
-    p = samplefile_abspath(expected_text_basename)
+    expected_text_basename = filename + '_expected.txt'
+    expected_text_filepath = samplefile_abspath(expected_text_basename)
     try:
-        with open(p, 'r', encoding='utf8') as fh:
+        with open(expected_text_filepath, 'r', encoding='utf8') as fh:
             return fh.read()
     except FileNotFoundError:
         return None

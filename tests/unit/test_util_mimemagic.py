@@ -29,7 +29,7 @@ from util.mimemagic import MimeExtensionMapper
 
 
 class TestFileMimetype(TestCase):
-    TESTFILE_BASENAME_EXPECTED_MIMETYPE = [
+    SAMPLEFILE_BASENAME_EXPECTED_MIMETYPE = [
         ('magic_bmp.bmp', 'image/x-ms-bmp'),
         ('magic_gif.gif', 'image/gif'),
         ('magic_jpg.jpg', 'image/jpeg'),
@@ -46,7 +46,7 @@ class TestFileMimetype(TestCase):
         cls.null_mimetype = coercers.NULL_AW_MIMETYPE
         cls.FILEPATH_EXPECTED = [
             (uu.samplefile_abspath(basename), mimetype)
-            for basename, mimetype in cls.TESTFILE_BASENAME_EXPECTED_MIMETYPE
+            for basename, mimetype in cls.SAMPLEFILE_BASENAME_EXPECTED_MIMETYPE
         ]
 
     def test_samplefiles_exist_and_are_readable(self):

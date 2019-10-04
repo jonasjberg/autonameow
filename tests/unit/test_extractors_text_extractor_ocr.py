@@ -39,12 +39,12 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.samplefile_abspath('2007-04-23_12-comments.png')
+SAMPLEFILE_A = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
 
 class TestPrerequisites(TestCase):
     def test_test_file_exists_a(self):
-        self.assertTrue(uu.file_exists(TESTFILE_A))
+        self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -57,7 +57,7 @@ class TestTesseractOCRTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestTesseractOCRTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = TesseractOCRTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
 
 class TestTesseractOCRTextExtractorCanHandle(TestCase):

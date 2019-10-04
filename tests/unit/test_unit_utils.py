@@ -664,13 +664,13 @@ class TestAsMeowURI(TestCase):
                 _ = uu.as_meowuri(given)
 
 
-class GetExpectedTextForTestfile(TestCase):
+class GetExpectedTextForSamplefile(TestCase):
     def test_returns_none_when_expected_text_file_does_not_exist(self):
-        actual = uu.get_expected_text_for_testfile('magic_png.png')
+        actual = uu.get_expected_text_for_samplefile('magic_png.png')
         self.assertIsNone(actual)
 
     def test_returns_expected_text_when_expected_text_file_exists(self):
-        actual = uu.get_expected_text_for_testfile('sample.rtf')
+        actual = uu.get_expected_text_for_samplefile('sample.rtf')
         expect = '''Foo title
 bar text
 

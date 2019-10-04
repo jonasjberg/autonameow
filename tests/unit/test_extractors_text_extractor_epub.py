@@ -38,16 +38,16 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.samplefile_abspath('pg38145-images.epub')
-TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('pg38145-images.epub')
+SAMPLEFILE_A = uu.samplefile_abspath('pg38145-images.epub')
+SAMPLEFILE_A_EXPECTED = uu.get_expected_text_for_samplefile('pg38145-images.epub')
 
 
 class TestPrerequisites(TestCase):
     def test_test_file_exists_a(self):
-        self.assertTrue(uu.file_exists(TESTFILE_A))
+        self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
     def test_expected_text_is_loaded(self):
-        self.assertIsNotNone(TESTFILE_A_EXPECTED)
+        self.assertIsNotNone(SAMPLEFILE_A_EXPECTED)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -59,14 +59,14 @@ class TestEpubTextExtractor(CaseTextExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestEpubTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = EpubTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
-    EXPECTED_TEXT = TESTFILE_A_EXPECTED
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
+    EXPECTED_TEXT = SAMPLEFILE_A_EXPECTED
 
 
 # TODO:  Rework the tests or the extractors.. ?

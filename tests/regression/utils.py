@@ -839,9 +839,10 @@ def _load_assertion_regexes(asserts_dict, filedescriptor, assert_type):
         try:
             regexes.append(re.compile(expression, re.MULTILINE))
         except (ValueError, TypeError) as e:
-            errormsg = 'Bad {} matches expression: "{!s}" -- {!s}'.format(
-                filedescriptor, expression, e)
-            raise RegressionTestError(errormsg)
+            error_msg = 'Bad {} matches expression: "{!s}" -- {!s}'.format(
+                filedescriptor, expression, e
+            )
+            raise RegressionTestError(error_msg)
     return regexes
 
 

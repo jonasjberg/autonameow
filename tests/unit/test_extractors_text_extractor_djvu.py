@@ -31,16 +31,16 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied'
 )
 
-TESTFILE_A = uu.samplefile_abspath('Critique_of_Pure_Reason.djvu')
-TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('Critique_of_Pure_Reason.djvu')
+SAMPLEFILE_A = uu.samplefile_abspath('Critique_of_Pure_Reason.djvu')
+SAMPLEFILE_A_EXPECTED = uu.get_expected_text_for_samplefile('Critique_of_Pure_Reason.djvu')
 
 
 class TestPrerequisites(TestCase):
     def test_test_file_exists_a(self):
-        self.assertTrue(uu.file_exists(TESTFILE_A))
+        self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
     def test_expected_text_is_type_str_a(self):
-        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
+        self.assertIsInstance(SAMPLEFILE_A_EXPECTED, str)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -52,14 +52,14 @@ class TestDjvuTextExtractor(CaseTextExtractorBasics, TestCase):
 @skipIf(*UNMET_DEPENDENCIES)
 class TestDjvuTextExtractorOutputTypes(CaseTextExtractorOutputTypes, TestCase):
     EXTRACTOR_CLASS = DjvuTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestDjvuTextExtractorOutputTestFileA(CaseTextExtractorOutput, TestCase):
     EXTRACTOR_CLASS = DjvuTextExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(TESTFILE_A)
-    EXPECTED_TEXT = TESTFILE_A_EXPECTED
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
+    EXPECTED_TEXT = SAMPLEFILE_A_EXPECTED
 
 
 class TestDjvuTextExtractorCanHandle(TestCase):
