@@ -38,10 +38,9 @@ from core.view import cli
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('regression_runner')
 
 
 TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
@@ -52,6 +51,13 @@ TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
 
 class RegressionTestError(exceptions.AutonameowException):
     """Error caused by an invalid regression test."""
+
+    def __init__(self, msg='Error loading regression test', *args, **kwargs):
+        # super().__init__(msg, *args, **kwargs)
+
+        sourcefile = kwargs.get('sourcefile')
+        if sourcefile is not None:
+            self.sourcefile = enc.displayable_path(sourcefile)
 
 
 def read_plaintext_file(filepath, ignore_errors=None):
@@ -434,24 +440,34 @@ class RegressionTestLoader(object):
         try:
             asserts = disk.load_yaml_file(abspath_asserts)
         except exceptions.FilesystemError as e:
-            raise RegressionTestError('Error reading asserts from file: '
-                                      '"{!s}" :: {!s}'.format(abspath_asserts, e))
+            raise RegressionTestError(e, sourcefile=abspath_asserts)
 
         if not asserts:
             log.warning('Read empty asserts from file: "%s"', abspath_asserts)
             asserts = dict()
+
         return asserts
 
     def _load_file_options(self):
         abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+
         try:
             options = disk.load_yaml_file(abspath_opts)
         except exceptions.FilesystemError as e:
-            raise RegressionTestError('Error reading options from file: '
-                                      '"{!s}" :: {!s}'.format(abspath_opts, e))
+            raise RegressionTestError(e, sourcefile=abspath_opts)
+
         if not options:
             log.warning('Read empty options from file: "%s"', abspath_opts)
             options = dict()
+
+        input_paths = options.get('input_paths')
+        if input_paths:
+            if (not isinstance(input_paths, list) or
+                    any(not p or not isinstance(p, str) for p in input_paths)):
+                raise RegressionTestError(
+                    'Expected "input_paths" to be a list of non-empty strings.',
+                    sourcefile=abspath_opts,
+                )
 
         return options
 
@@ -462,10 +478,11 @@ class RegressionTestLoader(object):
     @staticmethod
     def _modify_options_input_paths(options):
         assert isinstance(options, dict)
-        if 'input_paths' not in options:
+
+        input_paths = options.get('input_paths')
+        if not input_paths:
             return options
 
-        input_paths = options['input_paths']
         modified_options = dict(options)
         modified_options['input_paths'] = _expand_input_paths_variables(input_paths)
         return modified_options
@@ -517,7 +534,7 @@ class RegressionTestLoader(object):
 
         if not uu.file_exists(modified_path):
             raise RegressionTestError(
-                'Invalid "config_path": "{!s}"'.format(config_path)
+                'File at "config_path" does not exist: "{!s}"'.format(config_path)
             )
 
         log.debug('Set config_path "%s" to "%s"', config_path, modified_path)
@@ -790,10 +807,15 @@ def load_regression_testsuites():
 
     testsuite_paths = get_all_testsuite_dirpaths()
     for suite_path in testsuite_paths:
+        loader = RegressionTestLoader(suite_path)
         try:
-            loaded_test = RegressionTestLoader(suite_path).load()
+            loaded_test = loader.load()
         except RegressionTestError as e:
-            print('Unable to load test suite :: ' + str(e), file=sys.stderr)
+            log.error('Unable to load test suite "%s"',
+                      enc.displayable_path(loader.test_dirname))
+            if hasattr(e, 'sourcefile'):
+                log.error('Problematic file: "%s"', e.sourcefile)
+            log.error(e)
         else:
             all_loaded_tests.append(loaded_test)
 
