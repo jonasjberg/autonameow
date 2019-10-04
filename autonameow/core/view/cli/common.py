@@ -255,11 +255,6 @@ def msg(message, style=None, ignore_quiet=False):
         if BE_QUIET:
             return
 
-    def _print_info_msg(text):
-        prefix = colorize('[info]', fore='LIGHTBLACK_EX')
-        colored_text = colorize(text)
-        print_stdout(prefix + ' ' + colored_text)
-
     assert isinstance(message, str)
     if not message:
         return
@@ -268,7 +263,9 @@ def msg(message, style=None, ignore_quiet=False):
         print_stdout(message)
 
     elif style == 'info':
-        _print_info_msg(message)
+        prefix = colorize('[info]', fore='LIGHTBLACK_EX')
+        colored_message = colorize(message)
+        print_stdout(prefix + ' ' + colored_message)
 
     elif style == 'heading':
         heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
