@@ -17,7 +17,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
