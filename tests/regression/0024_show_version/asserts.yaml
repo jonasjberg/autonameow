@@ -1,0 +1,18 @@
+exit_code: 0
+
+# TODO(jonas): Fix the mocking of print calls! Everything is not caught.
+#
+# The solution based around the 'MockUI' class handles all direct calls to the
+# 'view' methods; HOWEVER, when functions inside the 'view.cli' modules call
+# 'print_stdout()' directly it is not handled correctly. This happens when
+# calling 'print_version_info()'.
+#
+# Also, replaceing 'sys.stdout' and 'sys.stderr' in 'regression/utils.py' with
+# the line 'with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:'
+# does not catch everything either! It catches some but not all, likely due to
+# the order in which imports happen and the fact that the cached version of
+# 'sys.stdout', etc., takes precedence due to something like module caching.
+#
+# stdout:
+#     matches:
+#     - '^v\d\.\d\.\d$'
