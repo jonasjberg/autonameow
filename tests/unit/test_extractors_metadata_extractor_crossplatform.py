@@ -67,7 +67,7 @@ class TestDatetimeFromTimestamp(TestCase):
         self.assertEqual(actual, expected)
 
 
-class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
+class TestCrossPlatformFileSystemExtractorExtractSamplefileText(TestCase):
     @classmethod
     def setUpClass(cls):
         _fo = uu.fileobject_from_samplefile('magic_txt.txt')
@@ -106,7 +106,7 @@ class TestCrossPlatformFileSystemExtractorExtractTestFileText(TestCase):
             self.assertIsInstance(actual, _type)
 
 
-class TestCrossPlatformFileSystemExtractorExtractTestFileEmpty(TestCase):
+class TestCrossPlatformFileSystemExtractorExtractSamplefileEmpty(TestCase):
     @classmethod
     def setUpClass(cls):
         _fo = uu.fileobject_from_samplefile('empty')

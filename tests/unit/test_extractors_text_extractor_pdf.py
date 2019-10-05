@@ -45,10 +45,10 @@ SAMPLEFILE_B_EXPECTED = uu.get_expected_text_for_samplefile('magic_pdf.pdf')
 
 
 class TestPrerequisites(TestCase):
-    def test_test_file_exists_a(self):
+    def test_samplefile_a_exists(self):
         self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
-    def test_test_file_exists_b(self):
+    def test_samplefile_b_exists(self):
         self.assertTrue(uu.file_exists(SAMPLEFILE_B))
 
     def test_expected_text_is_type_str_a(self):

@@ -255,7 +255,7 @@ class TestFileObjectFromSymlink(TestCase):
         self.assertIn(self.fo_link, s)
 
 
-class TestFileObjectHashWithEmptyTestFile(TestCase):
+class TestFileObjectHashWithEmptySamplefile(TestCase):
     def setUp(self):
         self.fo_a = uu.fileobject_from_samplefile('empty')
         self.fo_b = uu.fileobject_from_samplefile('empty')
@@ -345,12 +345,12 @@ class TestFileObjectSerialization(TestCase):
 class TestValidatePathArgument(TestCase):
     @classmethod
     def setUpClass(cls):
-        all_available_testfiles = uu.all_samplefiles()
+        all_available_samplefiles = uu.all_samplefiles()
         # Use at most 5 test files.
-        num_testfiles_to_use = min(len(all_available_testfiles), 5)
+        num_samplefiles_to_use = min(len(all_available_samplefiles), 5)
         cls.bytestr_paths = [
             uu.bytestring_path(p)
-            for p in all_available_testfiles[:num_testfiles_to_use]
+            for p in all_available_samplefiles[:num_samplefiles_to_use]
         ]
 
     def test_setup(self):

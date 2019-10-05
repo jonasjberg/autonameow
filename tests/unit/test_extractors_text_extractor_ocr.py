@@ -43,7 +43,7 @@ SAMPLEFILE_A = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
 
 class TestPrerequisites(TestCase):
-    def test_test_file_exists_a(self):
+    def test_samplefile_a_exists(self):
         self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
 
@@ -82,32 +82,36 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.maxDiff = None
-        cls.TEST_IMAGE_FILE = uu.fileobject_from_samplefile('2007-04-23_12-comments.png')
-        cls.TEST_IMAGE_FILE_TEXT = 'Apr 23, 2007 - 12 Comments'
+        cls.SAMPLEFILE_IMAGE = uu.fileobject_from_samplefile('2007-04-23_12-comments.png')
+        cls.SAMPLEFILE_IMAGE_TEXT = 'Apr 23, 2007 - 12 Comments'
 
         cls.e = TesseractOCRTextExtractor()
         # Disable the cache
         cls.e.cache = None
 
-    def test__get_raw_text_returns_expected_type(self):
-        actual = self.e._extract_text(self.TEST_IMAGE_FILE)
+    def test__extract_text_returns_expected_type(self):
+        actual = self.e._extract_text(self.SAMPLEFILE_IMAGE)
         self.assertTrue(uu.is_internalstring(actual))
+
+    def test__extract_text_returns_expected_text(self):
+        actual = self.e._extract_text(self.SAMPLEFILE_IMAGE)
+        self.assertIn(self.SAMPLEFILE_IMAGE_TEXT, actual)
 
 
 @skipIf(*PIL_IS_NOT_AVAILABLE)
 class TestTesseractWrapper(TestCase):
-    TEST_FILE = uu.samplefile_abspath('2007-04-23_12-comments.png')
+    SAMPLEFILE = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
     def test_pil_read_image_returns_pil_image_for_valid_images(self):
         # Tests both Unicode or bytestring file names, even though the
         # intended primary caller 'TesseractOCRTextExtractor' uses bytestrings.
-        for _image_file in [self.TEST_FILE,
-                            uu.normpath(self.TEST_FILE)]:
+        for _image_file in [self.SAMPLEFILE,
+                            uu.normpath(self.SAMPLEFILE)]:
             actual = pil_read_image(_image_file)
             self.assertIsInstance(actual, PIL.Image.Image)
 
     def test_pil_read_image_raises_expected_exception_for_invalid_images(self):
-        _test_files = [
+        _samplefiles = [
             '/foo/bar/baz',
             '',
             ' ',
@@ -116,7 +120,7 @@ class TestTesseractWrapper(TestCase):
         ]
         # TODO: Fix ResourceWarning: unclosed file <_io.BufferedReader
         #           name='<SNIP>/tests/samplefiles/empty'>
-        #           actual = tesseractocr.pil_read_image(_test_file)
-        for _test_file in _test_files:
+        #           actual = tesseractocr.pil_read_image(_samplefile)
+        for samplefile in _samplefiles:
             with self.assertRaises(ExtractorError):
-                _ = pil_read_image(_test_file)
+                _ = pil_read_image(samplefile)

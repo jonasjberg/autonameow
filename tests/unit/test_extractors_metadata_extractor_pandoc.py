@@ -50,7 +50,7 @@ class TestPandocMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileA(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('sample.md')
@@ -63,7 +63,7 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileB(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('pg38145-images.epub')
@@ -96,7 +96,7 @@ class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileC(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
     SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('4123.epub')
@@ -152,7 +152,7 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         self._assert_can_handle_returns(True, self.fo_epub)
 
 
-class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
+class TestExtractDocumentMetadataWithPandocSamplefileSampleMd(TestCase):
     @classmethod
     def setUpClass(cls):
         fo = uu.fileobject_from_samplefile('sample.md')
@@ -173,7 +173,7 @@ class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
         self.assertEqual(['On Meow'], self.actual['title'])
 
 
-class TestExtractDocumentMetadataWithPandocTestFile4123Epub(TestCase):
+class TestExtractDocumentMetadataWithPandocSamplefile4123Epub(TestCase):
     @classmethod
     def setUpClass(cls):
         fo = uu.fileobject_from_samplefile('4123.epub')

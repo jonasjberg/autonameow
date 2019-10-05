@@ -107,7 +107,7 @@ class TestUnitUtilityFileobjectFromSamplefile(TestCase):
         self.assertTrue(os.path.isabs(actual.abspath))
 
 
-class TestUnitUtilityAllTestFiles(TestCase):
+class TestUnitUtilityAllSamplefiles(TestCase):
     def test_returns_expected_encoding(self):
         actual = uu.all_samplefiles()
         self.assertIsInstance(actual, list)

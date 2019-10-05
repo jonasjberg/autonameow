@@ -90,19 +90,19 @@ class TestRenameFile(TestCase):
 
     @patch('os.rename')
     def test_renames_file_given_valid_arguments(self, mock_rename):
-        test_filepath = uu.make_temporary_file()
-        test_file_dirpath = os.path.realpath(os.path.dirname(test_filepath))
-        expected_destpath = os.path.join(test_file_dirpath, b'baz')
-        rename_file(test_filepath, b'baz')
-        mock_rename.assert_called_once_with(test_filepath, expected_destpath)
+        filepath = uu.make_temporary_file()
+        dirpath = os.path.realpath(os.path.dirname(filepath))
+        expected_dest_filepath = os.path.join(dirpath, b'baz')
+        rename_file(filepath, b'baz')
+        mock_rename.assert_called_once_with(filepath, expected_dest_filepath)
 
     def test_raises_expected_exception_when_filename_is_too_long(self):
-        test_filepath = uu.make_temporary_file()
+        filepath = uu.make_temporary_file()
         too_long_destination_basename = 256 * b'X'
         self.assertEqual(256, len(too_long_destination_basename))
 
         with self.assertRaises(FilesystemError) as cm:
-            rename_file(test_filepath, too_long_destination_basename)
+            rename_file(filepath, too_long_destination_basename)
         # self.assertEqual(cm.exception.error_code, 36)
 
 
@@ -371,12 +371,12 @@ class TestDelete(TestCase):
         return not_a_file
 
     def test_deletes_existing_file(self):
-        tempfile = uu.make_temporary_file()
-        self.assertTrue(uu.file_exists(tempfile))
-        self.assertTrue(uu.is_internalbytestring(tempfile))
+        filepath = uu.make_temporary_file()
+        self.assertTrue(uu.file_exists(filepath))
+        self.assertTrue(uu.is_internalbytestring(filepath))
 
-        delete(tempfile)
-        self.assertFalse(uu.file_exists(tempfile))
+        delete(filepath)
+        self.assertFalse(uu.file_exists(filepath))
 
     def test_raises_exception_given_non_existent_file(self):
         not_a_file = self._get_non_existent_file()
@@ -443,84 +443,84 @@ class TestHasPermissions(TestCase):
             with self.assertRaises(AssertionError):
                 _ = has_permissions(_path, perms)
 
-        path = uu.make_temporary_file()
-        _aR(path, None)
-        _aR(path, [])
-        _aR(path, object())
-        _aR(path, b'')
-        _aR(path, b'foo')
+        filepath = uu.make_temporary_file()
+        _aR(filepath, None)
+        _aR(filepath, [])
+        _aR(filepath, object())
+        _aR(filepath, b'')
+        _aR(filepath, b'foo')
         _aR(None, 'r')
         _aR([], 'r')
         _aR(object(), 'r')
 
     def test_invalid_path(self):
-        path = uuconst.ASSUMED_NONEXISTENT_BASENAME
-        self._test(path, 'r', False)
-        self._test(path, 'w', False)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', False)
-        self._test(path, 'rx', False)
-        self._test(path, 'wx', False)
-        self._test(path, 'rwx', False)
+        filepath = uuconst.ASSUMED_NONEXISTENT_BASENAME
+        self._test(filepath, 'r', False)
+        self._test(filepath, 'w', False)
+        self._test(filepath, 'x', False)
+        self._test(filepath, 'rw', False)
+        self._test(filepath, 'rx', False)
+        self._test(filepath, 'wx', False)
+        self._test(filepath, 'rwx', False)
 
     def test_file_perms_rwx(self):
-        path = uu.make_temporary_file()
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W | OWNER_X)
+        filepath = uu.make_temporary_file()
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W | OWNER_X)
 
-        self._test(path, 'r', True)
-        self._test(path, 'w', True)
-        self._test(path, 'x', True)
-        self._test(path, 'rw', True)
-        self._test(path, 'rx', True)
-        self._test(path, 'wx', True)
-        self._test(path, 'rwx', True)
+        self._test(filepath, 'r', True)
+        self._test(filepath, 'w', True)
+        self._test(filepath, 'x', True)
+        self._test(filepath, 'rw', True)
+        self._test(filepath, 'rx', True)
+        self._test(filepath, 'wx', True)
+        self._test(filepath, 'rwx', True)
 
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W)
 
     def test_file_perms_rw(self):
-        path = uu.make_temporary_file()
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+        filepath = uu.make_temporary_file()
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W)
 
-        self._test(path, 'r', True)
-        self._test(path, 'w', True)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', True)
-        self._test(path, 'wr', True)
-        self._test(path, 'rx', False)
-        self._test(path, 'xr', False)
-        self._test(path, 'xw', False)
-        self._test(path, 'rwx', False)
+        self._test(filepath, 'r', True)
+        self._test(filepath, 'w', True)
+        self._test(filepath, 'x', False)
+        self._test(filepath, 'rw', True)
+        self._test(filepath, 'wr', True)
+        self._test(filepath, 'rx', False)
+        self._test(filepath, 'xr', False)
+        self._test(filepath, 'xw', False)
+        self._test(filepath, 'rwx', False)
 
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W)
 
     def test_file_perms_r(self):
-        path = uu.make_temporary_file()
-        os.chmod(enc.syspath(path), OWNER_R)
+        filepath = uu.make_temporary_file()
+        os.chmod(enc.syspath(filepath), OWNER_R)
 
-        self._test(path, 'r', True)
-        self._test(path, 'w', False)
-        self._test(path, 'x', False)
-        self._test(path, 'rw', False)
-        self._test(path, 'rx', False)
-        self._test(path, 'wx', False)
-        self._test(path, 'rwx', False)
+        self._test(filepath, 'r', True)
+        self._test(filepath, 'w', False)
+        self._test(filepath, 'x', False)
+        self._test(filepath, 'rw', False)
+        self._test(filepath, 'rx', False)
+        self._test(filepath, 'wx', False)
+        self._test(filepath, 'rwx', False)
 
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W)
 
     def test_no_file_perms(self):
-        path = uu.make_temporary_file()
-        os.chmod(enc.syspath(path), OWNER_R)
+        filepath = uu.make_temporary_file()
+        os.chmod(enc.syspath(filepath), OWNER_R)
 
-        self._test(path, '', True)
-        self._test(path, ' ', True)
+        self._test(filepath, '', True)
+        self._test(filepath, ' ', True)
 
-        os.chmod(enc.syspath(path), OWNER_R | OWNER_W)
+        os.chmod(enc.syspath(filepath), OWNER_R | OWNER_W)
 
 
 class TestFileByteSize(TestCase):
     @classmethod
     def setUpClass(cls):
-        # List of (path to existing file, size in bytes) tuples
+        # List of (path to existing file, file size in bytes) tuples.
         cls.samplefiles = [
             (uu.samplefile_abspath('magic_pdf.pdf'), 10283),
             (uu.samplefile_abspath('magic_jpg.jpg'), 547),
@@ -528,18 +528,18 @@ class TestFileByteSize(TestCase):
         ]
 
     def test_setup_class(self):
-        for test_filepath, _ in self.samplefiles:
-            self.assertTrue(uu.file_exists(test_filepath))
+        for filepath, _ in self.samplefiles:
+            self.assertTrue(uu.file_exists(filepath))
 
     def test_returns_expected_type(self):
-        for test_filepath, _ in self.samplefiles:
-            actual = file_bytesize(test_filepath)
+        for filepath, _ in self.samplefiles:
+            actual = file_bytesize(filepath)
             self.assertIsInstance(actual, int)
 
     def test_returns_expected_size(self):
-        for test_filepath, test_file_size in self.samplefiles:
-            actual = file_bytesize(test_filepath)
-            self.assertEqual(test_file_size, actual)
+        for filepath, filesize in self.samplefiles:
+            actual = file_bytesize(filepath)
+            self.assertEqual(filesize, actual)
 
     def test_raises_exception_given_invalid_arguments(self):
         def _assert_raises(test_input):

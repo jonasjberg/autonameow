@@ -36,7 +36,7 @@ SAMPLEFILE_A_EXPECTED = uu.get_expected_text_for_samplefile('Critique_of_Pure_Re
 
 
 class TestPrerequisites(TestCase):
-    def test_test_file_exists_a(self):
+    def test_samplefile_a_exists(self):
         self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
     def test_expected_text_is_type_str_a(self):

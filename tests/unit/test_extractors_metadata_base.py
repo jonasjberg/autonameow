@@ -28,7 +28,6 @@ from extractors.metadata.base import _fieldmeta_filepath_from_extractor_source_f
 
 class TestBaseMetadataExtractor(TestCase):
     def setUp(self):
-        self.test_file = uu.make_temporary_file()
         self.e = BaseMetadataExtractor()
 
         self.fo = uu.fileobject_from_samplefile('magic_jpg.jpg')
@@ -40,8 +39,9 @@ class TestBaseMetadataExtractor(TestCase):
         self.assertIsNotNone(self.e)
 
     def test_calling_extract_raises_not_implemented_error(self):
+        filepath = uu.make_temporary_file()
         with self.assertRaises(NotImplementedError):
-            self.e.extract(self.test_file)
+            self.e.extract(filepath)
 
     def test_metainfo_returns_expected_type(self):
         actual = self.e.metainfo()
