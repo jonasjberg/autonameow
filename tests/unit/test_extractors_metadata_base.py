@@ -30,8 +30,6 @@ class TestBaseMetadataExtractor(TestCase):
     def setUp(self):
         self.e = BaseMetadataExtractor()
 
-        self.fo = uu.fileobject_from_samplefile('magic_jpg.jpg')
-
     def test_base_metadata_extractor_class_is_available(self):
         self.assertIsNotNone(BaseMetadataExtractor)
 
@@ -93,28 +91,28 @@ class TestBaseMetadataExtractorClassMethods(TestCase):
         self.mock_fileobject = Mock()
         self.mock_fileobject.mime_type = 'image/jpeg'
 
-        self.e = BaseMetadataExtractor
-
     def test_unimplemented_dependencies_satisfied(self):
+        extractor = BaseMetadataExtractor
         with self.assertRaises(NotImplementedError):
-            _ = self.e.dependencies_satisfied()
+            _ = extractor.dependencies_satisfied()
 
     def test_can_handle_raises_exception_if_handles_mime_types_is_none(self):
+        extractor = BaseMetadataExtractor
         with self.assertRaises(NotImplementedError):
-            _ = self.e.can_handle(self.mock_fileobject)
+            _ = extractor.can_handle(self.mock_fileobject)
 
     @patch('extractors.metadata.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['text/plain'])
     def test_can_handle_returns_false(self, mock_attribute):
-        e = BaseMetadataExtractor()
-        actual = e.can_handle(self.mock_fileobject)
+        extractor = BaseMetadataExtractor()
+        actual = extractor.can_handle(self.mock_fileobject)
         self.assertFalse(actual)
 
     @patch('extractors.metadata.base.BaseMetadataExtractor.HANDLES_MIME_TYPES',
            new_callable=PropertyMock, return_value=['image/jpeg'])
     def test_can_handle_returns_true(self, mock_attribute):
-        e = BaseMetadataExtractor()
-        actual = e.can_handle(self.mock_fileobject)
+        extractor = BaseMetadataExtractor()
+        actual = extractor.can_handle(self.mock_fileobject)
         self.assertTrue(actual)
 
 
