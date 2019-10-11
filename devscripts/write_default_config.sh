@@ -39,7 +39,7 @@ fi
 dest_path="${AUTONAMEOW_ROOT_DIRPATH}/tests/samplefiles/configs/default.yaml"
 if [ -e "$dest_path" ]
 then
-    echo "Destination exists: \"${dest_path}\""
+    printf 'Destination exists: "%s"\n' "$dest_path"
 
     _ts="$(date "+%Y-%m-%dT%H%M%S")"
     _move_dest="${AUTONAMEOW_ROOT_DIRPATH}/notes/samplefiles_default_config_${_ts}.yaml"

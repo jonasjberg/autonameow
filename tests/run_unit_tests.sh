@@ -135,8 +135,13 @@ if $option_write_report
 then
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
-        echo 'This script requires "pytest-html" to generate HTML reports.' 1>&2
-        echo 'Install using pip by executing:  pip3 install pytest-html'
+        command cat 1>&2 <<'EOF'
+This script requires "pytest-html" to generate HTML reports.
+Install by executing:
+
+    $ pip3 install pytest-html
+
+EOF
         exit "$EXIT_CRITICAL"
     fi
 fi
@@ -145,8 +150,13 @@ if $option_enable_coverage
 then
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
-        echo 'This script requires "pytest-cov" to check test coverage.' 1>&2
-        echo 'Install using pip by executing:  pip3 install pytest-cov'
+        command cat 1>&2 <<'EOF'
+This script requires "pytest-cov" to check test coverage.
+Install by executing:
+
+    $ pip3 install pytest-cov
+
+EOF
         exit "$EXIT_CRITICAL"
     fi
 fi
@@ -184,7 +194,7 @@ then
     printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
 
     # Write log file name to temporary file, used by other scripts.
-    echo "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIRPATH}/.unittestlog.toreport"
+    printf '%s\n' "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIRPATH}/.unittestlog.toreport"
 fi
 
 

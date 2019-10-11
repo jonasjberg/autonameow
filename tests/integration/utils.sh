@@ -45,7 +45,7 @@ aw_utils.initialize_logging()
 {
     if [ ! -d "$AUTONAMEOW_TESTRESULTS_DIRPATH" ]
     then
-        echo "Not a directory: \"${AUTONAMEOW_TESTRESULTS_DIRPATH}\" .. Aborting" >&2
+        printf 'Not a directory: "%s" .. Aborting\n' "$AUTONAMEOW_TESTRESULTS_DIRPATH" >&2
         exit 1
     fi
 
@@ -63,7 +63,7 @@ aw_utils.initialize_global_stats()
 {
     if ! AUTONAMEOW_INTEGRATION_STATS="$(realpath -e -- "$(mktemp -t aw_test_stats.XXXXXX)")"
     then
-        echo 'Unable to create temporary global statistics file .. Aborting' >&2
+        printf 'Unable to create temporary global statistics file .. Aborting\n' >&2
         exit 1
     fi
 
@@ -71,7 +71,7 @@ aw_utils.initialize_global_stats()
     export AUTONAMEOW_INTEGRATION_STATS
 
     # Set total, passed and failed to 0
-    echo '0 0 0' >| "$AUTONAMEOW_INTEGRATION_STATS"
+    printf '0 0 0\n' >| "$AUTONAMEOW_INTEGRATION_STATS"
 }
 
 # Print message to stdout and append message to AUTONAMEOW_INTEGRATION_LOG.
@@ -189,7 +189,7 @@ aw_utils.update_global_test_results()
         _total_failed="$((_fail + suite_tests_failed))"
     done < "$AUTONAMEOW_INTEGRATION_STATS"
 
-    echo "${_total_count} ${_total_passed} ${_total_failed}" >| "$AUTONAMEOW_INTEGRATION_STATS"
+    printf '%d %d %d\n' "$_total_count" "$_total_passed" "$_total_failed" >| "$AUTONAMEOW_INTEGRATION_STATS"
 }
 
 aw_utils.assert_true()
@@ -233,7 +233,7 @@ aw_utils.current_unix_time()
         darwin*) python3 -c 'import time ; t="%.9f"%time.time() ; print(t.replace(".",""))';;
          linux*) date "+%s%N" ;;
            msys) date "+%s%N" ;; # NOTE: Not a target OS!
-              *) { echo 'ERROR: Unsupported Operating System!' 1>&2 ; exit 1 ; } ;;
+              *) { printf 'ERROR: Unsupported Operating System!\n' 1>&2 ; exit 1 ; } ;;
     esac
 }
 
@@ -242,7 +242,7 @@ aw_utils.calculate_execution_time()
 {
     local -r _time_start="$1"
     local -r _time_end="$2"
-    echo "$(((_time_end - _time_start) / 1000000))"
+    printf '%s\n' "$(((_time_end - _time_start) / 1000000))"
 }
 
 aw_utils.samplefile_abspath()
