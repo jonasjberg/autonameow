@@ -41,9 +41,6 @@ Perform static analysis on all bash scripts using `shellcheck`.
 ### `lint_python.sh`
 Perform static analysis on all Python scripts using `pylint`.
 
-### `list_imported_modules.sh`
-List modules imported by the specified Python program.
-
 ### `run_command_on_git_revs.sh`
 Execute arbitrary shell commands over a range of git revisions.
 
