@@ -300,27 +300,3 @@ aw_utils.assert_has_command()
     aw_utils.assert_true 'aw_utils.command_exists "$_cmd_name"' \
                 "System provides executable command \"${_cmd_name}\""
 }
-
-
-
-# Test Cases
-# ____________________________________________________________________________
-#
-# Detect if this script is being sourced by another script.
-# Check Bash version for support:   man bash | less -p BASH_SOURCE
-# Source:  http://stackoverflow.com/a/2684300/7802196
-
-[[ ${BASH_VERSINFO[0]} -le 2 ]] && { echo 'No BASH_SOURCE array variable' 1>&2 ; exit 1 ; }
-[[ ${BASH_SOURCE[0]} != $0 ]] # && echo "script ${BASH_SOURCE[0]} is being sourced ..."
-
-
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]
-then
-    aw_utils.log_msg "Starting self-tests .."
-    aw_utils.assert_true  '[ "0" -eq "0" ]' '(Internal Test) Expect success ..'
-    aw_utils.assert_true  '[ "1" -eq "0" ]' '(Internal Test) Expect failure ..'
-    aw_utils.assert_false '[ "1" -eq "0" ]' '(Internal Test) Expect success ..'
-    aw_utils.assert_false '[ "1" -ne "0" ]' '(Internal Test) Expect failure ..'
-    aw_utils.log_msg "Finished self-tests!"
-fi
-
