@@ -314,7 +314,7 @@ class TestCompareBasenames(TestCase):
 
 
 class TestPathAncestry(TestCase):
-    def test_ancestry_returns_expected_ancestors_for_file_paths(self):
+    def test_ancestry_returns_expected_ancestors_for_filepaths(self):
         PATHS_ANCESTORS = [
             ('/a/b/c', ['/', '/a', '/a/b']),
             ('/a/b',   ['/', '/a']),
@@ -344,7 +344,7 @@ class TestPathAncestry(TestCase):
 
 
 class TestPathComponents(TestCase):
-    def test_components_returns_expected_components_for_file_paths(self):
+    def test_components_returns_expected_components_for_filepaths(self):
         PATHS_COMPONENTS = [
             ('/a/b/c', ['/', 'a', 'b', 'c']),
             ('/a/b',   ['/', 'a', 'b']),

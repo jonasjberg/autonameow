@@ -48,7 +48,7 @@ class ConfigHistoryPathStore(object):
         if not active_config:
             return
 
-        history_filepath = active_config.get(['PERSISTENCE', 'history_file_path'])
+        history_filepath = active_config.get(['PERSISTENCE', 'history_filepath'])
         if not history_filepath:
             return
 

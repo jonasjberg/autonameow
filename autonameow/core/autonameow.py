@@ -207,7 +207,7 @@ class Autonameow(object):
         filepath_config = persistence.get_config_persistence_path()
         filepath_default_config = persistence.DefaultConfigFilePath
         include_opts = {
-            'config_file_path': '"{!s}"'.format(
+            'config_filepath': '"{!s}"'.format(
                 enc.displayable_path(filepath_default_config)
             ),
             'cache_directory_path': '"{!s}"'.format(

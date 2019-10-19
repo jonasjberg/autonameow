@@ -192,7 +192,7 @@ class ConfigurationParser(object):
             default=C.DEFAULT_PERSISTENCE_DIR_ABSPATH
         )
         options_parser.try_load_persistence_option(
-            option='history_file_path',
+            option='history_filepath',
             default=C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
