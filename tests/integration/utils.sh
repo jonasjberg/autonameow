@@ -167,7 +167,7 @@ aw_utils.log_total_results_summary()
 # Logs a test failure message and increments counters.
 aw_utils.test_fail()
 {
-    aw_utils.log_msg "${C_RED}[FAIL]${C_RESET}" "$*"
+    aw_utils.log_msg "${C_RED}FAIL:${C_RESET}" "$*"
     suite_tests_failed="$((suite_tests_failed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
@@ -175,7 +175,7 @@ aw_utils.test_fail()
 # Logs a test success message and increments counters.
 aw_utils.test_pass()
 {
-    aw_utils.log_msg "${C_GREEN}[PASS]${C_RESET}" "$*"
+    aw_utils.log_msg "${C_GREEN}PASS:${C_RESET}" "$*"
     suite_tests_passed="$((suite_tests_passed + 1))"
     suite_tests_count="$((suite_tests_count + 1))"
 }
