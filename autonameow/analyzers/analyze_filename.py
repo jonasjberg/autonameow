@@ -202,6 +202,17 @@ class FilenameAnalyzer(BaseAnalyzer):
         return True
 
 
+def _read_probable_extension_config_file(filepath):
+    try:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+            file_data = fh.read()
+    except OSError as e:
+        raise AnalyzerError(
+            'Error while loading probable extension data file :: {!s}'.format(e)
+        )
+    return _parse_mimetype_extension_suffixes_map_data(file_data)
+
+
 # Populated at first access.
 _PROBABLE_EXTENSION_CONFIG = None
 
@@ -313,17 +324,6 @@ def _parse_mimetype_extension_suffixes_map_data(data):
         raise AnalyzerError(
             'Error while parsing probable extension data :: {!s}'.format(e)
         )
-
-
-def _read_probable_extension_config_file(filepath):
-    try:
-        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
-            file_data = fh.read()
-    except OSError as e:
-        raise AnalyzerError(
-            'Error while loading probable extension data file :: {!s}'.format(e)
-        )
-    return _parse_mimetype_extension_suffixes_map_data(file_data)
 
 
 def likely_extension(basename_suffix, mime_type):
