@@ -32,7 +32,7 @@ from util import encoding as enc
 log = logging.getLogger(__name__)
 
 
-_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+_SELF_DIRPATH = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 
 
 class KnownDataFileParser(object):
@@ -175,7 +175,7 @@ def _resolve_abspath_from_datafile_basename(filename):
     if not bytestring_basename.endswith(b'.yaml'):
         bytestring_basename += b'.yaml'
 
-    return disk.joinpaths(_PATH_THIS_DIR, b'data', bytestring_basename)
+    return disk.joinpaths(_SELF_DIRPATH, b'data', bytestring_basename)
 
 
 def _get_known_data_file_parser(yaml_filepath):

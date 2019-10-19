@@ -22,15 +22,15 @@ import os
 import re
 
 
-_DIRPATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_DIRPATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
-    _DIRPATH_THIS_DIR, os.pardir, os.pardir
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT_PARENT = os.path.normpath(os.path.join(
+    _SELF_DIRPATH, os.pardir, os.pardir
 ))
 
 
 def join_path_from_srcroot(*components):
     return os.path.normpath(os.path.join(
-        _DIRPATH_THIS_DIR_PARENT_PARENT, *components
+        _SELF_DIRPATH_PARENT_PARENT, *components
     ))
 
 

@@ -26,10 +26,10 @@ from setuptools import setup
 
 # Access attributes without importing the file.
 # https://packaging.python.org/guides/single-sourcing-package-version/#single-sourcing-the-version
-ABSPATH_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_SELF_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 projectmeta = dict()
 with open(os.path.realpath(os.path.join(
-        ABSPATH_THIS_DIR, 'autonameow', 'core', 'version.py'
+        _SELF_DIRPATH, 'autonameow', 'core', 'version.py'
 ))) as fp:
     exec(fp.read(), projectmeta)
 

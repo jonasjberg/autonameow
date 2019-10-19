@@ -39,10 +39,10 @@ EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 
 SELFNAME = str(os.path.basename(__file__))
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT = os.path.normpath(os.path.join(_SELF_DIRPATH, os.pardir))
 
-changelog_path = os.path.join(AUTONAMEOW_SRC_ROOT, CHANGELOG_BASENAME)
+changelog_path = os.path.join(_SELF_DIRPATH_PARENT, CHANGELOG_BASENAME)
 
 
 GIT_LOG_SEP_FIELD = '\x1f'

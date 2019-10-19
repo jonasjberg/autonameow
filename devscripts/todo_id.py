@@ -49,11 +49,11 @@ EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 
 SELFNAME = str(os.path.basename(__file__))
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT = os.path.normpath(os.path.join(_SELF_DIRPATH, os.pardir))
 
-TODO_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
-DONE_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
+TODO_PATH = os.path.join(_SELF_DIRPATH_PARENT, TODO_BASENAME)
+DONE_PATH = os.path.join(_SELF_DIRPATH_PARENT, DONE_BASENAME)
 
 
 def is_readable_file(filepath):

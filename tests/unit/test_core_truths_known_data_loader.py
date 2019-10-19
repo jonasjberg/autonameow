@@ -36,11 +36,11 @@ def _get_known_data_file_parser(*args, **kwargs):
 def _load_test_data_from_yaml_file(filename):
     from util import coercers
     from util import disk
-    ABSPATH_THIS_DIR = coercers.coerce_to_normalized_path(
+    _self_dirpath = coercers.coerce_to_normalized_path(
         os.path.abspath(os.path.dirname(__file__))
     )
     bytes_basename = coercers.AW_PATHCOMPONENT(filename)
-    abspath_yaml_file = disk.joinpaths(ABSPATH_THIS_DIR, bytes_basename)
+    abspath_yaml_file = disk.joinpaths(_self_dirpath, bytes_basename)
     assert disk.isfile(abspath_yaml_file), (
         'File does not exist: {!s}'.format(abspath_yaml_file)
     )

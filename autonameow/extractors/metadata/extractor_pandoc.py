@@ -31,9 +31,9 @@ from util import disk
 from util import process
 from util.text.humannames import preprocess_names
 
-_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+_SELF_DIRPATH = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 BASENAME_PANDOC_TEMPLATE = coercers.AW_PATHCOMPONENT('extractor_pandoc_template.plain')
-PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_PATH_THIS_DIR,
+PATH_CUSTOM_PANDOC_TEMPLATE = disk.joinpaths(_SELF_DIRPATH,
                                              BASENAME_PANDOC_TEMPLATE)
 
 # Metadata to ignore in all fields.

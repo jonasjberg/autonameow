@@ -33,9 +33,9 @@ from util.text import find_and_extract_edition
 from util.text import regexbatch
 
 
-_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+_SELF_DIRPATH = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 BASENAME_PROBABLE_EXT_LOOKUP = coercers.AW_PATHCOMPONENT('probable_extension_lookup')
-PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_LOOKUP)
+PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_SELF_DIRPATH, BASENAME_PROBABLE_EXT_LOOKUP)
 
 log = logging.getLogger(__name__)
 
