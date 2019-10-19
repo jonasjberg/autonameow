@@ -206,7 +206,7 @@ class FilenameAnalyzer(BaseAnalyzer):
 _PROBABLE_EXTENSION_CONFIG = None
 
 
-def get_probable_extension_config():
+def get_probable_extension_config(filepath=PATH_PROBABLE_EXT_LOOKUP):
     """
     Retrieves the data used to find a likely extension from
     a given MIME-type and basename suffix.
@@ -219,7 +219,7 @@ def get_probable_extension_config():
     global _PROBABLE_EXTENSION_CONFIG
     if _PROBABLE_EXTENSION_CONFIG is None:
         _PROBABLE_EXTENSION_CONFIG = _read_probable_extension_config_file(
-            PATH_PROBABLE_EXT_LOOKUP
+            filepath,
         )
     return _PROBABLE_EXTENSION_CONFIG
 
