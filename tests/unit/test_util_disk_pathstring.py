@@ -24,6 +24,7 @@ from core import constants as C
 from util.disk.pathstring import basename_prefix
 from util.disk.pathstring import basename_suffix
 from util.disk.pathstring import compare_basenames
+from util.disk.pathstring import EMPTY_FILENAME_PART
 from util.disk.pathstring import path_ancestry
 from util.disk.pathstring import path_components
 from util.disk.pathstring import split_basename
@@ -49,11 +50,11 @@ class TestSplitBasename(TestCase):
             _, _ = split_basename('a.b')
 
     def test_empty_filenames(self):
-        self._assert_splits(b'', b'', b'')
+        self._assert_splits(EMPTY_FILENAME_PART, EMPTY_FILENAME_PART, b'')
 
     def test_filenames_without_any_extension(self):
-        self._assert_splits(b'foo',  b'', b'foo')
-        self._assert_splits(b'.foo', b'', b'.foo')
+        self._assert_splits(b'foo',  EMPTY_FILENAME_PART, b'foo')
+        self._assert_splits(b'.foo', EMPTY_FILENAME_PART, b'.foo')
 
     def test_split_one_extension(self):
         self._assert_splits(b'foo',  b'bar', b'foo.bar')
@@ -106,14 +107,14 @@ class TestSplitBasename(TestCase):
 
 class TestBasenameSuffix(TestCase):
     def _assert_suffix(self, expected, given):
-        with self.subTest(given=given, expected=b''):
+        with self.subTest(given=given, expected=EMPTY_FILENAME_PART):
             actual = basename_suffix(given)
             self.assertEqual(expected, actual)
 
     def _assert_no_suffix(self, given):
-        with self.subTest(given=given, expected=b''):
+        with self.subTest(given=given):
             actual = basename_suffix(given)
-            self.assertEqual(b'', actual)
+            self.assertEqual(EMPTY_FILENAME_PART, actual)
 
     def test_empty_or_practically_empty_filenames(self):
         for given in [
@@ -187,9 +188,9 @@ class TestBasenamePrefix(TestCase):
             self.assertEqual(expected, actual)
 
     def _assert_no_prefix(self, given):
-        with self.subTest(given=given, expected=b''):
+        with self.subTest(given=given):
             actual = basename_prefix(given)
-            self.assertEqual(b'', actual)
+            self.assertEqual(EMPTY_FILENAME_PART, actual)
 
     def test_empty_or_practically_empty_filenames(self):
         self._assert_no_prefix(b'')
