@@ -189,15 +189,6 @@ declare -i COUNT_FAIL=0
 run_task "$option_quiet" "Running \"pytest\"" run_pytest
 
 
-if [ -s "$_unittest_log" ]
-then
-    printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
-
-    # Write log file name to temporary file, used by other scripts.
-    printf '%s\n' "$_unittest_log" >| "${AUTONAMEOW_TESTRESULTS_DIRPATH}/.unittestlog.toreport"
-fi
-
-
 if [ "$COUNT_FAIL" -eq "0" ]
 then
     exit "$EXIT_SUCCESS"

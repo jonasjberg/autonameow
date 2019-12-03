@@ -191,7 +191,6 @@ Session.vim
 # Test files
 #samplefiles/
 docs/test_results/.integrationlog.toreport
-docs/test_results/.unittestlog.toreport
 .regressionrunner_lastrun
 .regressionrunner_history
 .regressionrunner_captured_runtimes
