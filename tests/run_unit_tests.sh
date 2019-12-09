@@ -131,7 +131,7 @@ fi
 # Workaround for pytest crashing when writing something other than stdout ..
 captured_pytest_help="$(pytest --help 2>&1)"
 
-if $option_write_report
+if [ "$option_write_report" = 'true' ]
 then
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
@@ -146,7 +146,7 @@ EOF
     fi
 fi
 
-if $option_enable_coverage
+if [ "$option_enable_coverage" = 'true' ]
 then
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
@@ -174,9 +174,23 @@ fi
 run_pytest()
 {
     declare -a _pytest_opts=('')
-    $option_write_report    && _pytest_opts+="--self-contained-html --html="$_unittest_log" "
-    $option_enable_coverage && _pytest_opts+='--cov=autonameow --cov-report=term '
-    $option_run_last_failed && _pytest_opts+='--last-failed '
+
+    if [ "$option_write_report" = 'true' ]
+    then
+        _pytest_opts+=('--self-contained-html')
+        _pytest_opts+=(--html="$_unittest_log")
+    fi
+
+    if [ "$option_enable_coverage" = 'true' ]
+    then
+        _pytest_opts+=('--cov=autonameow')
+        _pytest_opts+=('--cov-report=term')
+    fi
+
+    if [ "$option_run_last_failed" = 'true' ]
+    then
+        _pytest_opts+=('--last-failed')
+    fi
 
     (
         cd "$AUTONAMEOW_ROOT_DIRPATH" || return 1

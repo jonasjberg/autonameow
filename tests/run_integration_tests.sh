@@ -160,7 +160,7 @@ do
     # !! wait "$TASK_PID"
 
     aw_utils.log_msg_timestamped "Starting \"${_testscript_base}\" .."
-    if $option_quiet
+    if [ "$option_quiet" = 'true' ]
     then
         # shellcheck disable=SC1090
         source "$testscript" &>/dev/null
