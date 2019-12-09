@@ -162,7 +162,7 @@ EOF
 fi
 
 
-_timestamp="$(date "+%Y-%m-%dT%H%M%S")"
+_timestamp="$(date "+%Y-%m-%dT%H%M%S.%N")"
 _unittest_log="${AUTONAMEOW_TESTRESULTS_DIRPATH}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
