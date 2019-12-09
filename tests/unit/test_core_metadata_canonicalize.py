@@ -91,6 +91,22 @@ class CaseCanonicalizers(object):
         self.assertIsInstance(self.TESTDATA, dict)
         self.assertGreater(len(self.TESTDATA), 1)
 
+    def test_loaded_test_data_does_not_contain_too_similar_keys(self):
+        seen_keys = set()
+
+        for key in self.TESTDATA:
+            normalized_key = key.lower().strip()
+            self.assertNotIn(normalized_key, seen_keys)
+
+    def test_loaded_test_data_does_not_contain_duplicate_values(self):
+        seen_values = set()
+
+        for key, values in self.TESTDATA.items():
+            for value in values:
+                self.assertNotIn(value, seen_values)
+
+            seen_values.clear()
+
 
 class TestCanonicalizePublisher(CaseCanonicalizers, TestCase):
     FILENAME_TESTDATA = 'test_core_metadata_canonicalize_publisher.yaml'
