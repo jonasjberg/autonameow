@@ -288,6 +288,10 @@ LaTeX:
     match_any_regex_ignorecase:
     - (latex|pdfetex)
 
+Lexmark Printer:
+    match_any_regex_ignorecase:
+    - lexmark \w+
+
 LibreOffice:
     match_any_regex:
     - LibreOffice( \d\.\d)?
