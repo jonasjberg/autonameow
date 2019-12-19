@@ -299,3 +299,13 @@ class TestIsBlacklisted(TestCase):
             subject="Add blacklist patterns to 'generate_changelog.py'.",
             body='',
         )
+
+    def test_blacklists_devscripts(self):
+        self._assert_blacklists(
+            subject="Modify yamllint configuration",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Modify yamllint configuration.",
+            body='',
+        )

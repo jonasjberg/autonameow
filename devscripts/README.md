@@ -41,6 +41,9 @@ Perform static analysis on all bash scripts using `shellcheck`.
 ### `lint_python.sh`
 Perform static analysis on all Python scripts using `pylint`.
 
+### `lint_yaml.sh`
+Perform static analysis on all YAML files using `yamllint`.
+
 ### `run_command_on_git_revs.sh`
 Execute arbitrary shell commands over a range of git revisions.
 

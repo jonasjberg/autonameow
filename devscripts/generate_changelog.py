@@ -201,6 +201,10 @@ def is_blacklisted(entry):
     if _any_match(r'.*\bpylint(rc)?\b.*'):
         return True
 
+    if not body:
+        if _any_match(r'.*\byamllint.*config.*'):
+            return True
+
     if (_any_match(r'.*update_changelog.*')
             or _any_match(r'.*generate_changelog.*')):
         return True

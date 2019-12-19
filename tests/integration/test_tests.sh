@@ -111,6 +111,7 @@ aw_utils.assert_false '[ -z "$AUTONAMEOW_INTEGRATION_TIMESTAMP" ]' \
 aw_utils.assert_has_command 'grep'
 aw_utils.assert_has_command 'mktemp'
 aw_utils.assert_has_command 'realpath'
+aw_utils.assert_has_command 'xargs'
 
 aw_utils.assert_has_command 'sed'
 aw_utils.assert_true 'man sed | grep -- "^ \+.*-i\b"' \
