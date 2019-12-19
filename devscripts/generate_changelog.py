@@ -322,24 +322,24 @@ if __name__ == '__main__':
         'Changes': list(),
         'Fixes': list()
     }
-    for entry in log_entries:
-        if ChangelogEntryClassifier.is_change(entry):
-            SECTION_ENTRIES['Changes'].append(entry)
-        elif ChangelogEntryClassifier.is_addition(entry):
-            SECTION_ENTRIES['Additions'].append(entry)
-        elif ChangelogEntryClassifier.is_fix(entry):
-            SECTION_ENTRIES['Fixes'].append(entry)
+    for logentry in log_entries:
+        if ChangelogEntryClassifier.is_change(logentry):
+            SECTION_ENTRIES['Changes'].append(logentry)
+        elif ChangelogEntryClassifier.is_addition(logentry):
+            SECTION_ENTRIES['Additions'].append(logentry)
+        elif ChangelogEntryClassifier.is_fix(logentry):
+            SECTION_ENTRIES['Fixes'].append(logentry)
         else:
-            # TODO: Handle undetermined entry better?
-            SECTION_ENTRIES['Changes'].append(entry)
+            # TODO: Handle undetermined logentry better?
+            SECTION_ENTRIES['Changes'].append(logentry)
 
     for section, entries in sorted(SECTION_ENTRIES.items()):
         print('\n' + text.indent(section, columns=12))
 
-        for entry in entries:
-            print(text.indent('- ' + entry.subject, columns=12))
-            print(text.indent(entry.body, columns=14))
-            if entry.body:
+        for logentry in entries:
+            print(text.indent('- ' + logentry.subject, columns=12))
+            print(text.indent(logentry.body, columns=14))
+            if logentry.body:
                 print()
 
     sys.exit(exit_status)
