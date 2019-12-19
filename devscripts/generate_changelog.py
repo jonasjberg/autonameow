@@ -84,6 +84,8 @@ class ChangelogEntryClassifier(object):
         if cls._body_matches_any(entry, BODY_WORDS):
             return True
 
+        return False
+
     @classmethod
     def is_change(cls, entry):
         SUBJECT_WORDS = ['Change', 'Modify', 'Remove', 'Rework']
@@ -93,6 +95,8 @@ class ChangelogEntryClassifier(object):
         BODY_WORDS = ['Changes', 'Modifies', 'Removes', 'Reworks']
         if cls._body_matches_any(entry, BODY_WORDS):
             return True
+
+        return False
 
     @classmethod
     def is_fix(cls, entry):
