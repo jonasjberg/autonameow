@@ -1,12 +1,12 @@
 exit_code: 0
 stdout:
-    matches:
+  matches:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
     - 'extractor.metadata.filetags'
     - 'extractor.filesystem.xplat'
-    does_not_match:
+  does_not_match:
     - '.*class.*'
     - '.*NULL.*'
     - '.*generic.*'

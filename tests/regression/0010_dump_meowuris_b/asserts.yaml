@@ -1,6 +1,6 @@
 exit_code: 0
 stdout:
-    matches:
+  matches:
     - 'analyzer.document.*DocumentAnalyzer'
     - 'analyzer.ebook.*EbookAnalyzer'
     - 'analyzer.filename.*FilenameAnalyzer'
@@ -10,7 +10,7 @@ stdout:
     - 'extractor.metadata.guessit.*GuessitMetadataExtractor'
     - 'extractor.metadata.jpeginfo.*JpeginfoMetadataExtractor'
     - 'extractor.metadata.pandoc.*PandocMetadataExtractor'
-    does_not_match:
+  does_not_match:
     - '.*class.*'
     - '.*NULL.*'
     - '.*generic.*'

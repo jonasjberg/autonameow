@@ -1,18 +1,18 @@
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
 RULES:
-    Regression test 0007_mysticism_logic_c:
-        CONDITIONS:
-            extractor.filesystem.xplat.basename_prefix: '4123'
-            extractor.filesystem.xplat.pathname_parent: samplefiles
-        DATA_SOURCES:
-            extension: extractor.metadata.exiftool.File:MIMEType
-            title:
-            - extractor.metadata.epub.title
-            - extractor.metadata.exiftool.PDF:Title
-            - generic.metadata.title
-        NAME_TEMPLATE: '{title}.{extension}'
-        exact_match: true
-        ranking_bias: null
+  Regression test 0007_mysticism_logic_c:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_prefix: '4123'
+      extractor.filesystem.xplat.pathname_parent: samplefiles
+    DATA_SOURCES:
+      extension: extractor.metadata.exiftool.File:MIMEType
+      title:
+        - extractor.metadata.epub.title
+        - extractor.metadata.exiftool.PDF:Title
+        - generic.metadata.title
+    NAME_TEMPLATE: '{title}.{extension}'
+    exact_match: true
+    ranking_bias: null

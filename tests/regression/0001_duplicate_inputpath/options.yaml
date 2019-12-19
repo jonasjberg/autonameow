@@ -5,8 +5,8 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/gmail.pdf
-- $SAMPLEFILES/gmail.pdf
+  - $SAMPLEFILES/gmail.pdf
+  - $SAMPLEFILES/gmail.pdf
 list_all: true
 automagic: true
 batch: true

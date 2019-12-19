@@ -1,8 +1,8 @@
 exit_code: 0
 renames:
-    'gmail.pdf': '2016-01-11T124132 gmail.pdf'
+  'gmail.pdf': '2016-01-11T124132 gmail.pdf'
 stdout:
-    matches:
+  matches:
     - 'Remaining.*prioritized rules'
     - 'Discarded rules'
     - 'Exact: Yes.*Score: N/A.*Relative Score: N/A.*Bias: 1.0'

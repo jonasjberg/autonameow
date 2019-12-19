@@ -5,7 +5,7 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/4123.epub
+  - $SAMPLEFILES/4123.epub
 list_all: false
 automagic: false
 batch: true

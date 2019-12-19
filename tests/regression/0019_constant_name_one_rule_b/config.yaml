@@ -1,5 +1,5 @@
 RULES:
-    Constant name A:
-        NAME_TEMPLATE: 'CONSTANT_NAME_A'
-        exact_match: false
-        ranking_bias: 1.0
+  Constant name A:
+    NAME_TEMPLATE: 'CONSTANT_NAME_A'
+    exact_match: false
+    ranking_bias: 1.0

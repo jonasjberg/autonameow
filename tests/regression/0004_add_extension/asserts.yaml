@@ -1,9 +1,9 @@
 exit_code: 0
 renames:
-    simple-lexical-analysis: simple-lexical-analysis.png
-    magic_txt.md: magic_txt.txt
-    magic_txt: magic_txt.txt
+  simple-lexical-analysis: simple-lexical-analysis.png
+  magic_txt.md: magic_txt.txt
+  magic_txt: magic_txt.txt
 skipped:
-    empty: empty
-    magic_mp4.mp4: magic_mp4.mp4
-    magic_png.png: magic_png.png
+  empty: empty
+  magic_mp4.mp4: magic_mp4.mp4
+  magic_png.png: magic_png.png

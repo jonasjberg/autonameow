@@ -1,61 +1,61 @@
 author:
-    coercer: aw_string
-    generic_field: author
-    mapped_fields:
-    -   WeightedMapping:
-            field: Author
-            weight: 1.0
-    multivalued: true
+  coercer: aw_string
+  generic_field: author
+  mapped_fields:
+    - WeightedMapping:
+        field: Author
+        weight: 1.0
+  multivalued: true
 
 author-meta:
-    coercer: aw_string
-    generic_field: author
-    mapped_fields:
-    -   WeightedMapping:
-            field: Author
-            weight: 1.0
-    multivalued: true
+  coercer: aw_string
+  generic_field: author
+  mapped_fields:
+    - WeightedMapping:
+        field: Author
+        weight: 1.0
+  multivalued: true
 
 coverage:
-    coercer: aw_string
-    multivalued: false
+  coercer: aw_string
+  multivalued: false
 
 date:
-    coercer: aw_date
-    generic_field: date_created
-    mapped_fields:
-    -   WeightedMapping:
-            field: Date
-            weight: 1.0
-    -   WeightedMapping:
-            field: DateTime
-            weight: 1.0
+  coercer: aw_date
+  generic_field: date_created
+  mapped_fields:
+    - WeightedMapping:
+        field: Date
+        weight: 1.0
+    - WeightedMapping:
+        field: DateTime
+        weight: 1.0
 
-    # TODO: This is WRONG! multivalued should be false
-    # Expect more than one *different* dates, but never any
-    # single "element" that is composed of more than one date.
-    multivalued: true
+  # TODO: This is WRONG! multivalued should be false
+  # Expect more than one *different* dates, but never any
+  # single "element" that is composed of more than one date.
+  multivalued: true
 
 date-meta:
-    coercer: aw_date
-    generic_field: date_created
-    mapped_fields:
-    -   WeightedMapping:
-            field: Date
-            weight: 1.0
-    -   WeightedMapping:
-            field: DateTime
-            weight: 1.0
-    multivalued: false
+  coercer: aw_date
+  generic_field: date_created
+  mapped_fields:
+    - WeightedMapping:
+        field: Date
+        weight: 1.0
+    - WeightedMapping:
+        field: DateTime
+        weight: 1.0
+  multivalued: false
 
 description:
-    coercer: aw_string
-    generic_field: title  #subtitle
-    mapped_fields:
-    -   WeightedMapping:
-            field: Title
-            weight: 0.4
-    multivalued: false
+  coercer: aw_string
+  generic_field: title  # subtitle
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 0.4
+  multivalued: false
 
 # Example:
 #   "identifier": [
@@ -63,94 +63,94 @@ description:
 #       "urn:uuid:d5adaa20-1955-11e7-8fff-4c72b9252ec6"
 #   ]
 identifier:
-    coercer: aw_string
-    multivalued: true
-    generic_field: identifier
+  coercer: aw_string
+  multivalued: true
+  generic_field: identifier
 
 # Example: "en"
 language:
-    coercer: aw_string
-    generic_field: language
-    multivalued: false
+  coercer: aw_string
+  generic_field: language
+  multivalued: false
 
 pagetitle:
-    coercer: aw_string
-    generic_field: title
-    mapped_fields:
-    -   WeightedMapping:
-            field: Title
-            weight: 0.4
-    multivalued: false
+  coercer: aw_string
+  generic_field: title
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 0.4
+  multivalued: false
 
 publisher:
-    coercer: aw_string
-    generic_field: publisher
-    mapped_fields:
-    -   WeightedMapping:
-            field: Publisher
-            weight: 1.0
-    multivalued: false
+  coercer: aw_string
+  generic_field: publisher
+  mapped_fields:
+    - WeightedMapping:
+        field: Publisher
+        weight: 1.0
+  multivalued: false
 
 rights:
-    coercer: aw_string
-    multivalued: false
+  coercer: aw_string
+  multivalued: false
 
 source:
-    coercer: aw_string
-    mapped_fields:
-    -   WeightedMapping:
-            field: Publisher
-            weight: 0.5
-    multivalued: false
+  coercer: aw_string
+  mapped_fields:
+    - WeightedMapping:
+        field: Publisher
+        weight: 0.5
+  multivalued: false
 
 subject:
-    coercer: aw_string
-    generic_field: tags
-    mapped_fields:
-    -   WeightedMapping:
-            field: Tags
-            weight: 1.0
-    -   WeightedMapping:
-            field: Title
-            weight: 0.1
-    multivalued: true
+  coercer: aw_string
+  generic_field: tags
+  mapped_fields:
+    - WeightedMapping:
+        field: Tags
+        weight: 1.0
+    - WeightedMapping:
+        field: Title
+        weight: 0.1
+  multivalued: true
 
 subtitle:
-    coercer: aw_string
-    generic_field: title
-    mapped_fields:
-    -   WeightedMapping:
-            field: Title
-            weight: 0.25
-    multivalued: false
+  coercer: aw_string
+  generic_field: title
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 0.25
+  multivalued: false
 
 table-of-contents:
-    coercer: aw_string
-    multivalued: true
+  coercer: aw_string
+  multivalued: true
 
 tags:
-    coercer: aw_string
-    generic_field: tags
-    mapped_fields:
-    -   WeightedMapping:
-            field: Tags
-            weight: 1.0
-    multivalued: true
+  coercer: aw_string
+  generic_field: tags
+  mapped_fields:
+    - WeightedMapping:
+        field: Tags
+        weight: 1.0
+  multivalued: true
 
 title:
-    coercer: aw_string
-    generic_field: title
-    mapped_fields:
-    -   WeightedMapping:
-            field: Title
-            weight: 1.0
-    multivalued: false
+  coercer: aw_string
+  generic_field: title
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 1.0
+  multivalued: false
 
 title-prefix:
-    coercer: aw_string
-    generic_field: title
-    mapped_fields:
-    -   WeightedMapping:
-            field: Title
-            weight: 0.5
-    multivalued: false
+  coercer: aw_string
+  generic_field: title
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 0.5
+  multivalued: false

@@ -1,5 +1,5 @@
 exit_code: 0
 renames:
-    gmail.pdf: 2016-01-11T124132 gmail.pdf
+  gmail.pdf: 2016-01-11T124132 gmail.pdf
 skipped:
   simplest_pdf.md.pdf: simplest_pdf.md.pdf

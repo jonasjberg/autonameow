@@ -1,22 +1,22 @@
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
 FILESYSTEM_OPTIONS:
-    ignore:
+  ignore:
     - '*.swp'
     - '*/.*'
-    sanitize_filename: true
-    sanitize_strict: false
+  sanitize_filename: true
+  sanitize_strict: false
 RULES:
-    Fix incorrect extensions with filename analyzer:
-        CONDITIONS:
-            extractor.filesystem.xplat.mime_type: '*/*'
-        DATA_SOURCES:
-            extension: analyzer.filename.extension
-            title: extractor.filesystem.xplat.basename_prefix
-        NAME_TEMPLATE: '{title}.{extension}'
-        exact_match: false
-        ranking_bias: 0.01
+  Fix incorrect extensions with filename analyzer:
+    CONDITIONS:
+      extractor.filesystem.xplat.mime_type: '*/*'
+    DATA_SOURCES:
+      extension: analyzer.filename.extension
+      title: extractor.filesystem.xplat.basename_prefix
+    NAME_TEMPLATE: '{title}.{extension}'
+    exact_match: false
+    ranking_bias: 0.01
 COMPATIBILITY:
-    autonameow_version: v0.5.7
+  autonameow_version: v0.5.7

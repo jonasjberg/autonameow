@@ -1,6 +1,6 @@
 exit_code: 0
 stdout:
-    matches:
+  matches:
     - 'analyzer.document'
     - 'analyzer.ebook'
     - 'analyzer.filename'
@@ -9,7 +9,7 @@ stdout:
     - 'extractor.metadata.filetags'
     - 'extractor.metadata.guessit'
     - 'extractor.metadata.jpeginfo'
-    does_not_match:
+  does_not_match:
     - 'extractor.text.epub'
     - 'extractor.text.markdown'
     - 'extractor.text.pdf'

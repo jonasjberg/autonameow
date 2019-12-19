@@ -5,19 +5,19 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/4123.epub
-- $SAMPLEFILES/4123.pdf
-- $SAMPLEFILES/empty
-- $SAMPLEFILES/magic_bmp.bmp
-- $SAMPLEFILES/magic_gif.gif
-- $SAMPLEFILES/magic_jpg.jpg
-- $SAMPLEFILES/magic_mp4.mp4
-- $SAMPLEFILES/magic_png.png
-- $SAMPLEFILES/magic_txt.md
-- $SAMPLEFILES/magic_txt.txt
-- $SAMPLEFILES/ObjectCalisthenics.rtf
-- $SAMPLEFILES/saved-webpage.html
-- $SAMPLEFILES/saved-webpage.mhtml
+  - $SAMPLEFILES/4123.epub
+  - $SAMPLEFILES/4123.pdf
+  - $SAMPLEFILES/empty
+  - $SAMPLEFILES/magic_bmp.bmp
+  - $SAMPLEFILES/magic_gif.gif
+  - $SAMPLEFILES/magic_jpg.jpg
+  - $SAMPLEFILES/magic_mp4.mp4
+  - $SAMPLEFILES/magic_png.png
+  - $SAMPLEFILES/magic_txt.md
+  - $SAMPLEFILES/magic_txt.txt
+  - $SAMPLEFILES/ObjectCalisthenics.rtf
+  - $SAMPLEFILES/saved-webpage.html
+  - $SAMPLEFILES/saved-webpage.mhtml
 list_all: false
 list_rulematch: false
 automagic: true

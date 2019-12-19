@@ -5,7 +5,7 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/magic_txt
+  - $SAMPLEFILES/magic_txt
 list_all: false
 automagic: true
 batch: true

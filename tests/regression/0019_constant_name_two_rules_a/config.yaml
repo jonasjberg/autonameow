@@ -1,16 +1,16 @@
 RULES:
-    Rule with assumedly unresolvable data source:
-        CONDITIONS:
-            extractor.filesystem.xplat.mime_type: '*/*'
-        NAME_TEMPLATE: '{author}'
-        DATA_SOURCES:
-            author: analyzer.ebook.BAD_LEAF
-        exact_match: true
-        ranking_bias: 1.0
+  Rule with assumedly unresolvable data source:
+    CONDITIONS:
+      extractor.filesystem.xplat.mime_type: '*/*'
+    NAME_TEMPLATE: '{author}'
+    DATA_SOURCES:
+      author: analyzer.ebook.BAD_LEAF
+    exact_match: true
+    ranking_bias: 1.0
 
-    Constant name A:
-        CONDITIONS:
-            extractor.filesystem.xplat.mime_type: '*/*'
-        NAME_TEMPLATE: 'CONSTANT_NAME_A'
-        exact_match: true
-        ranking_bias: 1.0
+  Constant name A:
+    CONDITIONS:
+      extractor.filesystem.xplat.mime_type: '*/*'
+    NAME_TEMPLATE: 'CONSTANT_NAME_A'
+    exact_match: true
+    ranking_bias: 1.0

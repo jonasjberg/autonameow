@@ -5,8 +5,8 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/smulan.jpg
-- $SAMPLEFILES/magic_jpg.jpg
+  - $SAMPLEFILES/smulan.jpg
+  - $SAMPLEFILES/magic_jpg.jpg
 list_all: false
 automagic: false
 batch: true

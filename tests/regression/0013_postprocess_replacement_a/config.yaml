@@ -1,22 +1,22 @@
 POST_PROCESSING:
-    replacements:
-        ',': ''
-        ' - ': ' '
-        Human: Cat
+  replacements:
+    ',': ''
+    ' - ': ' '
+    Human: Cat
 
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
 RULES:
-    Regression test 0008_nietzsche_c:
-        CONDITIONS:
-            extractor.filesystem.xplat.basename_full: pg38145-images.epub
-            extractor.filesystem.xplat.pathname_parent: samplefiles
-        DATA_SOURCES:
-            author: generic.metadata.author
-            extension: extractor.filesystem.xplat.mime_type
-            title: generic.metadata.title
-        NAME_TEMPLATE: '{author} {title}.{extension}'
-        exact_match: true
-        ranking_bias: null
+  Regression test 0008_nietzsche_c:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: pg38145-images.epub
+      extractor.filesystem.xplat.pathname_parent: samplefiles
+    DATA_SOURCES:
+      author: generic.metadata.author
+      extension: extractor.filesystem.xplat.mime_type
+      title: generic.metadata.title
+    NAME_TEMPLATE: '{author} {title}.{extension}'
+    exact_match: true
+    ranking_bias: null

@@ -25,21 +25,21 @@
 
 
 3-Heights PDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - 3-Heights.*
 
 ACDSee:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - acdsee
 
 ActivePDF Toolkit:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - activepdf\.com
 
 Adobe Acrobat:
-    match_any_literal:
+  match_any_literal:
     - Acrobat
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - acrobat \d+\.\d+(\.\d+)?
     - 'acrobat:'
     - acrobat (pictwpstops|pro)
@@ -47,478 +47,478 @@ Adobe Acrobat:
     - quite imposing
 
 Adobe Acrobat Distiller:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - acrobat distiller
     - adobeps.\.drv
     - adobeps.\.dll
 
 Adobe Acrobat PDFMaker:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - acrobat pdfmaker$
 
 Adobe FrameMaker:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - adobe framemaker
     - framemaker
 
 Adobe Illustrator:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (adobe )?illustrator
 
 Adobe InDesign:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - indesign
 
 Adobe LiveCycle Designer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - adobe livecycle
 
 Adobe PageMaker:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (adobe.? )?pagemaker
 
 Adobe PDF Library:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - adobe pdf library
 
 Adobe Photoshop:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (adobe )?photoshop
 
 AdobePS:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - adobeps
     - adobe postscript printer driver
 
 Advanced PDF Repair:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (advanced|datanumen) pdf repair
     - www\.datanumen\.com/apdfr/
     - www\.pdf-repair\.com
-    match_any_literal:
+  match_any_literal:
     - DPDFR
 
 Antenna House:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - antenna house
 
 Arbortext:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - arbortext
     - ^3b2
 
 AH CSS Formatter:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ah css formatter
 
 AH XSL Formatter:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (ah )?xsl formatter
 
 Apache FOP:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - apache fop
 
 A-PDF Merger:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - a-pdf merger
 
 Apple iBooks:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ibooks
     - apple ibooks
 
 Apple Keynote:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (apple )?keynote
 
 Apple LaserWriter:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^(apple )?laserwriter
     - textures.*laserwriter
 
 Apple Pages:
-    match_any_literal:
+  match_any_literal:
     - Pages
 
 Appligent pdfHarmony:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - appligent pdfharmony
 
 BCL PostScript Driver:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - bcl postscript driver
 
 Boxoft Image To PDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - boxoft image to pdf
 
 Brother Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - tw-brother
 
 Cadence Design Systems:
-    match_any_literal:
+  match_any_literal:
     - Cadence Design Systems
 
 Cairo:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - cairo \d+.\d+.\d+
     - \(https?://cairographics\.org\)
 
 Calibre:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - calibre \(?\d+.\d+.\d+\)?
     - \[?https?://calibre-ebook\.com\]?
 
 Canon Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - canon
 
 Chromium:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - chromium
 
 CorelDRAW:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - coreldraw
 
 DocBook:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - docbook
 
 dvipdfm:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^dvipdfm
 
 dvips:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - \bdvips
 
 Epson Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - epson
 
 FinePrint pdfFactory:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - fineprint pdffactory
 
 FineReader:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - finereader
 
 Foxit:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - foxit
 
 Fujitsu Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - scansnap manager
     - fujitsu
 
 Fuji Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - fuji xerox
 
 Genius Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^genius
     - colorpage-\w+\d?
 
 Ghostscript:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^(afpl |aladdin |gpl )?ghostscript
 
 gnuplot:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - gnuplot
 
 groff:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - groff
 
 gscan2pdf:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - gscan2pdf
 
 HELIOS pdfcat:
-    match_any_literal:
+  match_any_literal:
     - helios pdfcat
 
 HTML Tidy:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - html tidy
 
 HP Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - wia-hp psc
 
 IBM Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - system400
 
 Image2PDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - image2pdf
 
 Infix Pdf Editor:
-    match_any_literal:
+  match_any_literal:
     - (Infix)
     - Infix
 
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^.?infix pro.?$
     - infix pdf editor
     - iceni
 
 iText:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^itext\b
 
 Kingsoft WPS Office:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (ks|kingsoft|wps) ?office
 
 Konica Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (konica|bizhub)
     - pagepro \d+
 
 LaTeX:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (latex|pdfetex)
 
 Lexmark Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - lexmark \w+
 
 LibreOffice:
-    match_any_regex:
+  match_any_regex:
     - LibreOffice( \d\.\d)?
 
 MacOS Quartz:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - mac ?os.* quartz
 
 Microsoft PowerPoint:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - adobe acrobat.* for powerpoint
     - powerpoint
 
 Microsoft Publisher:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - microsoft.? publisher
 
 Microsoft Trident:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - mshtml
 
 Microsoft Word:
-    match_any_literal:
+  match_any_literal:
     - MergerPdf.dll
 
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - acrobat.* for word
     - winword\.exe
     - microsoft.?.?.?.?( office)? word
 
 MikTex:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - miktex
     - \(miktex.*\)
 
 Mozilla PostScript:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - mozilla postscript
 
 Nitro:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - nitro (pdf|pro)
 
 Nuance OmniPage:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - omnipage
 
 OneVision Asura:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - asura
 
 OpenOffice:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - OpenOffice(\.org)?(\d\.\d)?(\.\d+)?
     - ^Writer$
 
 PaperPort:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - paperport
     - www\.scansoft\.com
 
 PDF24:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdf24( creator)?
 
 PDFBox:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfbox
 
 PdfCompressor:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfcompressor
 
 PDF Creator:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdf ?creator
     - www\.peernet\.com
 
 PDFelement:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfelement
 
 PDFium:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfium
 
 PDFMerge:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfmerge
 
 PDF Nomad:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdf nomad
 pdfresizer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfresizer\.com
 
 PDFsam:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfsam
 
 PDFsharp:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfsharp
 
 pdfTeX:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^(this is )?pdftex
 
 pdftk:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdftk
 
 PDFWriters:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pdfwriters
 
 PowerPDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - powerpdf
 
 PrimoPDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - primopdf
 
 Print2PDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - print2pdf
 
 PScript:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - pscript5
     - pscript\.(dll|drv)
 
 PrinceXML:
-    match_any_literal:
+  match_any_literal:
     - Prince
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - prince \d+(\.\d+)
     - www\.princexml\.com
 
 QuarkXPress:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - quarkxpress
     - quark\d+user
 
 ScanToPDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - scantopdf
 
 SkiaPDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - skia.?pdf
 
 TeX:
-    match_any_literal:
+  match_any_literal:
     - TeX
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^ ?tex output
 
 TeXShop:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - texshop
 
 Texterity:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - texterity
 
 libtiff:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - (libtiff|tiff2ps)
 
 ToPDF.com:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - topdf.com
 
 TopLeaf:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - topleaf
     - turn-key systems
 
 Tracker PDF-Tools:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - tracker.?.? pdf-tools
 
 UNKNOWN:
-    match_any_literal:
+  match_any_literal:
     - ()
     - UnknownApplication
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^\d+\.[a-z]{3}$
 
 VivaPress:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - vivapress
 
 VTeX PDF Tools:
-    match_any_literal:
+  match_any_literal:
     - VTeX PDF Tools
 
 Win2PDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - win2pdf
     - www\.daneprairie\.com
 
 wpCubed wPDF:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - wpdf by wpcubed
-    match_any_literal:
+  match_any_literal:
     - wPDF
 
 XEP:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - xep
 
 Xerox Printer:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - ^xerox \w+
 
 XeTeX:
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - xetex
 
 XyEnterprise:
-    match_any_literal:
+  match_any_literal:
     - XML Professional Publisher
     - XML Professional Publisher (XPP)
 
-    match_any_regex_ignorecase:
+  match_any_regex_ignorecase:
     - xyenterprise

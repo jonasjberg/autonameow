@@ -5,14 +5,14 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/2016-01-11T124132 gmail.pdf  # This file does not exit
-- $SAMPLEFILES/4123.pdf
-- $SAMPLEFILES/Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
-- $SAMPLEFILES/Corsair_RM750x_750W_specs.pdf  # This file does not exit
-- $SAMPLEFILES/gmail.pdf
-- $SAMPLEFILES/gmail€åäö.pdf  # This file does not exit
-- $SAMPLEFILES/magic_pdf.pdf
-- $SAMPLEFILES/simplest_pdf.md.pdf
+  - $SAMPLEFILES/2016-01-11T124132 gmail.pdf  # This file does not exit
+  - $SAMPLEFILES/4123.pdf
+  - $SAMPLEFILES/Charles+Darwin+-+On+the+Origin+of+Species%2C+6th+Edition.pdf
+  - $SAMPLEFILES/Corsair_RM750x_750W_specs.pdf  # This file does not exit
+  - $SAMPLEFILES/gmail.pdf
+  - $SAMPLEFILES/gmail€åäö.pdf  # This file does not exit
+  - $SAMPLEFILES/magic_pdf.pdf
+  - $SAMPLEFILES/simplest_pdf.md.pdf
 list_all: false
 automagic: true
 batch: true

@@ -5,12 +5,12 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $SAMPLEFILES/empty
-- $SAMPLEFILES/simple-lexical-analysis
-- $SAMPLEFILES/magic_mp4.mp4
-- $SAMPLEFILES/magic_png.png
-- $SAMPLEFILES/magic_txt.md
-- $SAMPLEFILES/magic_txt
+  - $SAMPLEFILES/empty
+  - $SAMPLEFILES/simple-lexical-analysis
+  - $SAMPLEFILES/magic_mp4.mp4
+  - $SAMPLEFILES/magic_png.png
+  - $SAMPLEFILES/magic_txt.md
+  - $SAMPLEFILES/magic_txt
 list_all: false
 automagic: true
 batch: true

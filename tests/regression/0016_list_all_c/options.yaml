@@ -5,7 +5,7 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- '$SAMPLEFILES/sample.md'
+  - '$SAMPLEFILES/sample.md'
 list_all: true
 automagic: false
 batch: true
