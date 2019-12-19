@@ -203,6 +203,16 @@ aw_utils.assert_true '$_check_spelling_script_path' \
             'Spell-checker script checks pass ("check_spelling.sh" returns 0)'
 
 
+# ______________________________________________________________________________
+#
+# Check YAML files with external script.
+
+_lint_yaml_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/lint_yaml.sh"
+aw_utils.assert_bulk_test "$_lint_yaml_script_path" e x
+
+aw_utils.assert_true '$_lint_yaml_script_path' \
+            'Static analysis of YAML-files pass ("lint_yaml.sh" returns 0)'
+
 
 
 # Calculate total execution time.

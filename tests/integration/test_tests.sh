@@ -171,6 +171,12 @@ aw_utils.assert_bulk_test "$_check_spelling_script_path" n e f r x
 _check_spelling_script_wordlist_path="${_devscripts_path}/check_spelling_wordlist.txt"
 aw_utils.assert_bulk_test "$_check_spelling_script_wordlist_path" n e f r
 
+_lint_yaml_script_path="${AUTONAMEOW_ROOT_DIRPATH}/devscripts/lint_yaml.sh"
+aw_utils.assert_bulk_test "$_lint_yaml_script_path" n e f r x
+
+_lint_yaml_config_path="${AUTONAMEOW_ROOT_DIRPATH}/.yamllint"
+aw_utils.assert_bulk_test "$_lint_yaml_config_path" n e r s
+
 
 # ______________________________________________________________________________
 #
