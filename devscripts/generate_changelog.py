@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
     # Make sure that the changelog file exists.
     if not is_readable_file(changelog_path):
-        print('File does not exist or is not readable: "{!s}"'.format(_path),
+        print('File does not exist or is not readable: "{!s}"'.format(changelog_path),
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
