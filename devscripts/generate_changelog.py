@@ -176,6 +176,7 @@ def is_blacklisted(entry):
         if (_subject_match(r'(Add|Modify|Remove).*logging.*')
                 or _subject_match(r'Trivial.*')
                 or _subject_match(r'Minor (changes?|fix|fixes) .*')
+                or _subject_match(r'Various.*fixes.*')
                 or _subject_match(r'Whitespace fixes')
                 or _subject_match(r'.*trailing whitespace.*')
                 or _subject_match(r'Rename variables')

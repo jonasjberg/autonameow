@@ -144,6 +144,25 @@ class TestIsBlacklisted(TestCase):
             body='',
         )
 
+    def test_blacklists_various_minor_fixes_without_body(self):
+        self._assert_blacklists(
+            subject="Various minor fixes in 'util/encoding.py'.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Various fixes in 'run_unit_tests.sh'.",
+            body='',
+        )
+
+    def test_does_not_blacklist_various_minor_fixes_with_body(self):
+        self._assert_not_blacklisted(
+            subject="Minor fixes in 'known_data_loader.py'.",
+            body="""Wraps filename string operation with 'lru_cache'.
+
+Also adds additional unit tests and modifies calls
+to 'clear_lookup_cache()' between unit tests.""",
+        )
+
     def test_blacklists_trivial_uninformative_trivial_fix(self):
         self._assert_blacklists(
             subject='Trivial fix to TODO-list.',
@@ -297,5 +316,13 @@ class TestIsBlacklisted(TestCase):
         )
         self._assert_blacklists(
             subject="Modify yamllint configuration.",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Modify pylint configuration",
+            body='',
+        )
+        self._assert_blacklists(
+            subject="Modify pylint configuration.",
             body='',
         )
