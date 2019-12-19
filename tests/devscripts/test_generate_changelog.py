@@ -39,11 +39,9 @@ class TestIsBlacklisted(TestCase):
         self.assertIsInstance(actual, bool)
         self.assertFalse(actual)
 
-    # Should not be filtered
     def test_does_not_blacklist_foo_bar(self):
         self._assert_not_blacklisted(subject='foo', body='bar')
 
-    # Merge commits
     def test_does_not_blacklist_merge_mention(self):
         self._assert_not_blacklisted(
             subject="Move debug logging to 'if __debug__' branches.",
@@ -86,7 +84,6 @@ class TestIsBlacklisted(TestCase):
             body='',
         )
 
-    # Reverted commits
     def test_blacklists_reverted_commits(self):
         self._assert_blacklists(
             subject='Revert "Set default logging level to \'ERROR\'."',
@@ -99,7 +96,6 @@ class TestIsBlacklisted(TestCase):
             body='Adds reverting to "less safe" defaults in case of conflicts.',
         )
 
-    # Adding new TODOs
     def test_blacklists_new_todos_with_ids(self):
         self._assert_blacklists(
             subject='Add TODO [TD0163] on prematurely initializing providers.',
@@ -127,7 +123,6 @@ class TestIsBlacklisted(TestCase):
                  + 'bundling multiple fields in some type of "records".',
         )
 
-    # Unused imports
     def test_blacklists_removal_of_unused_imports(self):
         self._assert_blacklists(
             subject='Remove unused imports.',
@@ -138,7 +133,6 @@ class TestIsBlacklisted(TestCase):
             body='',
         )
 
-    # Trivial and uninformative commits
     def test_blacklists_trivial_uninformative_fix(self):
         self._assert_blacklists(
             subject='Fix variable shadowing argument.',
@@ -204,21 +198,18 @@ class TestIsBlacklisted(TestCase):
             body='',
         )
 
-    # Adding comments
     def test_blacklists_added_comment(self):
         self._assert_blacklists(
             subject='Add comment on requiring all extractors.',
             body='',
         )
 
-    # Fixed typos
     def test_blacklists_fixed_typo_and_added_comment(self):
         self._assert_blacklists(
             subject='Fix typo in comment. Add comment.',
             body='',
         )
 
-    # Added/changed notes.
     def test_blacklists_added_notes(self):
         self._assert_blacklists(
             subject='Add notes on extractors.',
@@ -273,7 +264,6 @@ class TestIsBlacklisted(TestCase):
             body='',
         )
 
-    # Added/changed notes.
     def test_blacklists_changes_to_gitignore(self):
         self._assert_blacklists(
             subject='Add .* to \'.gitignore\'',
