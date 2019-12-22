@@ -107,7 +107,7 @@ test_automagic_dryrun()
                 "(${_test_name}) output should include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
     aw_utils.assert_true '[ -f "$_sample_file" ]' \
-                "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
+                "(${_test_name}) The sample file should still exist, I.E. it should not have been renamed."
 }
 
 
