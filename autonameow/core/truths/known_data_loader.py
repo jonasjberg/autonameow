@@ -36,11 +36,11 @@ _SELF_DIRPATH = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 
 
 class KnownDataFileParser(object):
-    CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE = 'match_any_literal'
-    CONFIG_SECTION_MATCH_ANY_LITERAL_IGNORECASE = 'match_any_literal_ignorecase'
+    SECTION_MATCH_ANY_LITERAL_CASESENSITIVE = 'match_any_literal'
+    SECTION_MATCH_ANY_LITERAL_IGNORECASE = 'match_any_literal_ignorecase'
     # TODO: Implement 'match_any_literal_ignorecase'!
-    CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE = 'match_any_regex'
-    CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE = 'match_any_regex_ignorecase'
+    SECTION_MATCH_ANY_REGEX_CASESENSITIVE = 'match_any_regex'
+    SECTION_MATCH_ANY_REGEX_IGNORECASE = 'match_any_regex_ignorecase'
 
     def __init__(self, config_datadict, lookup_dict_filepath=None):
         assert isinstance(config_datadict, dict)
@@ -81,7 +81,7 @@ class KnownDataFileParser(object):
                 log.error('Invalid entry "%s" in "%s"', sections, self.str_lookup_dict_filepath)
                 continue
 
-            literals_to_match = sections.get(self.CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE)
+            literals_to_match = sections.get(self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE)
             if not literals_to_match:
                 continue
 
@@ -121,10 +121,10 @@ class KnownDataFileParser(object):
                 _regexes = self._compile_regexes(_filtered_patterns, ignore_case)
                 all_compiled_regexes.update(_regexes)
 
-            maybe_ignorecase_patterns = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE)
+            maybe_ignorecase_patterns = sections.get(self.SECTION_MATCH_ANY_REGEX_IGNORECASE)
             _process_patterns(maybe_ignorecase_patterns, ignore_case=True)
 
-            maybe_casesensitive_patterns = sections.get(self.CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE)
+            maybe_casesensitive_patterns = sections.get(self.SECTION_MATCH_ANY_REGEX_CASESENSITIVE)
             _process_patterns(maybe_casesensitive_patterns, ignore_case=False)
 
             if all_compiled_regexes:
