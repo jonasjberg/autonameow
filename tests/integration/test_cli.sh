@@ -146,11 +146,11 @@ aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- " :root:"' \
 aw_utils.assert_false '"$AUTONAMEOW_RUNNER" --debug 2>&1 | grep -- ":root:"' \
              'Output should not contain ":root:" when starting with "--debug"'
 
-aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 201.*"' \
-            'When started with "-v" the output should match "^Started at 201.*"'
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Started at 20.*"' \
+            'When started with "-v" the output should match "^Started at 20.*"'
 
-aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Finished at 201.*"' \
-            'When started with "-v" the output should match "^Finished at 201.*"'
+aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v | grep -- "^Finished at 20.*"' \
+            'When started with "-v" the output should match "^Finished at 20.*"'
 
 aw_utils.assert_true '"$AUTONAMEOW_RUNNER" -v 2>&1 | grep -- ".*Using configuration: .*"' \
             'When started with "-v" the output should match ".*Using configuration.*"'
