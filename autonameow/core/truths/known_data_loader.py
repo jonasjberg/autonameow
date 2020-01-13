@@ -51,7 +51,7 @@ class KnownDataFileParser(object):
             str_lookup_dict_filepath = coercers.force_string(lookup_dict_filepath)
         else:
             str_lookup_dict_filepath = '(unknown)'
-        self.str_lookup_dict_filepath = str(str_lookup_dict_filepath)
+        self.str_lookup_dict_filepath = str_lookup_dict_filepath
 
         self._parsed_literal_lookup = None
         self._parsed_regex_lookup = None
