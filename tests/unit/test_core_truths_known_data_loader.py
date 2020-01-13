@@ -122,6 +122,16 @@ class TestKnownDataFileParser(TestCase):
         })
         self.assertEqual(dict(), parser.parsed_literal_lookup)
 
+    def test_returns_expected_parsed_literal_lookup_given_config_with_non_list(self):
+        parser = self._get_parser_from_config({
+            'FooPub': {
+                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: 'non_list_value',
+            }
+        })
+        expected = {
+        }
+        self.assertEqual(expected, parser.parsed_literal_lookup)
+
     def test_returns_expected_parsed_literal_lookup_given_config_with_one_entry(self):
         parser = self._get_parser_from_config({
             'FooPub': {

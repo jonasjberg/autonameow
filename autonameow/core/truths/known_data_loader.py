@@ -85,6 +85,11 @@ class KnownDataFileParser(object):
             if not literals_to_match:
                 continue
 
+            if not isinstance(literals_to_match, list):
+                log.error('Invalid entry "%s" in "%s"', sections,
+                          self.str_lookup_dict_filepath)
+                continue
+
             valid_literals_to_match = [
                 s for s in literals_to_match
                 if s and isinstance(s, str) and s.strip()
