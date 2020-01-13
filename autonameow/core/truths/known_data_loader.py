@@ -48,10 +48,9 @@ class KnownDataFileParser(object):
 
         # Store original path for additional information when logging errors.
         if lookup_dict_filepath:
-            str_lookup_dict_filepath = coercers.force_string(lookup_dict_filepath)
+            self.str_lookup_dict_filepath = coercers.force_string(lookup_dict_filepath)
         else:
-            str_lookup_dict_filepath = '(unknown)'
-        self.str_lookup_dict_filepath = str_lookup_dict_filepath
+            self.str_lookup_dict_filepath = '(unknown)'
 
         self._parsed_literal_lookup = None
         self._parsed_regex_lookup = None
