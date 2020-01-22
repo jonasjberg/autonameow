@@ -182,30 +182,22 @@ def _resolve_abspath_from_datafile_basename(filename):
     return disk.joinpaths(_SELF_DIRPATH, b'data', bytestring_basename)
 
 
-def _get_known_data_file_parser(yaml_filepath):
+def _try_parse_data_and_populate_lookup_cache(fieldname):
+    yaml_filepath = _resolve_abspath_from_datafile_basename(fieldname)
+    if not disk.isfile(yaml_filepath):
+        return False
+
     try:
-        config_data = disk.load_yaml_file(yaml_filepath)
+        loaded_data = disk.load_yaml_file(yaml_filepath)
     except (exceptions.FilesystemError, disk.YamlLoadError) as e:
         # TODO: [TD0164] Fix mismatched throwing/catching of exceptions ..
         log.critical(
             'Error while loading string canonicalizer YAML file "%s" :: %s',
             enc.displayable_path(yaml_filepath), str(e)
         )
-        return None
-
-    parser = KnownDataFileParser(config_data, yaml_filepath)
-    return parser
-
-
-def _try_parse_data_and_populate_lookup_cache(fieldname):
-    yaml_filepath = _resolve_abspath_from_datafile_basename(fieldname)
-    if not disk.isfile(yaml_filepath):
         return False
 
-    parser = _get_known_data_file_parser(yaml_filepath)
-    if not parser:
-        return False
-
+    parser = KnownDataFileParser(loaded_data, yaml_filepath)
     _LOOKUP_CACHE[fieldname]['regex'] = parser.parsed_regex_lookup
     _LOOKUP_CACHE[fieldname]['literal'] = parser.parsed_literal_lookup
     return True
