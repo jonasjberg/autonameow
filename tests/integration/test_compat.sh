@@ -92,8 +92,7 @@ AUTONAMEOW_SOURCE_VERSION="$(grep -- '__version_info__ = ' "$_version_file" | gr
 aw_utils.assert_false '[ -z "$AUTONAMEOW_SOURCE_VERSION" ]' \
              "This test script should be able to retrieve the version from \"${_version_file}\"."
 
-_autonameow_source_version_linecount="$(wc -l <<< "$AUTONAMEOW_SOURCE_VERSION")"
-aw_utils.assert_true '[ "$_autonameow_source_version_linecount" -eq "1" ]' \
+aw_utils.assert_true '[ "$(wc -l <<< "$AUTONAMEOW_SOURCE_VERSION")" -eq '1' ]' \
             "The matched \"${_version_file}\" file version should be a single line, I.E. contains one version string"
 
 
