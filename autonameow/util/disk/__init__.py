@@ -23,8 +23,6 @@ from .io import *
 from .pathstring import basename_prefix
 from .pathstring import basename_suffix
 from .pathstring import compare_basenames
-from .pathstring import path_ancestry
-from .pathstring import path_components
 from .pathstring import split_basename
 from .sanitize import sanitize_filename
 from .yaml import load_yaml
