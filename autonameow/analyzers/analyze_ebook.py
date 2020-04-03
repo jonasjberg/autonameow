@@ -48,16 +48,28 @@ log = logging.getLogger(__name__)
 
 # Known bad or likely incorrect.
 BLACKLISTED_ISBN_NUMBERS = [
-    '0000000000', '1111111111', '2222222222', '3333333333', '4444444444',
-    '5555555555', '6666666666', '7777777777', '8888888888', '9999999999',
-    '0123456789', '1101111100', '0111111110', '0111111110', '0000110000',
+    '0000000000',
+    '0000110000',
+    '0111111110',
+    '0111111110',
+    '0123456789',
     '1101100001',
+    '1101111100',
+    '1111111111',
+    '2222222222',
+    '3333333333',
+    '4444444444',
+    '5555555555',
+    '6666666666',
+    '7777777777',
+    '8888888888',
     '9780000000002',  # Title: "De Plattduitsche Baibel: et Aule Testament: ne Psalmeniutwahl"
+    '9999999999',
 ]
 
 BLACKLISTED_TEXTLINES = frozenset([
-    'This page intentionally left blank',
     'Cover'
+    'This page intentionally left blank',
 ])
 
 
