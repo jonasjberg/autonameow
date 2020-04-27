@@ -87,10 +87,10 @@ def load_yaml_file(filepath):
 
 def write_yaml(data, destination=None):
     _kwargs = dict(
-        encoding=C.DEFAULT_ENCODING,
         default_flow_style=False,
+        encoding=C.DEFAULT_ENCODING,
+        indent=2,
         width=160,
-        indent=4
     )
     # TODO: [hack] Pass stdout to destination instead of returning the result?
     if destination is not None:
