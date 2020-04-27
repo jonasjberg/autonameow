@@ -71,6 +71,17 @@ class ChangelogEntry(object):
                 return True
         return False
 
+    def __gt__(self, other):
+        return (
+            len(self.body),
+            self.subject.lower(),
+            self.body.lower(),
+        ) > (
+            len(other.body),
+            other.subject.lower(),
+            other.body.lower(),
+        )
+
     def __str__(self):
         if self.body:
             return self.subject + '\n' + self.body
@@ -160,13 +171,17 @@ def is_blacklisted(entry):
     if _subject_match(r'^Trivial fix .*') and not body:
         return True
 
-    # Added comments
+    # Comments
     if _subject_match(r'^Add comment.*'):
         if not body or _body_match(r'^Adds comment.*'):
             return True
 
+    if not body and ' and ' not in subject:
+        if _subject_match(r'^(Add|Cleanup|Clean up|Delete|Fix|Remove|Rewrite)(/(modify|update))?.*comment.*'):
+            return True
+
     # Fixed typos
-    if not body and _subject_match(r'^Fix typo.*') and 'and' not in subject:
+    if not body and _subject_match(r'^Fix typo.*') and ' and ' not in subject:
         return True
 
     # Shameful
@@ -179,10 +194,15 @@ def is_blacklisted(entry):
     if not body:
         if (_subject_match(r'(Add|Modify|Remove).*logging.*')
                 or _subject_match(r'Trivial.*')
+                or _subject_match(r'Add blank line.*')
                 or _subject_match(r'Minor (changes?|fix|fixes) .*')
                 or _subject_match(r'Various.*fixes.*')
-                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Whitespace fix.*')
+                or _subject_match(r'Fix inconsistent.*(naming|whitespace)')
                 or _subject_match(r'.*trailing whitespace.*')
+                or _subject_match(r'Inline ((function|variable) )?(\'[A-Za-z_]+(\(\))?\')?')
+                or _subject_match(r'Minor cleanup.*')
+                or _subject_match(r'Remove unused.*')
                 or _subject_match(r'Rename variables')
                 or _subject_match(r'Rename function \'.*\'')
                 or _subject_match(r'Fix( broken)?( unit)? tests?$')
@@ -341,7 +361,7 @@ if __name__ == '__main__':
     for section, entries in sorted(SECTION_ENTRIES.items()):
         print('\n' + text.indent(section, columns=12))
 
-        for logentry in entries:
+        for logentry in sorted(entries, reverse=True):
             print(text.indent('- ' + logentry.subject, columns=12))
             print(text.indent(logentry.body, columns=14))
             if logentry.body:
