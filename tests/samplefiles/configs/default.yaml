@@ -1,5 +1,5 @@
 COMPATIBILITY:
-  autonameow_version: v0.5.9
+  autonameow_version: v0.6.0
 
 DATETIME_FORMAT:
   date: '%Y-%m-%d'
@@ -10,7 +10,7 @@ FILESYSTEM_OPTIONS:
   ignore:
     - '*.swp'
     - '*/.*'
-    -
+
 FILETAGS_OPTIONS:
   between_tag_separator: ' '
   filename_tag_separator: ' -- '
@@ -22,7 +22,7 @@ NAME_TEMPLATES:
 
 PERSISTENCE:
   cache_directory: null
-  history_file_path: null
+  history_filepath: null
 
 POST_PROCESSING:
   lowercase_filename: false

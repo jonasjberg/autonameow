@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 __title__ = 'autonameow'
-__version_info__ = (0, 5, 9)
+__version_info__ = (0, 6, 0)
 __version__ = '.'.join(map(str, __version_info__))
 __author__ = 'Jonas Sjöberg'
 __email__ = 'autonameow@jonasjberg.com'
@@ -42,4 +42,4 @@ __copyright__ = 'Copyright(c)2016-2020 {}'.format(__author__)
 
 # TODO: Automatically update this when tagging a new version.
 # TODO: [TD0145] Add script for automating release of a new version.
-RELEASE_DATE = '2018-11-06'
+RELEASE_DATE = '2020-04-27'
