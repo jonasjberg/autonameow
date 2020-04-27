@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2019 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -37,7 +37,7 @@ __email__ = 'autonameow@jonasjberg.com'
 __url__ = 'www.jonasjberg.com'
 __url_repo__ = 'www.github.com/jonasjberg/autonameow'
 __license__ = 'GNU General Public License Version 2'
-__copyright__ = 'Copyright(c)2016-2019 {}'.format(__author__)
+__copyright__ = 'Copyright(c)2016-2020 {}'.format(__author__)
 
 
 # TODO: Automatically update this when tagging a new version.
