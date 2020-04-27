@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -30,7 +30,7 @@ GLOB_UNIT_TEST_BASENAME = "test_*.py"
 
 
 def build_testsuite(filename_filter=None):
-    unit_test_directory = uuconst.PATH_TESTS_UNIT
+    unit_test_directory = uuconst.DIRPATH_TESTS_UNIT
     current_dir = os.getcwd()
     os.chdir(unit_test_directory)
 

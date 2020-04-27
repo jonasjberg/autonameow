@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,7 +23,7 @@ import re
 from core import exceptions
 from util import disk
 from util import encoding as enc
-from util import sanity
+from util.text import remove_zerowidth_spaces
 
 
 log = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def build(config, name_template, field_databundle_dict):
             'Unable to assemble basename: {!s}'.format(e)
         )
 
-    sanity.check_internal_string(new_name)
+    assert isinstance(new_name, str)
     new_name = post_assemble_format(new_name)
     log.debug('Assembled basename: "%s"', new_name)
 
@@ -102,8 +102,8 @@ def build(config, name_template, field_databundle_dict):
 
 def _assert_is_expected_types(field_databundle_dict):
     # TODO: [cleanup] Remove these assertions once boundaries are defined.
+    from core.datastore.repository import DataBundle
     from core.namebuilder.fields import NameTemplateField
-    from core.repository import DataBundle
 
     for field, databundle in field_databundle_dict.items():
         assert field and isinstance(field, NameTemplateField)
@@ -130,7 +130,7 @@ def pre_assemble_format(field_databundle_dict, config):
             raise exceptions.NameBuilderError(
                 'Unable to format name template field "{!s}"'.format(field)
             )
-        sanity.check_internal_string(formatted_value)
+        assert isinstance(formatted_value, str)
         formatted_values[field] = formatted_value
 
     return formatted_values
@@ -142,7 +142,9 @@ def _with_simple_string_keys(data_dict):
 
 def post_assemble_format(new_name):
     # TODO: [TD0043][TD0036] Remove hardcoded behaviour and settings.
-    return new_name.rstrip('.')
+    modified_name = remove_zerowidth_spaces(new_name)
+    modified_name = modified_name.rstrip('.')
+    return modified_name
 
 
 def _remove_single_and_double_quotes(string):

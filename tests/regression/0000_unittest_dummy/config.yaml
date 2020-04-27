@@ -1,55 +1,55 @@
 POST_PROCESSING:
-    lowercase_filename: false
-    replacements:
-        -{2,}: '-'
-        \.{2,}: .
-        _{2,}: _
-    sanitize_filename: true
-    sanitize_strict: false
-    uppercase_filename: false
+  lowercase_filename: false
+  replacements:
+    -{2,}: '-'
+    \.{2,}: .
+    _{2,}: _
+  sanitize_filename: true
+  sanitize_strict: false
+  uppercase_filename: false
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
 FILESYSTEM_OPTIONS:
-    ignore:
+  ignore:
     - '*.swp'
     - '*/.*'
 FILETAGS_OPTIONS:
-    between_tag_separator: ' '
-    filename_tag_separator: ' -- '
+  between_tag_separator: ' '
+  filename_tag_separator: ' -- '
 NAME_TEMPLATES:
-    default_simple: '{datetime} {title}.{extension}'
+  default_simple: '{datetime} {title}.{extension}'
 NAME_TEMPLATE_FIELDS:
-    publisher:
-        candidates:
-            FeedBooks:
-            - This book is brought to you by Feedbooks
-            - http://www.feedbooks.com
-            ProjectGutenberg:
-            - Project Gutenberg
-            - www.gutenberg.net
+  publisher:
+    candidates:
+      FeedBooks:
+        - This book is brought to you by Feedbooks
+        - http://www.feedbooks.com
+      ProjectGutenberg:
+        - Project Gutenberg
+        - www.gutenberg.net
 PERSISTENCE:
-    cache_directory: null
-    history_file_path: null
+  cache_directory: null
+  history_file_path: null
 RULES:
-    test_files Gmail print-to-pdf:
-        CONDITIONS:
-            extractor.filesystem.xplat.extension: pdf
-            extractor.filesystem.xplat.basename_full: gmail.pdf
-            extractor.filesystem.xplat.mime_type: application/pdf
-        DATA_SOURCES:
-            datetime: extractor.metadata.exiftool.PDF:CreateDate
-            extension: extractor.filesystem.xplat.extension
-            title: extractor.filesystem.xplat.basename_prefix
-        NAME_TEMPLATE: default_simple
-        exact_match: true
-        ranking_bias: null
-    test_files simplest_pdf.md.pdf:
-        CONDITIONS:
-            extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
-        DATA_SOURCES:
-            extension: extractor.filesystem.xplat.extension
-        NAME_TEMPLATE: simplest_pdf.md.{extension}
-        exact_match: true
-        ranking_bias: 1
+  samplefiles Gmail print-to-pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.extension: pdf
+      extractor.filesystem.xplat.basename_full: gmail.pdf
+      extractor.filesystem.xplat.mime_type: application/pdf
+    DATA_SOURCES:
+      datetime: extractor.metadata.exiftool.PDF:CreateDate
+      extension: extractor.filesystem.xplat.extension
+      title: extractor.filesystem.xplat.basename_prefix
+    NAME_TEMPLATE: default_simple
+    exact_match: true
+    ranking_bias: null
+  samplefiles simplest_pdf.md.pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
+    DATA_SOURCES:
+      extension: extractor.filesystem.xplat.extension
+    NAME_TEMPLATE: simplest_pdf.md.{extension}
+    exact_match: true
+    ranking_bias: 1

@@ -1,15 +1,15 @@
-config_path: $TESTFILES/configs/integration_test_config_filetags.yaml
+config_path: $SAMPLEFILES/configs/integration_test_config_filetags.yaml
 debug: false
 dry_run: true
 dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- '$TESTFILES/2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
+  - '$SAMPLEFILES/2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 list_all: true
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

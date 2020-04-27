@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -22,19 +22,21 @@
 set -o nounset
 
 
-SELFNAME="$(basename "$0")"
+self_basename="$(basename -- "$0")"
+readonly self_basename
 
 # Get absolute path to the autonameow source root.
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
-    self_dirpath="$(realpath -e "$(dirname "$0")")"
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$self_dirpath" && realpath -e -- ".." ) )"
+    self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
 then
-    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
-    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIRPATH". Aborting.\n' >&2
     exit 1
 fi
 
@@ -43,7 +45,7 @@ if [ "$#" -ne "1" ]
 then
     cat <<EOF
 
-USAGE:  $SELFNAME [PATTERN]
+USAGE:  $self_basename [PATTERN]
         Where [PATTERN] is inserted in "TODO: .*[PATTERN].*",
         which is passed to grep along with other options.
 
@@ -54,12 +56,11 @@ fi
 
 # -H  Always print filename headers with output lines.
 grep --color=auto \
-     --exclude-dir={.git,.idea,.cache,docs,license,notes,test_files,thirdparty} \
+     --exclude-dir={.git,.idea,.cache,docs,license,notes,samplefiles,thirdparty} \
      --include={*.py,*.sh} \
      --ignore-case \
      --recursive \
      --line-number \
      --binary-file=without-match \
      -H \
-     -- "TODO: .*${1}.*" "$AUTONAMEOW_ROOT_DIR" 2>/dev/null \
-| sort
+     -- "TODO: .*${1}.*" "$AUTONAMEOW_ROOT_DIRPATH" 2>/dev/null | sort

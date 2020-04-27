@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -34,7 +34,7 @@ def shorten_path(abs_path):
 
 def to_abspath(path_list):
     paths = [uu.bytestring_path(tf)
-             for tf in (uu.abspath_testfile(f)
+             for tf in (uu.samplefile_abspath(f)
                         for f in path_list)]
     if len(paths) == 1:
         return paths[0]
@@ -284,31 +284,31 @@ class TestPathCollector(TestCase):
                 self.assertTrue(uu.is_internalbytestring(f))
 
     def test_returns_expected_for_glob_a(self):
-        _search_paths = uu.abspath_testfile('subdir')
+        _search_paths = uu.samplefile_abspath('subdir')
         pc = PathCollector(ignore_globs=['*'])
         actual = pc.get_filepaths(_search_paths)
         self.assertEqual(0, len(actual))
 
     def test_returns_expected_for_glob_b(self):
-        _search_paths = uu.abspath_testfile('subdir')
+        _search_paths = uu.samplefile_abspath('subdir')
         pc = PathCollector(ignore_globs=['*_1'])
         actual = pc.get_filepaths(_search_paths)
         self.assertEqual(2, len(actual))
 
     def test_returns_expected_for_glob_c(self):
-        _search_paths = uu.abspath_testfile('subdir')
+        _search_paths = uu.samplefile_abspath('subdir')
         pc = PathCollector(ignore_globs=None)
         actual = pc.get_filepaths(_search_paths)
         self.assertEqual(3, len(actual))
 
     def test_returns_expected_for_glob_d(self):
-        _search_paths = uu.abspath_testfile('subdir')
+        _search_paths = uu.samplefile_abspath('subdir')
         pc = PathCollector(ignore_globs=['*_*'])
         actual = pc.get_filepaths(_search_paths)
         self.assertEqual(0, len(actual))
 
     def test_returns_expected_for_glob_e(self):
-        _search_paths = uu.abspath_testfile('subdir')
+        _search_paths = uu.samplefile_abspath('subdir')
         pc = PathCollector(ignore_globs=['*-*', '*foo*'])
         actual = pc.get_filepaths(_search_paths)
         self.assertEqual(3, len(actual))

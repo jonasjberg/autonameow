@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -25,7 +25,6 @@ from core import exceptions
 from util import disk
 from util import encoding as enc
 from util import mimemagic
-from util import sanity
 
 
 class FileObject(object):
@@ -41,7 +40,7 @@ class FileObject(object):
             path: The absolute normalized path to the file, as an
                   "internal filename bytestring", I.E. bytes.
         """
-        sanity.check_internal_bytestring(path)
+        assert isinstance(path, bytes)
         _validate_path_argument(path)
         self.abspath = path
 
@@ -58,8 +57,8 @@ class FileObject(object):
         self.mime_type = mimemagic.file_mimetype(self.abspath)
 
         # Extract parts of the file name.
-        self.basename_prefix = disk.basename_prefix(self.abspath) or b''
-        self.basename_suffix = disk.basename_suffix(self.abspath) or b''
+        self.basename_prefix = disk.basename_prefix(self.abspath)
+        self.basename_suffix = disk.basename_suffix(self.abspath)
 
         # Avoid round-tripping to the OS to decode strings.
         self.__cached_str = None

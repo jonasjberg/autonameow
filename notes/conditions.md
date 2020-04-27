@@ -1,6 +1,6 @@
 `autonameow`
 ============
-*Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>*  
+*Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>*  
 Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ Current format for a file rule in the configuration file:
         description: extractor.filesystem.filetags.description
         extension: filesystem.extension
     NAME_TEMPLATE: '{datetime} {description}.{extension}'
-    description: test_files smulan.jpg
+    description: samplefiles smulan.jpg
     exact_match: true
     weight: 1
 ```

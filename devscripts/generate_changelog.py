@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -39,10 +39,10 @@ EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 
 SELFNAME = str(os.path.basename(__file__))
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT = os.path.normpath(os.path.join(_SELF_DIRPATH, os.pardir))
 
-changelog_path = os.path.join(AUTONAMEOW_SRC_ROOT, CHANGELOG_BASENAME)
+changelog_path = os.path.join(_SELF_DIRPATH_PARENT, CHANGELOG_BASENAME)
 
 
 GIT_LOG_SEP_FIELD = '\x1f'
@@ -56,16 +56,31 @@ GIT_LOG_FORMAT = GIT_LOG_FORMAT_SEP_FIELD.join(GIT_LOG_FORMAT) + GIT_LOG_FORMAT_
 
 class ChangelogEntry(object):
     def __init__(self, subject, body):
+        assert isinstance(subject, str)
+        assert isinstance(body, str)
+
         self.subject = subject
+        if not self.subject.endswith('.'):
+            self.subject += '.'
+
         self.body = body or ''
-        assert isinstance(self.subject, str)
-        assert isinstance(self.body, str)
 
     def __eq__(self, other):
         if self.subject.lower().strip() == other.subject.lower().strip():
             if self.body.lower().strip() == other.body.lower().strip():
                 return True
         return False
+
+    def __gt__(self, other):
+        return (
+            len(self.body),
+            self.subject.lower(),
+            self.body.lower(),
+        ) > (
+            len(other.body),
+            other.subject.lower(),
+            other.body.lower(),
+        )
 
     def __str__(self):
         if self.body:
@@ -84,6 +99,8 @@ class ChangelogEntryClassifier(object):
         if cls._body_matches_any(entry, BODY_WORDS):
             return True
 
+        return False
+
     @classmethod
     def is_change(cls, entry):
         SUBJECT_WORDS = ['Change', 'Modify', 'Remove', 'Rework']
@@ -93,6 +110,8 @@ class ChangelogEntryClassifier(object):
         BODY_WORDS = ['Changes', 'Modifies', 'Removes', 'Reworks']
         if cls._body_matches_any(entry, BODY_WORDS):
             return True
+
+        return False
 
     @classmethod
     def is_fix(cls, entry):
@@ -152,13 +171,17 @@ def is_blacklisted(entry):
     if _subject_match(r'^Trivial fix .*') and not body:
         return True
 
-    # Added comments
+    # Comments
     if _subject_match(r'^Add comment.*'):
         if not body or _body_match(r'^Adds comment.*'):
             return True
 
+    if not body and ' and ' not in subject:
+        if _subject_match(r'^(Add|Cleanup|Clean up|Delete|Fix|Remove|Rewrite)(/(modify|update))?.*comment.*'):
+            return True
+
     # Fixed typos
-    if not body and _subject_match(r'^Fix typo.*') and 'and' not in subject:
+    if not body and _subject_match(r'^Fix typo.*') and ' and ' not in subject:
         return True
 
     # Shameful
@@ -171,9 +194,15 @@ def is_blacklisted(entry):
     if not body:
         if (_subject_match(r'(Add|Modify|Remove).*logging.*')
                 or _subject_match(r'Trivial.*')
+                or _subject_match(r'Add blank line.*')
                 or _subject_match(r'Minor (changes?|fix|fixes) .*')
-                or _subject_match(r'Whitespace fixes')
+                or _subject_match(r'Various.*fixes.*')
+                or _subject_match(r'Whitespace fix.*')
+                or _subject_match(r'Fix inconsistent.*(naming|whitespace)')
                 or _subject_match(r'.*trailing whitespace.*')
+                or _subject_match(r'Inline ((function|variable) )?(\'[A-Za-z_]+(\(\))?\')?')
+                or _subject_match(r'Minor cleanup.*')
+                or _subject_match(r'Remove unused.*')
                 or _subject_match(r'Rename variables')
                 or _subject_match(r'Rename function \'.*\'')
                 or _subject_match(r'Fix( broken)?( unit)? tests?$')
@@ -200,6 +229,10 @@ def is_blacklisted(entry):
     # Changes related to various developer tools
     if _any_match(r'.*\bpylint(rc)?\b.*'):
         return True
+
+    if not body:
+        if _any_match(r'.*\byamllint.*config.*'):
+            return True
 
     if (_any_match(r'.*update_changelog.*')
             or _any_match(r'.*generate_changelog.*')):
@@ -262,8 +295,8 @@ def get_commit_for_tag(tag_name):
     return coercers.force_string(stdout.strip())
 
 
-def is_readable_file(file_path):
-    return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
+def is_readable_file(filepath):
+    return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
 
 
 def get_changelog_header_line():
@@ -286,7 +319,7 @@ if __name__ == '__main__':
 
     # Make sure that the changelog file exists.
     if not is_readable_file(changelog_path):
-        print('File does not exist or is not readable: "{!s}"'.format(_path),
+        print('File does not exist or is not readable: "{!s}"'.format(changelog_path),
               file=sys.stderr)
         sys.exit(EXIT_FAILURE)
 
@@ -314,24 +347,24 @@ if __name__ == '__main__':
         'Changes': list(),
         'Fixes': list()
     }
-    for entry in log_entries:
-        if ChangelogEntryClassifier.is_change(entry):
-            SECTION_ENTRIES['Changes'].append(entry)
-        elif ChangelogEntryClassifier.is_addition(entry):
-            SECTION_ENTRIES['Additions'].append(entry)
-        elif ChangelogEntryClassifier.is_fix(entry):
-            SECTION_ENTRIES['Fixes'].append(entry)
+    for logentry in log_entries:
+        if ChangelogEntryClassifier.is_change(logentry):
+            SECTION_ENTRIES['Changes'].append(logentry)
+        elif ChangelogEntryClassifier.is_addition(logentry):
+            SECTION_ENTRIES['Additions'].append(logentry)
+        elif ChangelogEntryClassifier.is_fix(logentry):
+            SECTION_ENTRIES['Fixes'].append(logentry)
         else:
-            # TODO: Handle undetermined entry better?
-            SECTION_ENTRIES['Changes'].append(entry)
+            # TODO: Handle undetermined logentry better?
+            SECTION_ENTRIES['Changes'].append(logentry)
 
     for section, entries in sorted(SECTION_ENTRIES.items()):
         print('\n' + text.indent(section, columns=12))
 
-        for entry in entries:
-            print(text.indent('- ' + entry.subject, columns=12))
-            print(text.indent(entry.body, columns=14))
-            if entry.body:
+        for logentry in sorted(entries, reverse=True):
+            print(text.indent('- ' + logentry.subject, columns=12))
+            print(text.indent(logentry.body, columns=14))
+            if logentry.body:
                 print()
 
     sys.exit(exit_status)

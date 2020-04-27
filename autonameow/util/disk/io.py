@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -17,12 +17,10 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import os
 import tempfile
 
 from core.exceptions import FilesystemError
-from util import sanity
 from util import encoding as enc
 
 __all__ = [
@@ -45,40 +43,31 @@ __all__ = [
 ]
 
 
-log = logging.getLogger(__name__)
-
-
-def rename_file(source_path, new_basename):
-    sanity.check_internal_bytestring(source_path)
-    sanity.check_internal_bytestring(new_basename)
-    assert isabs(source_path), (
-        'Expected source path to be a full absolute path. '
-        'Got "{!s}"'.format(enc.displayable_path(source_path))
+def rename_file(filepath, new_basename):
+    assert isinstance(filepath, bytes)
+    assert isinstance(new_basename, bytes)
+    assert isabs(filepath), (
+        'Expected full absolute source path. Got {!r}'.format(filepath)
     )
 
-    _dp_source = enc.displayable_path(source_path)
-    if not exists(source_path):
-        raise FileNotFoundError(
-            'Source path does not exist: "{!s}"'.format(_dp_source)
+    if not exists(filepath):
+        error_msg = 'Source path does not exist: "{!s}"'.format(
+            enc.displayable_path(filepath)
         )
+        raise FileNotFoundError(error_msg)
 
-    dest_path = joinpaths(dirname(source_path), new_basename)
-    _dp_dest = enc.displayable_path(dest_path)
-    if exists(dest_path):
-        raise FileExistsError(
-            'Destination exists: "{!s}"'.format(_dp_dest)
+    dest_filepath = joinpaths(dirname(filepath), new_basename)
+    if exists(dest_filepath):
+        error_msg = 'Destination path exists: "{!s}"'.format(
+            enc.displayable_path(dest_filepath)
         )
+        raise FileExistsError(error_msg)
 
-    bytestring_source_path = enc.syspath(source_path)
-    bytestring_dest_path = enc.syspath(dest_path)
-    log.debug('Renaming "%s" to "%s" ..', _dp_source, _dp_dest)
     try:
-        os.rename(bytestring_source_path, bytestring_dest_path)
+        os.rename(enc.syspath(filepath), enc.syspath(dest_filepath))
     except OSError as e:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
-    else:
-        log.debug('Renamed "%s" to "%s"', _dp_source, _dp_dest)
 
 
 def dirname(path):
@@ -184,13 +173,13 @@ def delete(path, ignore_missing=False):
         ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
-        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
         FilesystemError: The path could not be removed; the path does not
                          exist and "ignore_missing" is False or the path
                          is a directory.
         ValueError: Argument "path" is empty or only whitespace.
     """
-    sanity.check_internal_bytestring(path)
+    assert isinstance(path, bytes)
+
     if not path or not path.strip():
         raise ValueError('Argument "path" is empty or only whitespace')
 
@@ -213,11 +202,10 @@ def rmdir(path, ignore_missing=False):
         ignore_missing (bool): Controls whether to ignore non-existent paths.
 
     Raises:
-        EncodingBoundaryViolation: Argument "path" is not of type 'bytes'.
         FilesystemError: The path could not be removed, or the path does not
                          exist and "ignore_missing" is False.
     """
-    sanity.check_internal_bytestring(path)
+    assert isinstance(path, bytes)
 
     if ignore_missing and not exists(path):
         return
@@ -229,9 +217,9 @@ def rmdir(path, ignore_missing=False):
         raise FilesystemError(e)
 
 
-def basename(file_path):
+def basename(filepath):
     try:
-        return os.path.basename(enc.syspath(file_path))
+        return os.path.basename(enc.syspath(filepath))
     except (OSError, TypeError, ValueError) as e:
         # TODO: [TD0193] Clean up arguments passed to 'FilesystemError'
         raise FilesystemError(e)
@@ -270,11 +258,9 @@ def has_permissions(path, permissions):
         True if the given path has the given permissions, else False.
 
     Raises:
-        EncodingBoundaryViolation: Permissions in not a Unicode string.
-        AssertionError: Path is not a Unicode or bytes string.
         FilesystemError: Unable to look up permissions for the path.
     """
-    sanity.check_internal_string(permissions)
+    assert isinstance(permissions, str)
     if not isinstance(path, (bytes, str)):
         raise AssertionError('Expected "path" to be a string type')
 

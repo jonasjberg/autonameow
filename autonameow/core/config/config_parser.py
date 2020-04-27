@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -35,11 +35,9 @@ from core.exceptions import ConfigurationSyntaxError
 from core.exceptions import FilesystemError
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.namebuilder.fields import is_valid_template_field
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 from util import text
 
 
@@ -74,9 +72,6 @@ class ConfigurationParser(object):
 
     def parse(self, config_dict):
         reusable_name_templates = self._load_reusable_name_templates(config_dict)
-        self._options.update(
-            self._load_placeholder_field_options(config_dict)
-        )
 
         rule_parser = ConfigurationRuleParser(reusable_name_templates)
         raw_rules = config_dict.get('RULES', dict())
@@ -106,62 +101,18 @@ class ConfigurationParser(object):
 
         validated = dict()
         for raw_name, raw_format_string in raw_templates.items():
-            error = 'Invalid name template: "{!s}": {!s}"'.format(raw_name, raw_format_string)
+            error_msg = 'Invalid name template: "{!s}": {!s}"'.format(
+                raw_name, raw_format_string
+            )
             str_name = _coerce_string(raw_name).strip()
             str_format_string = _coerce_string(raw_format_string)
             if not str_name or not str_format_string:
-                raise ConfigurationSyntaxError(error)
+                raise ConfigurationSyntaxError(error_msg)
 
             if NameTemplateConfigFieldParser.is_valid_nametemplate_string(str_format_string):
                 validated[str_name] = str_format_string
             else:
-                raise ConfigurationSyntaxError(error)
-
-        return validated
-
-    @staticmethod
-    def _load_placeholder_field_options(config_dict):
-        # TODO: [TD0036] Allow per-field replacements and customization.
-        raw_name_template_fields = config_dict.get('NAME_TEMPLATE_FIELDS')
-        if not raw_name_template_fields:
-            log.debug(
-                'Configuration does not contain any name template field options'
-            )
-            return dict()
-
-        if not isinstance(raw_name_template_fields, dict):
-            log.warning('Name template field options is not of type dict')
-            return dict()
-
-        validated = dict()
-        for raw_field, raw_options in raw_name_template_fields.items():
-            str_field = _coerce_string(raw_field)
-            if not is_valid_template_field(str_field):
-                raise ConfigurationSyntaxError(
-                    'Invalid name template field: "{!s}"'.format(raw_field)
-                )
-
-            # User-defined names with lists of patterns.
-            for repl, pat_list in raw_options.get('candidates', {}).items():
-                _validated_candidates = list()
-                for _pat in pat_list:
-                    try:
-                        compiled_pat = re.compile(_pat, re.IGNORECASE)
-                    except re.error:
-                        raise ConfigurationSyntaxError(
-                            'Malformed regular expression: "{!s}"'.format(_pat)
-                        )
-
-                    log.debug('Added name template field pattern :: '
-                              'Match: "%s" Replace: "%s"', _pat, repl)
-                    _validated_candidates.append(compiled_pat)
-
-                if _validated_candidates:
-                    _nested_dict_set(
-                        dictionary=validated,
-                        list_of_keys=['NAME_TEMPLATE_FIELDS', str_field, 'candidates', repl],
-                        value=_validated_candidates
-                    )
+                raise ConfigurationSyntaxError(error_msg)
 
         return validated
 
@@ -241,7 +192,7 @@ class ConfigurationParser(object):
             default=C.DEFAULT_PERSISTENCE_DIR_ABSPATH
         )
         options_parser.try_load_persistence_option(
-            option='history_file_path',
+            option='history_filepath',
             default=C.DEFAULT_HISTORY_FILE_ABSPATH
         )
 
@@ -330,10 +281,9 @@ class ConfigurationParser(object):
             An instance of 'Configuration', created from the data at "path".
 
         Raises:
-            EncodingBoundaryViolation: Argument "path" is not a bytestring.
             ConfigError: The configuration file is empty or could not be parsed.
         """
-        sanity.check_internal_bytestring(path)
+        assert isinstance(path, bytes)
 
         try:
             loaded_data = disk.load_yaml_file(path)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -31,7 +31,7 @@ from core.main import cli_main
 class TestMainFileExistsAndIsExecutable(TestCase):
     def setUp(self):
         self.main_file = os.path.normpath(os.path.join(
-            uuconst.PATH_AUTONAMEOW_SRCROOT, '__main__.py'
+            uuconst.DIRPATH_AUTONAMEOW_SRCROOT, '__main__.py'
         ))
 
     def test_assumed_main_source_file_exists(self):
@@ -73,17 +73,15 @@ class TestCliMain(TestCase):
 
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.main.sys.exit')
-    @patch('core.main.Autonameow.exit_program')
     @patch('core.master_provider.Registry')
     @patch('core.logs.init_logging', MagicMock())
     @patch('core.autonameow.master_provider', MagicMock())
     @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     def test_exits_with_expected_return_code_when_started_without_args(
-            self, mock_registry, mock_exit_program, mock_sys_exit):
+            self, mock_registry, mock_sys_exit):
         mock_registry.might_be_resolvable.return_value = True
 
         with uu.capture_stdout() as _:
             cli_main(self.EMPTY_COMMANDLINE_OPTIONS)
 
-        mock_exit_program.assert_called_with(C.EXIT_SUCCESS)
         mock_sys_exit.assert_called_with(C.EXIT_SUCCESS)

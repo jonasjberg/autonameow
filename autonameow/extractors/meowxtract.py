@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -121,7 +121,6 @@ def do_extract_metadata(fileobject):
         add_results_callback=_collect_results_callback
     )
     request_extractors = set(extractors.registry.metadata_providers)
-    request_extractors.update(extractors.registry.filesystem_providers)
     try:
         runner.start(fileobject, request_extractors)
     except exceptions.AutonameowException as e:
@@ -255,7 +254,7 @@ def main(options=None):
     }
     opts.update(options)
 
-    logs.init_logging(options)
+    logs.init_logging(opts)
 
     if not opts.get('input_paths'):
         log.warning(

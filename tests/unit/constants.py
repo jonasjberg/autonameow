@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -22,25 +22,25 @@ import os
 import re
 
 
-_PATH_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-_PATH_THIS_DIR_PARENT_PARENT = os.path.normpath(os.path.join(
-    _PATH_THIS_DIR, os.pardir, os.pardir
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT_PARENT = os.path.normpath(os.path.join(
+    _SELF_DIRPATH, os.pardir, os.pardir
 ))
 
 
 def join_path_from_srcroot(*components):
     return os.path.normpath(os.path.join(
-        _PATH_THIS_DIR_PARENT_PARENT, *components
+        _SELF_DIRPATH_PARENT_PARENT, *components
     ))
 
 
-PATH_TEST_FILES = join_path_from_srcroot('test_files')
-PATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
-PATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
-PATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
+DIRPATH_SAMPLEFILES = join_path_from_srcroot('tests', 'samplefiles')
+DIRPATH_TESTS_REGRESSION = join_path_from_srcroot('tests', 'regression')
+DIRPATH_TESTS_UNIT = join_path_from_srcroot('tests', 'unit')
+DIRPATH_AUTONAMEOW_SRCROOT = join_path_from_srcroot('autonameow')
 
 
-PATH_USER_HOME = os.path.expanduser('~')
+DIRPATH_USER_HOME = os.path.expanduser('~')
 
 
 REGRESSIONTEST_DIR_BASENAMES = [
@@ -63,32 +63,6 @@ MEOWURI_AZR_FILENAME_PUBLISHER = 'analyzer.filename.publisher'
 MEOWURI_AZR_FILENAME_TAGS = 'analyzer.filename.tags'
 MEOWURI_AZR_FILENAME_TITLE = 'analyzer.filename.title'
 
-MEOWURI_FS_FILETAGS_DATETIME = 'extractor.filesystem.filetags.datetime'
-MEOWURI_FS_FILETAGS_DESCRIPTION = 'extractor.filesystem.filetags.description'
-MEOWURI_FS_FILETAGS_EXTENSION = 'extractor.filesystem.filetags.extension'
-MEOWURI_FS_FILETAGS_FOLLOWS = 'extractor.filesystem.filetags.follows_filetags_convention'
-MEOWURI_FS_FILETAGS_TAGS = 'extractor.filesystem.filetags.tags'
-
-MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.mime_type'
-MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath_full'
-MEOWURI_FS_XPLAT_EXTENSION = 'extractor.filesystem.xplat.extension'
-MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename_full'
-MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename_prefix'
-MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename_suffix'
-MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname_full'
-MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname_parent'
-
-MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
-MEOWURI_GEN_METADATA_AUTHOR = 'generic.metadata.author'
-MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
-MEOWURI_GEN_METADATA_LANGUAGE = 'generic.metadata.language'
-MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
-MEOWURI_GEN_METADATA_SUBJECT = 'generic.metadata.subject'
-MEOWURI_GEN_METADATA_TAGS = 'generic.metadata.tags'
-MEOWURI_GEN_METADATA_TITLE = 'generic.metadata.title'
-MEOWURI_GEN_METADATA_DATECREATED = 'generic.metadata.date_created'
-MEOWURI_GEN_METADATA_DATEMODIFIED = 'generic.metadata.date_modified'
-
 MEOWURI_EXT_EXIFTOOL_EXIFCREATEDATE = 'extractor.metadata.exiftool.EXIF:CreateDate'
 MEOWURI_EXT_EXIFTOOL_EXIFDATETIMEORIGINAL = 'extractor.metadata.exiftool.EXIF:DateTimeOriginal'
 MEOWURI_EXT_EXIFTOOL_PDFCREATEDATE = 'extractor.metadata.exiftool.PDF:CreateDate'
@@ -103,9 +77,36 @@ MEOWURI_EXT_EXIFTOOL_XMPDCPUBLISHER = 'extractor.metadata.exiftool.XMP-dc:Publis
 MEOWURI_EXT_EXIFTOOL_XMPDCTITLE = 'extractor.metadata.exiftool.XMP-dc:Title'
 MEOWURI_EXT_EXIFTOOL_QTCREATIONDATE = 'extractor.metadata.exiftool.QuickTime:CreationDate'
 
-MEOWURI_EXT_GUESSIT_DATE = 'extractor.filesystem.guessit.date'
-MEOWURI_EXT_GUESSIT_TITLE = 'extractor.filesystem.guessit.title'
-MEOWURI_EXT_GUESSIT_TYPE = 'extractor.filesystem.guessit.type'
+MEOWURI_EXT_FILETAGS_DATETIME = 'extractor.metadata.filetags.datetime'
+MEOWURI_EXT_FILETAGS_DESCRIPTION = 'extractor.metadata.filetags.description'
+MEOWURI_EXT_FILETAGS_EXTENSION = 'extractor.metadata.filetags.extension'
+MEOWURI_EXT_FILETAGS_FOLLOWS = 'extractor.metadata.filetags.follows_filetags_convention'
+MEOWURI_EXT_FILETAGS_TAGS = 'extractor.metadata.filetags.tags'
+
+MEOWURI_EXT_GUESSIT_DATE = 'extractor.metadata.guessit.date'
+MEOWURI_EXT_GUESSIT_TITLE = 'extractor.metadata.guessit.title'
+MEOWURI_EXT_GUESSIT_TYPE = 'extractor.metadata.guessit.type'
+
+MEOWURI_FS_XPLAT_MIMETYPE = 'extractor.filesystem.xplat.mime_type'
+MEOWURI_FS_XPLAT_ABSPATH_FULL = 'extractor.filesystem.xplat.abspath_full'
+MEOWURI_FS_XPLAT_EXTENSION = 'extractor.filesystem.xplat.extension'
+MEOWURI_FS_XPLAT_BASENAME_FULL = 'extractor.filesystem.xplat.basename_full'
+MEOWURI_FS_XPLAT_BASENAME_PREFIX = 'extractor.filesystem.xplat.basename_prefix'
+MEOWURI_FS_XPLAT_BASENAME_SUFFIX = 'extractor.filesystem.xplat.basename_suffix'
+MEOWURI_FS_XPLAT_PATHNAME_FULL = 'extractor.filesystem.xplat.pathname_full'
+MEOWURI_FS_XPLAT_PATHNAME_PARENT = 'extractor.filesystem.xplat.pathname_parent'
+
+MEOWURI_GEN_CONTENTS_MIMETYPE = 'generic.contents.mime_type'
+MEOWURI_GEN_METADATA_AUTHOR = 'generic.metadata.author'
+MEOWURI_GEN_METADATA_CREATOR = 'generic.metadata.creator'
+MEOWURI_GEN_METADATA_IDENTIFIER = 'generic.metadata.identifier'
+MEOWURI_GEN_METADATA_LANGUAGE = 'generic.metadata.language'
+MEOWURI_GEN_METADATA_PRODUCER = 'generic.metadata.producer'
+MEOWURI_GEN_METADATA_SUBJECT = 'generic.metadata.subject'
+MEOWURI_GEN_METADATA_TAGS = 'generic.metadata.tags'
+MEOWURI_GEN_METADATA_TITLE = 'generic.metadata.title'
+MEOWURI_GEN_METADATA_DATECREATED = 'generic.metadata.date_created'
+MEOWURI_GEN_METADATA_DATEMODIFIED = 'generic.metadata.date_modified'
 
 
 ALL_FULL_MEOWURIS = frozenset([
@@ -113,11 +114,11 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_AZR_FILENAME_PUBLISHER,
     MEOWURI_AZR_FILENAME_TAGS,
     MEOWURI_AZR_FILENAME_TITLE,
-    MEOWURI_FS_FILETAGS_DATETIME,
-    MEOWURI_FS_FILETAGS_DESCRIPTION,
-    MEOWURI_FS_FILETAGS_EXTENSION,
-    MEOWURI_FS_FILETAGS_FOLLOWS,
-    MEOWURI_FS_FILETAGS_TAGS,
+    MEOWURI_EXT_FILETAGS_DATETIME,
+    MEOWURI_EXT_FILETAGS_DESCRIPTION,
+    MEOWURI_EXT_FILETAGS_EXTENSION,
+    MEOWURI_EXT_FILETAGS_FOLLOWS,
+    MEOWURI_EXT_FILETAGS_TAGS,
     MEOWURI_FS_XPLAT_MIMETYPE,
     MEOWURI_FS_XPLAT_ABSPATH_FULL,
     MEOWURI_FS_XPLAT_EXTENSION,
@@ -129,6 +130,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_GEN_CONTENTS_MIMETYPE,
     MEOWURI_GEN_METADATA_AUTHOR,
     MEOWURI_GEN_METADATA_CREATOR,
+    MEOWURI_GEN_METADATA_IDENTIFIER,
     MEOWURI_GEN_METADATA_LANGUAGE,
     MEOWURI_GEN_METADATA_PRODUCER,
     MEOWURI_GEN_METADATA_SUBJECT,
@@ -154,7 +156,7 @@ ALL_FULL_MEOWURIS = frozenset([
     MEOWURI_EXT_GUESSIT_TYPE,
 ])
 
-# Collected 2018-02-03 when running autonameow on all files in 'test_files'.
+# Collected 2018-02-03 when running autonameow on all files in 'samplefiles'.
 # Modified 2018-02-20 with changes to CrossPlatformFileSystemExtractor leaves.
 DUMPED_MEOWURIS = frozenset([
     'analyzer.document.publisher',
@@ -225,8 +227,8 @@ DUMMY_MAPPED_MEOWURIS = list({
     'analyzer.filename',
     # 'analyzer.filetags',  This is an extractor now
     'extractor.filesystem.xplat',
-    'extractor.filesystem.guessit',
     'extractor.metadata.exiftool',
+    'extractor.metadata.guessit',
     'extractor.metadata.jpeginfo',
 })
 

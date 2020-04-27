@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -94,6 +94,14 @@ class GenericHealth(GenericField):
     """
     meowuri_child = 'contents'
     meowuri_leaf = 'health'
+
+
+class GenericIdentifier(GenericField):
+    """
+    Unique identifiers like CID, CRID, DOI, GUID, ISBN, ISRC, ISWC, .., etc.
+    """
+    meowuri_child = 'metadata'
+    meowuri_leaf = 'identifier'
 
 
 class GenericLanguage(GenericField):

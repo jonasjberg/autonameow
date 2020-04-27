@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,12 +20,6 @@
 import logging
 import re
 
-# TODO: [TD0182] Isolate third-party metadata services like 'isbnlib'.
-try:
-    import isbnlib
-except ImportError:
-    isbnlib = None
-
 from analyzers import BaseAnalyzer
 from core import persistence
 from core.metadata.canonicalize import canonicalize_language
@@ -33,19 +27,20 @@ from core.metadata.canonicalize import canonicalize_publisher
 from core.metadata.normalize import cleanup_full_title
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
-from services.isbn import extract_isbnlike_from_text
-from services.isbn import fetch_isbn_metadata
+from services import ISBN_METADATA_SERVICE
 from util import coercers
+from util.misc import flatten_sequence_type
 from util.text import find_and_extract_edition
 from util.text import html_unescape
-from util.text import normalize_unicode
 from util.text import normalize_horizontal_whitespace
+from util.text import normalize_unicode
 from util.text import RegexCache
 from util.text import remove_blacklisted_lines
 from util.text import string_similarity
 from util.text import TextChunker
 from util.text.distance import longest_common_substring_length
 from util.text.humannames import preprocess_names
+from vendor import isbnlib
 
 
 log = logging.getLogger(__name__)
@@ -159,10 +154,14 @@ class EbookAnalyzer(BaseAnalyzer):
 
         self.text = remove_blacklisted_lines(_maybe_text, BLACKLISTED_TEXTLINES)
 
-        # TODO: [TD0114] Check metadata for ISBNs.
-        # Exiftool fields: 'PDF:Keywords', 'XMP:Identifier', "XMP:Subject"
         isbn_numbers = self._extract_isbn_numbers_from_text()
-        self.log.debug('Extracted %d ISBN numbers', len(isbn_numbers))
+        self.log.debug('Extracted %d ISBN numbers from text',
+                       len(isbn_numbers))
+        if not isbn_numbers:
+            isbn_numbers = self._extract_isbn_numbers_from_metadata()
+            self.log.debug('Extracted %d ISBN numbers from metadata',
+                           len(isbn_numbers))
+
         if not isbn_numbers:
             return
 
@@ -296,17 +295,24 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             if isinstance(_response, str):
                 return _response
 
+            if isinstance(_response, bytes):
+                _str_response = coercers.force_string(_response)
+                if _str_response:
+                    return _str_response
+
             # TODO: [TD0175] Handle requesting exactly one or multiple alternatives.
             if isinstance(_response, list):
-                if len(_response) == 1:
-                    first_and_only_element = _response[0]
-                    if isinstance(first_and_only_element, str):
-                        return first_and_only_element
+                unique_string_values = set(
+                    filter(None, [coercers.force_string(v) for v in _response])
+                )
+                if len(unique_string_values) == 1:
+                    return unique_string_values.pop()
 
+            self.log.debug('Unable to untangle response (%s) %r',
+                           type(_response), _response)
             return None
 
         # TODO: [TD0187] Fix clobbering of results.
-        # TODO: [TD0114] Improve the EbookAnalyzer.
         # TODO: [TD0185] Rework access to 'master_provider' functionality.
         response = self.request_data(self.fileobject, 'generic.metadata.description')
         ok_response = _untangle_response(response)
@@ -342,13 +348,13 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
         if candidates:
             sorted_candidates = sorted(candidates, key=lambda x: x[0], reverse=True)
 
-            # Debug logging ..
-            for n, scored_candidate in enumerate(sorted_candidates, start=1):
-                score, candidate = scored_candidate
-                self.log.debug(
-                    'Candidate (%d/%d) Score %.6f  Title "%s"',
-                    n, len(sorted_candidates), score, candidate.normalized_title
-                )
+            if self.log.getEffectiveLevel() == logging.DEBUG:
+                for n, scored_candidate in enumerate(sorted_candidates, start=1):
+                    score, candidate = scored_candidate
+                    self.log.debug(
+                        'Candidate (%d/%d) Score %.6f  Title "%s"',
+                        n, len(sorted_candidates), score, candidate.normalized_title
+                    )
 
             # Return first metadata from list of (title_similarity, metadata) tuples
             most_probable = sorted_candidates[0][1]
@@ -387,13 +393,34 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
             if not isbn_numbers:
                 self.log.debug('Searching leading %d text lines for *any* ISBNs', leading_text_linecount)
-                isbn_numbers = extract_isbns_from_text(leading_text)
+                isbn_numbers = extract_isbnlike_from_text(leading_text)
 
                 if not isbn_numbers:
                     self.log.debug('Searching trailing %d text lines for *any* ISBNs', trailing_text_linecount)
-                    isbn_numbers = extract_isbns_from_text(trailing_text)
+                    isbn_numbers = extract_isbnlike_from_text(trailing_text)
 
         return isbn_numbers
+
+    def _extract_isbn_numbers_from_metadata(self):
+        data = self.request_data(self.fileobject, 'generic.metadata.identifier')
+        self.log.debug('Got "generic.metadata.identifier" data "%s"', data)
+
+        found_isbn_numbers = list()
+
+        if data:
+            # Values could be a list of lists because of how "generic" are
+            # collected and returned from the repository.
+            values = flatten_sequence_type(data)
+
+            for value in values:
+                value = value.lower()
+                if value.startswith('urn:') or value.startswith('isbn'):
+                    identifier = value
+                    isbn_numbers = extract_isbnlike_from_text(identifier)
+                    if isbn_numbers:
+                        found_isbn_numbers.extend(isbn_numbers)
+
+        return found_isbn_numbers
 
     def _get_isbn_metadata(self, isbn_number):
         if isbn_number in self._cached_isbn_metadata:
@@ -401,7 +428,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
             return self._cached_isbn_metadata.get(isbn_number)
 
         self.log.debug('Querying external service for ISBN: %s', isbn_number)
-        metadata = fetch_isbn_metadata(isbn_number)
+        metadata = ISBN_METADATA_SERVICE.query(isbn_number)
         if metadata:
             self.log.debug('Caching metadata for ISBN: %s', isbn_number)
             self._cached_isbn_metadata.update({isbn_number: metadata})
@@ -453,7 +480,7 @@ ISBN-13   : {!s}'''.format(title, authors, publisher, year, language, isbn10, is
 
     @classmethod
     def dependencies_satisfied(cls):
-        return isbnlib is not None
+        return bool(ISBN_METADATA_SERVICE.available)
 
 
 def extract_ebook_isbns_from_text(text):
@@ -461,14 +488,32 @@ def extract_ebook_isbns_from_text(text):
                               flags=re.MULTILINE)
     match = regex_e_isbn.search(text)
     if match:
-        return extract_isbns_from_text(match.group(0))
+        return extract_isbnlike_from_text(match.group(0))
+
     return list()
 
 
-def extract_isbns_from_text(text):
-    possible_isbns = extract_isbnlike_from_text(text)
+def validate_isbn(possible_isbn):
+    if not possible_isbn:
+        return None
+
+    isbn_number = isbnlib.clean(possible_isbn)
+    if not isbn_number or isbnlib.notisbn(isbn_number):
+        return None
+
+    return isbn_number
+
+
+def extract_isbnlike_from_text(text):
+    assert isinstance(text, str)
+
+    possible_isbns = isbnlib.get_isbnlike(text)
     if possible_isbns:
-        return possible_isbns
+        return [
+            isbnlib.get_canonical_isbn(i) for i in possible_isbns
+            if validate_isbn(i)
+        ]
+
     return list()
 
 
@@ -625,7 +670,6 @@ class ISBNMetadata(object):
 
     @publisher.setter
     def publisher(self, value):
-        # TODO: [TD0189] Canonicalize metadata values by direct replacements.
         if value and isinstance(value, str):
             str_value = normalize_unicode(html_unescape(value))
             str_value = normalize_horizontal_whitespace(str_value).strip()
@@ -807,14 +851,11 @@ def is_epub_ebook(fileobject):
 
 
 def calculate_authors_similarity(authors_a, authors_b):
-    def _to_lower(strings):
-        return [s.lower() for s in strings]
+    def _sort_substrings(_strngs):
+        return [' '.join(sorted(s.split(' '))) for s in _strngs]
 
-    def _sort_substrings(strings):
-        return [' '.join(sorted(s.split(' '))) for s in strings]
-
-    def _preprocess(strings):
-        return _sort_substrings(_to_lower(strings))
+    def _preprocess(_strngs):
+        return _sort_substrings([s.lower() for s in _strngs])
 
     preprocessed_authors_a = _preprocess(authors_a)
     preprocessed_authors_b = _preprocess(authors_b)

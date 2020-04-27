@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,12 +20,15 @@
 import functools
 import logging
 import os
+import pprint
 import re
 import shutil
 import sys
+import textwrap
 import traceback
 from collections import defaultdict
 from collections import deque
+from functools import lru_cache
 
 import unit.constants as uuconst
 import unit.utils as uu
@@ -35,10 +38,9 @@ from core.view import cli
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('regression_runner')
 
 
 TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
@@ -50,10 +52,17 @@ TERMINAL_WIDTH, _ = shutil.get_terminal_size(fallback=(120, 48))
 class RegressionTestError(exceptions.AutonameowException):
     """Error caused by an invalid regression test."""
 
+    def __init__(self, msg='Error loading regression test', *args, **kwargs):
+        # super().__init__(msg, *args, **kwargs)
 
-def read_plaintext_file(file_path, ignore_errors=None):
+        sourcefile = kwargs.get('sourcefile')
+        if sourcefile is not None:
+            self.sourcefile = enc.displayable_path(sourcefile)
+
+
+def read_plaintext_file(filepath, ignore_errors=None):
     try:
-        with open(file_path, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
             contents = fh.read()
     except (FileNotFoundError, UnicodeDecodeError) as e:
         if not ignore_errors:
@@ -69,8 +78,10 @@ _print = functools.partial(print, flush=True, end='')
 
 
 class TerminalReporter(object):
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, print_stdout=False, print_stderr=False):
         self.verbose = verbose
+        self.print_stdout = print_stdout
+        self.print_stderr = print_stderr
 
         self.MAX_DESCRIPTION_LENGTH = TERMINAL_WIDTH - 75
         assert self.MAX_DESCRIPTION_LENGTH > 0, 'Terminal is not wide enough ..'
@@ -103,31 +114,34 @@ class TerminalReporter(object):
 
     def msg_testsuite_success(self):
         if self.verbose:
-            _print(self.msg_label_suite_success + ' ')
+            _print(self.msg_label_suite_success + ' Suite passed all assertions')
         else:
             _print(' ' + self.msg_label_suite_success + ' ')
 
-    def msg_testsuite_failure(self):
+    def msg_testsuite_failure(self, failure_count):
         if self.verbose:
-            _print(self.msg_label_suite_failure + ' ')
+            _print(self.msg_label_suite_failure + ' Suite failed {} assertions'.format(failure_count))
         else:
             _print(' ' + self.msg_label_suite_failure + ' ')
 
     def msg_testsuite_skipped(self):
         if self.verbose:
-            _print(self.msg_label_suite_skipped + ' ')
+            _print(self.msg_label_suite_skipped)
         else:
             _print(' ' + self.msg_label_suite_skipped + ' ')
 
     def msg_testsuite_history(self, history):
         if self.verbose:
-            NUM_HISTORY_ENTRIES = 10
+            NUM_HISTORY_ENTRIES = 59
         else:
             NUM_HISTORY_ENTRIES = 5
 
         padded_history = list(history)
         while len(padded_history) < NUM_HISTORY_ENTRIES:
             padded_history.append(RunResultsHistory.RESULT_UNKNOWN)
+
+        if self.verbose:
+            _print('\nHistory: ')
 
         for result in padded_history[:NUM_HISTORY_ENTRIES]:
             if result == RunResultsHistory.RESULT_FAIL:
@@ -217,7 +231,6 @@ class TerminalReporter(object):
         formatted_description = self._format_description(description)
 
         if self.verbose:
-            formatted_description = self._format_description(description)
             message = '\nRunning "{}"'.format(shortname)
             colorized_message = cli.colorize(message, style='BRIGHT')
             _println(colorized_message)
@@ -229,7 +242,6 @@ class TerminalReporter(object):
         formatted_description = self._format_description(description)
 
         if self.verbose:
-            formatted_description = self._format_description(description)
             message = '\nSkipping "{}"'.format(shortname)
             colorized_message = cli.colorize(message, style='BRIGHT')
             _println(colorized_message)
@@ -273,7 +285,7 @@ class TerminalReporter(object):
         str_time_2 = '{:7.7s}'.format(str_captured)
         str_time_3 = '{:>s}'.format(str_delta)
         if self.verbose:
-            _println(' ' * 10 + 'Runtime: {} (captured {} Delta: {}'.format(str_time_1, str_time_2, str_time_3))
+            _println('\nRuntime: {} (captured {}  Previous runtime delta: {}'.format(str_time_1, str_time_2, str_time_3))
         else:
             _println('  {} ({} {}'.format(str_time_1, str_time_2, str_time_3))
 
@@ -292,15 +304,19 @@ class TerminalReporter(object):
                      + cli.colorize('      CAUGHT TOP-LEVEL EXCEPTION       ',
                                     back='RED'))
 
-    @staticmethod
-    def msg_captured_stderr(stderr):
+    def msg_captured_stderr(self, stderr):
+        if not self.print_stderr:
+            return
+
         _header = cli.colorize('Captured stderr:', fore='RED')
         _stderr = cli.colorize(stderr, fore='RED')
         _println('\n' + _header)
         _println(_stderr)
 
-    @staticmethod
-    def msg_captured_stdout(stdout):
+    def msg_captured_stdout(self, stdout):
+        if not self.print_stdout:
+            return
+
         _println('\nCaptured stdout:')
         _println(stdout)
 
@@ -331,11 +347,7 @@ class RegressionTestSuite(object):
         self.asserts = asserts or dict()
         self.options = options or dict()
         self.should_skip = bool(skip)
-
-        if description:
-            self.description = coercers.force_string(description).strip()
-        else:
-            self.description = '(UNDESCRIBED)'
+        self.description = description or '(UNDESCRIBED)'
 
     @property
     def str_abspath(self):
@@ -428,24 +440,35 @@ class RegressionTestLoader(object):
         try:
             asserts = disk.load_yaml_file(abspath_asserts)
         except exceptions.FilesystemError as e:
-            raise RegressionTestError('Error reading asserts from file: '
-                                      '"{!s}" :: {!s}'.format(abspath_asserts, e))
+            raise RegressionTestError(e, sourcefile=abspath_asserts)
 
         if not asserts:
             log.warning('Read empty asserts from file: "%s"', abspath_asserts)
             asserts = dict()
+
         return asserts
 
     def _load_file_options(self):
         abspath_opts = self._joinpath(self.BASENAME_YAML_OPTIONS)
+
         try:
             options = disk.load_yaml_file(abspath_opts)
         except exceptions.FilesystemError as e:
-            raise RegressionTestError('Error reading options from file: '
-                                      '"{!s}" :: {!s}'.format(abspath_opts, e))
+            raise RegressionTestError(e, sourcefile=abspath_opts)
+
         if not options:
             log.warning('Read empty options from file: "%s"', abspath_opts)
             options = dict()
+
+        input_paths = options.get('input_paths')
+        if input_paths:
+            if (not isinstance(input_paths, list) or
+                    any(not p or not isinstance(p, str) for p in input_paths)):
+                raise RegressionTestError(
+                    'Expected "input_paths" to be a list of non-empty strings.',
+                    sourcefile=abspath_opts,
+                )
+
         return options
 
     def _load_file_skip(self):
@@ -455,10 +478,11 @@ class RegressionTestLoader(object):
     @staticmethod
     def _modify_options_input_paths(options):
         assert isinstance(options, dict)
-        if 'input_paths' not in options:
+
+        input_paths = options.get('input_paths')
+        if not input_paths:
             return options
 
-        input_paths = options['input_paths']
         modified_options = dict(options)
         modified_options['input_paths'] = _expand_input_paths_variables(input_paths)
         return modified_options
@@ -473,11 +497,11 @@ class RegressionTestLoader(object):
 
                --> 'config_path': (Path to the default config)
 
-          * .. starts with '$TESTFILES/', the full absolute path to the
-               'test_files' directory is inserted in place of '$TESTFILES/'.
+          * .. starts with '$SAMPLEFILES/', the full absolute path to the
+               'samplefiles' directory is inserted in place of '$SAMPLEFILES/'.
 
-                   'config_path': '$TESTFILES/config.yaml'
-               --> 'config_path': '$SRCROOT/test_files/config.yaml'
+                   'config_path': '$SAMPLEFILES/config.yaml'
+               --> 'config_path': '$SRCROOT/tests/samplefiles/config.yaml'
 
           * .. starts with '$THISTEST/', the full absolute path to the current
                regression test directory is inserted in place of '$THISTEST/'.
@@ -490,11 +514,11 @@ class RegressionTestLoader(object):
         config_path = coercers.force_string(options.get('config_path'))
         if not config_path:
             # Use default config.
-            modified_path = uu.abspath_testconfig()
-        elif config_path.startswith('$TESTFILES/'):
+            modified_path = uu.samplefile_config_abspath()
+        elif config_path.startswith('$SAMPLEFILES/'):
             # Substitute "variable".
-            config_path_basename = config_path.replace('$TESTFILES/', '').strip()
-            modified_path = uu.abspath_testfile(config_path_basename)
+            config_path_basename = config_path.replace('$SAMPLEFILES/', '').strip()
+            modified_path = uu.samplefile_abspath(config_path_basename)
         elif config_path.startswith('$THISTEST/'):
             # Substitute "variable".
             config_path_basename = config_path.replace('$THISTEST/', '').strip()
@@ -510,7 +534,7 @@ class RegressionTestLoader(object):
 
         if not uu.file_exists(modified_path):
             raise RegressionTestError(
-                'Invalid "config_path": "{!s}"'.format(config_path)
+                'File at "config_path" does not exist: "{!s}"'.format(config_path)
             )
 
         log.debug('Set config_path "%s" to "%s"', config_path, modified_path)
@@ -533,7 +557,7 @@ def collapse_all_whitespace(s):
 
 def normalize_description_whitespace(s):
     """
-    Fixes up whitespace in  multi-line text.
+    Fixes up whitespace in multi-line text.
 
     Intended to be used to clean up test suite descriptions.
     Removes messy whitespace, such as tabs. Replaces single line breaks (E.G.
@@ -560,22 +584,22 @@ def normalize_description_whitespace(s):
 
 def _expand_input_paths_variables(input_paths):
     """
-    Replaces '$TESTFILES' with the full absolute path to the 'test_files'
+    Replaces '$SAMPLEFILES' with the full absolute path to the 'samplefiles'
     directory.
-    For instance; '$TESTFILES/foo.txt' --> '$SRCROOT/test_files/foo.txt',
+    For instance; '$SAMPLEFILES/foo.txt' --> '$SRCROOT/tests/samplefiles/foo.txt',
     where '$SRCROOT' is the full absolute path to the autonameow sources.
     """
     assert isinstance(input_paths, list)
 
     results = list()
     for path in input_paths:
-        if path == '$TESTFILES':
+        if path == '$SAMPLEFILES':
             # Substitute "variable".
-            modified_path = uuconst.PATH_TEST_FILES
-        elif path.startswith('$TESTFILES/'):
+            modified_path = uuconst.DIRPATH_SAMPLEFILES
+        elif path.startswith('$SAMPLEFILES/'):
             # Substitute "variable".
-            path_basename = path.replace('$TESTFILES/', '')
-            modified_path = uu.abspath_testfile(path_basename)
+            path_basename = path.replace('$SAMPLEFILES/', '')
+            modified_path = uu.samplefile_abspath(path_basename)
         else:
             # Normalize path.
             try:
@@ -681,9 +705,6 @@ class AutonameowWrapper(object):
         self.captured_exception = None
         self.captured_exception_traceback = None
 
-    def mock_exit_program(self, exitcode):
-        self.captured_exitcode = exitcode
-
     def mock_rename_file(self, from_path, dest_basename):
         # TODO: [hack] Mocking is too messy to be reliable ..
         # NOTE(jonas): Iffy ad-hoc string coercion..
@@ -704,9 +725,6 @@ class AutonameowWrapper(object):
         # TODO: [TD0158] Evaluate assertions of "skipped renames".
         from core.autonameow import Autonameow
 
-        # Monkey-patch method of 'Autonameow' *class*
-        Autonameow.exit_program = self.mock_exit_program
-
         mock_ui = MockUI()
 
         with uu.capture_stdout() as stdout, uu.capture_stderr() as stderr:
@@ -723,6 +741,7 @@ class AutonameowWrapper(object):
                     ameow.renamer._rename_file = self.mock_rename_file
 
                     ameow.run()
+                    self.captured_exitcode = ameow.exit_code
 
                     # Store runtime recorded by the 'Autonameow' class.
                     self.captured_runtime_secs = ameow.runtime_seconds
@@ -788,10 +807,15 @@ def load_regression_testsuites():
 
     testsuite_paths = get_all_testsuite_dirpaths()
     for suite_path in testsuite_paths:
+        loader = RegressionTestLoader(suite_path)
         try:
-            loaded_test = RegressionTestLoader(suite_path).load()
+            loaded_test = loader.load()
         except RegressionTestError as e:
-            print('Unable to load test suite :: ' + str(e), file=sys.stderr)
+            log.error('Unable to load test suite "%s"',
+                      enc.displayable_path(loader.test_dirname))
+            if hasattr(e, 'sourcefile'):
+                log.error('Problematic file: "%s"', e.sourcefile)
+            log.error(e)
         else:
             all_loaded_tests.append(loaded_test)
 
@@ -799,16 +823,14 @@ def load_regression_testsuites():
 
 
 def check_renames(actual, expected):
-    if not isinstance(actual, dict):
-        raise RegressionTestError('Expected argument "actual" of type dict')
-    if not isinstance(expected, dict):
-        raise RegressionTestError('Expected argument "expected" of type dict')
+    assert isinstance(actual, dict)
+    assert isinstance(expected, dict)
 
     if not actual and not expected:
         # Did not expect anything and nothing happened.
         return True
     elif actual and not expected:
-        # Something unexpected happened.
+        # Something unexpectedly happened.
         return False
     elif expected and not actual:
         # Expected something to happen but it didn't.
@@ -840,17 +862,18 @@ def _load_assertion_regexes(asserts_dict, filedescriptor, assert_type):
         try:
             regexes.append(re.compile(expression, re.MULTILINE))
         except (ValueError, TypeError) as e:
-            errormsg = 'Bad {} matches expression: "{!s}" -- {!s}'.format(
-                filedescriptor, expression, e)
-            raise RegressionTestError(errormsg)
+            error_msg = 'Bad {} matches expression: "{!s}" -- {!s}'.format(
+                filedescriptor, expression, e
+            )
+            raise RegressionTestError(error_msg)
+
     return regexes
 
 
 def check_stdout_asserts(suite, captured_stdout):
     results = list()
-    if not suite.asserts:
-        return results
-    if 'stdout' not in suite.asserts:
+
+    if not suite.asserts or 'stdout' not in suite.asserts:
         return results
 
     # TODO: Load and validate regexes before running the test!
@@ -882,70 +905,63 @@ def check_stdout_asserts(suite, captured_stdout):
     return results
 
 
-def _commandline_args_for_testsuite(suite):
-    """
-    Converts a regression test to a list of command-line arguments.
-
-    Given a loaded regression "test suite", it returns command-line components
-    that would result in equivalent behaviour.
-    The returned arguments would be used when invoking autonameow "manually"
-    from the command-line.
-
-    Args:
-        suite: Regression "test suite" returned from 'load_regression_testsuites()',
-               as an instance of 'RegressionTestSuite'.
-
-    Returns:
-        Command-line arguments as a list of Unicode strings.
-    """
-    # TODO: [hardcoded] Generate from 'autonameow/core/view/cli/options.py'.
-    TESTOPTION_CMDARG_MAP = {
-        'debug': '--debug',
-        'dry_run': '--dry-run',
-        'dump_config': '--dump-config',
-        'dump_meowuris': '--dump-meowuris',
-        'dump_options': '--dump-options',
-        'list_all': '--list-all',
-        'list_rulematch': '--list-rulematch',
-        'mode_automagic': '--automagic',
-        'mode_batch': '--batch',
-        'mode_interactive': '--interactive',
-        'mode_timid': '--timid',
-        'mode_postprocess_only': '--postprocess-only',
-        'quiet': '--quiet',
-        'recurse_paths': '--recurse',
-        'show_version': '--version',
-        'verbose': '--verbose',
+@lru_cache()
+def _suite_option_to_cli_option_mapping():
+    from core.view.cli.options import get_optional_argparser_options
+    argparser_options = get_optional_argparser_options()
+    return {
+        option.dest: option.long for option in argparser_options
     }
 
-    arguments = list()
-    suite_options = suite.options
-    if suite_options:
-        for opt, arg in TESTOPTION_CMDARG_MAP.items():
-            if suite_options.get(opt):
-                arguments.append(arg)
 
-        # For more consistent output and easier testing, sort before adding
-        # positional and "key-value"-type options.
-        arguments = sorted(arguments)
+def _commandline_args_for_testsuite(testsuite):
+    """
+    Converts a regression testsuite to a list of command-line arguments.
 
-        options_config_path = suite_options.get('config_path')
-        if options_config_path:
-            str_config_path = coercers.force_string(options_config_path)
-            assert str_config_path != ''
-            arguments.append("--config-path '{}'".format(str_config_path))
+    Returns positional command-line argument strings that would result in
+    equivalent behaviour as the given regression test suite, if used when
+    executing autonameow from the command-line.
 
-        options_input_paths = suite_options.get('input_paths')
-        if options_input_paths:
-            # Mark end of options, start of arguments (input paths)
-            arguments.append('--')
-            for p in options_input_paths:
-                arguments.append("'{}'".format(p))
+    Args:
+        testsuite: Testsuite from which to produce equivalent command-line
+                   arguments, as an instance of 'RegressionTestSuite'.
+
+    Returns:
+        Positional command-line arguments as a list of Unicode strings.
+    """
+    testsuite_options = testsuite.options
+    assert isinstance(testsuite_options, dict)
+    if not testsuite_options:
+        return list()
+
+    # NOTE(jonas): Assumes all options are booleans --- any undefined options
+    #              are treated as if they were defined with the value False.
+    arguments = [
+        argument
+        for option, argument in _suite_option_to_cli_option_mapping().items()
+        if testsuite_options.get(option)
+    ]
+
+    # For more consistent output and easier testing, sort before adding
+    # positional and "key-value"-type options.
+    arguments = sorted(arguments)
+
+    config_path = testsuite_options.get('config_path')
+    if config_path:
+        str_config_path = coercers.force_string(config_path)
+        assert str_config_path, repr(config_path)
+        arguments.append("--config-path '{}'".format(str_config_path))
+
+    input_paths = testsuite_options.get('input_paths')
+    if input_paths:
+        # Mark end of options, start of arguments (input paths)
+        arguments.append('--')
+        arguments.extend("'{}'".format(p) for p in input_paths)
 
     return arguments
 
 
-def commandline_for_testsuite(suite):
+def commandline_for_testsuite(testsuite):
     """
     Converts a regression test to a equivalent command-line invocation string.
 
@@ -954,16 +970,16 @@ def commandline_for_testsuite(suite):
     given regression test suite.
 
     Args:
-        suite: Regression "test suite" returned from 'load_regression_testsuites()',
-               as an instance of 'RegressionTestSuite'.
+        testsuite: A "test suite" returned from 'load_regression_testsuites()',
+                   as an instance of 'RegressionTestSuite'.
 
     Returns:
         Full equivalent command-line as a Unicode string.
     """
-    sanity.check_isinstance(suite, RegressionTestSuite)
-    arguments = _commandline_args_for_testsuite(suite)
-    argument_string = ' '.join(arguments)
-    commandline = 'autonameow ' + argument_string
+    assert isinstance(testsuite, RegressionTestSuite)
+
+    arguments = _commandline_args_for_testsuite(testsuite)
+    commandline = 'autonameow ' + ' '.join(arguments)
     return commandline.strip()
 
 
@@ -1025,15 +1041,48 @@ def regexp_filter(expression, bytestring):
     return bool(regexp.match(bytestring))
 
 
-def print_test_info(tests, verbose):
+def print_testsuite_info(testsuites, verbose):
+    textwrapper = textwrap.TextWrapper(
+        width=TERMINAL_WIDTH,
+        initial_indent="  ",
+        subsequent_indent="",
+        expand_tabs=True,
+        replace_whitespace=True,
+        fix_sentence_endings=True,
+        break_long_words=True,
+        drop_whitespace=True,
+        break_on_hyphens=True,
+        tabsize=4,
+    )
+
+    def _bold(s):
+        return cli.colorize(s, style='BRIGHT')
+
+    def _stringify_dict(d):
+        return pprint.pformat(
+            d,
+            indent=2,
+            compact=False,
+            width=TERMINAL_WIDTH,
+        )
+
+    lines = list()
+
     if verbose:
-        cf = cli.ColumnFormatter()
-        for t in tests:
-            cf.addrow(t.str_dirname, t.description)
-        print(cf)
+        for testsuite in testsuites:
+            lines.append(_bold('  TESTSUITE: ') + testsuite.str_dirname)
+            lines.append(_bold('    SKIPPED: ') + ('Yes' if testsuite.should_skip else 'No'))
+            lines.append(_bold('DESCRIPTION:'))
+            lines.append('\n'.join(textwrapper.wrap(testsuite.description)))
+            lines.append(_bold('    ASSERTS:'))
+            lines.append(_stringify_dict(testsuite.asserts))
+            lines.append(_bold('    OPTIONS:'))
+            lines.append(_stringify_dict(testsuite.options))
+            lines.append('\n')
     else:
-        test_dirnames = [t.str_dirname for t in tests]
-        print('\n'.join(test_dirnames))
+        lines = [t.str_dirname for t in testsuites]
+
+    print('\n'.join(lines))
 
 
 class RunResultsHistory(object):

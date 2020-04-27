@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -401,54 +401,110 @@ class TestFindAndExtractEdition(TestCase):
         self._check_result(given='Blah Framework Second Edition',            expect_edition=2, expect_text='Blah Framework ')
 
 
-
 class TestFindPublisherInCopyrightNotice(TestCase):
+    def _check(self, given, expect):
+        actual = find_publisher_in_copyright_notice(given)
+        self.assertEqual(expect, actual)
+
     def test_returns_expected_publisher(self):
-        def _aE(test_input, expected):
-            actual = find_publisher_in_copyright_notice(test_input)
-            self.assertEqual(actual, expected)
+        for given in [
+            'Copyright © Excellent Media P.C., 2017',
+            'Copyright (c) Excellent Media P.C., 2017',
+            'Copyright © 2017 Excellent Media P.C.',
+            'Copyright (c) 2017 Excellent Media P.C.',
+            '© Excellent Media P.C., 2017',
+            '(c) Excellent Media P.C., 2017',
+            '© 2017 Excellent Media P.C.',
+            '(c) 2017 Excellent Media P.C.',
+        ]:
+            self._check(given, 'Excellent Media P.C.')
 
-        _aE('Copyright © Excellent Media P.C., 2017',   'Excellent Media P.C.')
-        _aE('Copyright (c) Excellent Media P.C., 2017', 'Excellent Media P.C.')
-        _aE('Copyright © 2017 Excellent Media P.C.',    'Excellent Media P.C.')
-        _aE('Copyright (c) 2017 Excellent Media P.C.',  'Excellent Media P.C.')
+    def test_returns_expected_publisher_variations(self):
+        for given in [
+            'Copyright © 2016 Catckt',
+            'Copyright (c) 2016 Catckt',
+            'Copyright (C) 2016 Catckt',
+            'Copyright(c)2016 Catckt',
+            'Copyright(C)2016 Catckt',
+            '© 2016 Catckt',
+            '(c) 2016 Catckt',
+            '(C) 2016 Catckt',
+            '(c)2016 Catckt',
+            '(C)2016 Catckt',
+        ]:
+            self._check(given, 'Catckt')
 
-        _aE('Copyright © 2016 Catckt',   'Catckt')
-        _aE('Copyright (c) 2016 Catckt', 'Catckt')
-        _aE('Copyright (C) 2016 Catckt', 'Catckt')
-        _aE('Copyright(c)2016 Catckt',   'Catckt')
-        _aE('Copyright(C)2016 Catckt',   'Catckt')
+    def test_returns_expected_publisher_with_two_words(self):
+        for given in [
+            'Copyright © 2016 Catckt Publishing',
+            'Copyright (c) 2016 Catckt Publishing',
+            'Copyright (C) 2016 Catckt Publishing',
+            'Copyright(c)2016 Catckt Publishing',
+            'Copyright(C)2016 Catckt Publishing',
+            '© 2016 Catckt Publishing',
+            '(c) 2016 Catckt Publishing',
+            '(C) 2016 Catckt Publishing',
+            '(c)2016 Catckt Publishing',
+            '(C)2016 Catckt Publishing',
+        ]:
+            self._check(given, 'Catckt Publishing')
 
-        _aE('Copyright © 2016 Catckt Publishing',   'Catckt Publishing')
-        _aE('Copyright (c) 2016 Catckt Publishing', 'Catckt Publishing')
-        _aE('Copyright (C) 2016 Catckt Publishing', 'Catckt Publishing')
-        _aE('Copyright(c)2016 Catckt Publishing',   'Catckt Publishing')
-        _aE('Copyright(C)2016 Catckt Publishing',   'Catckt Publishing')
+    def test_returns_expected_publisher_with_two_words_and_year_ranges(self):
+        for given in [
+            'Copyright © 2011-2012 Bmf Btpveis',
+            'Copyright (C) 2011-2012 Bmf Btpveis',
+            '© 2011-2012 Bmf Btpveis',
+            '(C) 2011-2012 Bmf Btpveis',
+        ]:
+            self._check(given, 'Bmf Btpveis')
 
-        _aE('Copyright © 2011-2012 Bmf Btpveis',   'Bmf Btpveis')
-        _aE('Copyright (C) 2011-2012 Bmf Btpveis', 'Bmf Btpveis')
+    def test_returns_expected_publisher_with_year_ranges_variations(self):
+        for given in [
+            'Copyright (c) 2000 2015 Kibble',
+            'Copyright (c) 2000 2015 Kibble',
+            'Copyright (c) 2000  2015  Kibble ',
+            'Copyright (c) 2000  2015  Kibble',
+            'Copyright (c) 2000-2015  Kibble ',
+            'Copyright (c) 2000, 2015  Kibble',
+        ]:
+            self._check(given, 'Kibble')
 
-        _aE('(C) Copyright 1985-2001 Gibson Corp.', 'Gibson Corp.')
+        self._check('(C) Copyright 1985-2001 Gibson Corp.', 'Gibson Corp.')
 
-        # Works:
-        # 'Copyright (c) 2000 2015 Kibble'
-
-        # NOGO:
-        # 'Copyright (c) 2000  2015  Kibble '
-
-        _aE('Copyright (c) 2000 2015 Kibble',   'Kibble')
-        _aE('Copyright (c) 2000-2015  Kibble ', 'Kibble')
-        _aE('Copyright (c) 2000, 2015  Kibble', 'Kibble')
-        # _aE('Copyright (c) 2000, 2015, Kibble and/or its affiliates.', 'Kibble')
+    def test_multiple_years_separated_by_commas(self):
+        self._check('Copyright (c) 2000, 2015 Kibble', 'Kibble')
+        self._check('Copyright (c) 2000, 2015 Kibble Corp', 'Kibble Corp')
+        self._check('Copyright (c) 2000, 2015 Kibble and/or its affiliates.', 'Kibble and/or its affiliates.')
+        self._check('Copyright (c) 2000, 2015, Kibble', 'Kibble')
+        self._check('Copyright (c) 2000, 2015, Kibble Corp', 'Kibble Corp')
+        self._check('Copyright (c) 2000, 2015, Kibble and/or its affiliates.', 'Kibble and/or its affiliates.')
 
     def test_returns_none_for_unavailable_publishers(self):
-        def _aN(test_input):
-            actual = find_publisher_in_copyright_notice(test_input)
+        for given in [
+            '',
+            ' ',
+            '\n',
+            '\t',
+            '1994 Foo 1994',
+            '1994 Foo Bar 1994',
+            '1994 Foo Bar',
+            '1994 Foo',
+            '1994',
+            'Foo 1994',
+            'Foo Bar 1994',
+            'Foo Bar',
+            'Foo',
+            'Copyright (c) 1994',
+            'Copyright (c)',
+            'Copyright 1994',
+            'Copyright',
+            'Copyright(c)',
+            'Copyright(c)1994',
+            'copyright reserved above, no part of this publication',
+            'permission of the copyright owner.',
+            'is common practice to put any licensing or copyright information in a comment at the',
+            '107 or 108 of the 1976 United States Copyright Act, without either the prior written permission of the Publisher, or',
+            'America. Except as permitted under the Copyright Act of 1976, no part of this publication may be',
+        ]:
+            actual = find_publisher_in_copyright_notice(given)
             self.assertIsNone(actual)
-
-        _aN('Foo Bar')
-        _aN('copyright reserved above, no part of this publication')
-        _aN('permission of the copyright owner.')
-        _aN('is common practice to put any licensing or copyright information in a comment at the')
-        _aN('107 or 108 of the 1976 United States Copyright Act, without either the prior written permission of the Publisher, or')
-        _aN('America. Except as permitted under the Copyright Act of 1976, no part of this publication may be')

@@ -1,0 +1,3 @@
+Verifies that a bytestring data source can be used with the '{publisher}'
+placeholder field. Actual rename operation should be a no-op.
+

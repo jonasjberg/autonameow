@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,13 +19,15 @@
 
 set -o nounset
 
-SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
+self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+readonly self_dirpath
 
-if ! source "${SELF_DIRPATH}/setup_environment.sh"
+# shellcheck source=tests/setup_environment.sh
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRPATH}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
@@ -34,6 +36,7 @@ fi
 
 
 (
-cd "$AUTONAMEOW_ROOT_DIR" \
-&& PYTHONPATH=autonameow:tests python3 tests/regression/regression_runner.py "$@"
+    cd "$AUTONAMEOW_ROOT_DIRPATH" &&
+    PYTHONPATH=autonameow:tests \
+    python3 tests/regression/regression_runner.py "$@"
 )

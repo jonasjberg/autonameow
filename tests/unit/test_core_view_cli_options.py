@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,6 +23,7 @@ from unittest import TestCase
 import unit.constants as uuconst
 from core.view.cli.options import arg_is_readable_file
 from core.view.cli.options import cli_parse_args
+from core.view.cli.options import get_optional_argparser_options
 from core.view.cli.options import init_argparser
 
 
@@ -119,3 +120,53 @@ class TestArgParse(TestCase):
 
     def test_cli_parse_args_accepts_argument_dump_meowuris(self):
         self._assert_valid_argument('--dump-meowuris')
+
+
+class TestGetOptionalArgparserOptions(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.expected_options = (
+            ('',   '--automagic',        'automagic'),
+            ('',   '--batch',            'batch'),
+            ('',   '--debug',            'debug'),
+            ('',   '--dump-config',      'dump_config'),
+            ('',   '--dump-meowuris',    'dump_meowuris'),
+            ('',   '--dump-options',     'dump_options'),
+            ('',   '--interactive',      'interactive'),
+            ('',   '--list-all',         'list_all'),
+            ('',   '--list-rulematch',   'list_rulematch'),
+            ('',   '--postprocess-only', 'postprocess_only'),
+            ('',   '--timid',            'timid'),
+            ('',   '--version',          'show_version'),
+            ('-d', '--dry-run',          'dry_run'),
+            ('-h', '--help',             'help'),
+            ('-q', '--quiet',            'quiet'),
+            ('-r', '--recurse',          'recurse_paths'),
+            ('-v', '--verbose',          'verbose'),
+        )
+
+    def _get_actual(self):
+        return get_optional_argparser_options()
+
+    def test_result_contains_expected_number_of_options(self):
+        self.assertEqual(len(self.expected_options), len(self._get_actual()))
+
+    def test_result_contains_all_expected_options(self):
+        actual = self._get_actual()
+        for option in self.expected_options:
+            self.assertIn(option, actual)
+
+    def test_result_contains_all_short_style_options(self):
+        all_actual_short_options = [x.short for x in self._get_actual()]
+        for short, _, _ in self.expected_options:
+            self.assertIn(short, all_actual_short_options)
+
+    def test_result_contains_all_gnu_style_options(self):
+        all_actual_long_options = [x.long for x in self._get_actual()]
+        for _, long, _ in self.expected_options:
+            self.assertIn(long, all_actual_long_options)
+
+    def test_result_contains_all_option_destinations(self):
+        all_actual_option_dests = [x.dest for x in self._get_actual()]
+        for _, _, dest in self.expected_options:
+            self.assertIn(dest, all_actual_option_dests)

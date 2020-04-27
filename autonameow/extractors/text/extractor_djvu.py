@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -41,7 +41,7 @@ def extract_text_with_djvutxt(filepath):
         stdout = process.blocking_read_stdout(
             'djvutxt', filepath,
         )
-    except process.ChildProcessError as e:
+    except process.ChildProcessFailure as e:
         raise ExtractorError(e)
 
     result = decode_raw(stdout)

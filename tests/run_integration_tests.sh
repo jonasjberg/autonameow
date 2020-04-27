@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,25 +24,29 @@ declare -r EXIT_SUCCESS=0
 declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
-SELF_BASENAME="$(basename "$0")"
-SELF_DIRPATH="$(realpath -e "$(dirname "$0")")"
+self_basename="$(basename -- "$0")"
+self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_basename
+readonly self_dirpath
 
-if ! source "${SELF_DIRPATH}/setup_environment.sh"
+# shellcheck source=tests/setup_environment.sh
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRPATH}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
     exit "$EXIT_CRITICAL"
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+# shellcheck source=tests/integration/utils.sh
+if ! source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
         Integration test utility library is missing. Aborting ..
 
 EOF
@@ -50,8 +54,7 @@ EOF
 fi
 
 # Default configuration.
-option_write_report='false'
-option_quiet='false'
+option_quiet=false
 optionarg_filter=''
 
 
@@ -59,9 +62,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  autonameow integration test suite runner
+"$self_basename"  --  autonameow integration test suite runner
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:     -f [EXP]   Execute scripts by filtering basenames.
                           Argument [EXP] is passed to grep as-is.
@@ -69,29 +72,26 @@ print_usage_info()
                           expression are skipped.
                -h         Display usage information and exit.
                -q         Suppress output from test suites.
-               -w         Write HTML test reports to disk.
-                          Note: The "raw" log file is always written.
 
   All options are optional. Default behaviour is to print the test
   results to stdout/stderr in real-time.
+  Note: The "raw" log file is always written.
 
-  EXIT CODES:   ${EXIT_SUCCESS}         All tests/assertions passed.
-                ${EXIT_FAILURE}         Any tests/assertions FAILED.
-                ${EXIT_CRITICAL}         Runner itself failed or aborted.
+  EXIT CODES:   $EXIT_SUCCESS          All tests/assertions passed.
+                $EXIT_FAILURE          Any tests/assertions FAILED.
+                $EXIT_CRITICAL         Runner itself failed or aborted.
 
   Project website: www.github.com/jonasjberg/autonameow
 
 EOF
 }
 
-# Set options to 'true' here and invert logic as necessary when testing (use
-# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
-# caused by users setting the default option variables to unexpected values.
+
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "${SELF_BASENAME}"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
-    while getopts f:hwq opt
+    while getopts f:hq opt
     do
         case "$opt" in
             f) optionarg_filter="${OPTARG:-}"
@@ -101,44 +101,47 @@ else
                    exit "$EXIT_CRITICAL"
                fi ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            w) option_write_report='true' ;;
-            q) option_quiet='true' ;;
+            q) option_quiet=true ;;
         esac
     done
-
 
     shift $(( OPTIND - 1 ))
 fi
 
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
-initialize_logging
-initialize_global_stats
-search_dir="${SELF_DIRPATH}/integration"
-logmsg "Started integration test runner \"${SELF_BASENAME}\""
-logmsg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
+aw_utils.initialize_logging
+aw_utils.initialize_global_stats
+
+readonly search_dir="${self_dirpath}/integration"
+aw_utils.log_msg_timestamped "Started integration test runner \"${self_basename}\""
+aw_utils.log_msg "Collecting files in \"${search_dir}\" matching \"test_*.sh\".."
 
 
-find "$search_dir" -mindepth 1 -maxdepth 1 -type f -name "test_*.sh" \
-| sort -r | while IFS=$'\n' read -r testscript
+find "$search_dir" -maxdepth 1 -type f -name "test_*.sh" | sort -r |
+while IFS=$'\n' read -r testscript
 do
     if [ ! -x "$testscript" ]
     then
-        logmsg "Missing execute permission: \"${testscript}\" .. SKIPPING"
+        aw_utils.log_msg "Missing execute permission: \"${testscript}\" .. SKIPPING"
         continue
     fi
 
-    # Skip scripts not matching filtering expression, if any.
     _testscript_base="$(basename -- "$testscript")"
+
+    # Skip scripts not matching filtering expression, if any.
     if [ -n "$optionarg_filter" ]
     then
-        if ! grep -q -- "$optionarg_filter" <<< "${_testscript_base}"
-        then
-            logmsg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
-            continue
-        fi
+        case "$_testscript_base" in
+            *${optionarg_filter}*)
+                ;;
+            *)
+                aw_utils.log_msg "Skipped \"${_testscript_base}\" (filter expression \"${optionarg_filter}\")"
+                continue
+                ;;
+        esac
     fi
 
     # !! # TODO: Fix all descendant processes not killed.
@@ -146,31 +149,33 @@ do
     # !! trap kill_running_task SIGHUP SIGINT SIGTERM
     # !!
     # !! # Run task and check exit code.
-    # !! if [ "$option_quiet" != 'true' ]
+    # !! if $option_quiet
     # !! then
-    # !!     eval "${testscript}" &
+    # !!     eval "$testscript" 2>&1 >/dev/null &
     # !!     TASK_PID="$!"
     # !! else
-    # !!     eval "${testscript}" 2>&1 >/dev/null &
+    # !!     eval "$testscript" &
     # !!     TASK_PID="$!"
     # !! fi
     # !! wait "$TASK_PID"
 
-    logmsg "Starting \"${_testscript_base}\" .."
-    if [ "$option_quiet" != 'true' ]
+    aw_utils.log_msg_timestamped "Starting \"${_testscript_base}\" .."
+    if [ "$option_quiet" = 'true' ]
     then
-        source "${testscript}"
+        # shellcheck disable=SC1090
+        source "$testscript" &>/dev/null
     else
-        source "${testscript}" >/dev/null 2>&1
+        # shellcheck disable=SC1090
+        source "$testscript"
     fi
-    logmsg "Finished \"${_testscript_base}\""
+    aw_utils.log_msg_timestamped "Finished \"${_testscript_base}\""
 done
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
+time_end="$(aw_utils.current_unix_time)"
 total_time="$(((time_end - time_start) / 1000000))"
-logmsg "Total execution time: ${total_time} ms"
+aw_utils.log_msg "Total execution time: $total_time ms"
 
 
 while read -r _count _pass _fail
@@ -180,16 +185,8 @@ do
     _total_failed="$_fail"
 done < "$AUTONAMEOW_INTEGRATION_STATS"
 
-log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
-
-
-# NOTE: Requires "aha" to be installed in order to convert the "raw"
-#       (containing ANSI escape codes) log files to HTML.
-# if [ ! "$option_write_report" != 'true' ]
-# then
-#     run_task "$option_quiet" 'Converting raw log to HTML' convert_raw_log_to_html
-# fi
-
+aw_utils.log_total_results_summary "$total_time" "$_total_count" "$_total_passed" "$_total_failed"
+aw_utils.log_msg_timestamped "Exiting integration test runner \"${self_basename}\""
 
 if [ "$_total_failed" -eq "0" ]
 then

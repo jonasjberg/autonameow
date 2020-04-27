@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -49,15 +49,15 @@ EXIT_SUCCESS = 0
 EXIT_FAILURE = 1
 
 SELFNAME = str(os.path.basename(__file__))
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-AUTONAMEOW_SRC_ROOT = os.path.normpath(os.path.join(_THIS_DIR, os.pardir))
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+_SELF_DIRPATH_PARENT = os.path.normpath(os.path.join(_SELF_DIRPATH, os.pardir))
 
-TODO_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, TODO_BASENAME)
-DONE_PATH = os.path.join(AUTONAMEOW_SRC_ROOT, DONE_BASENAME)
+TODO_PATH = os.path.join(_SELF_DIRPATH_PARENT, TODO_BASENAME)
+DONE_PATH = os.path.join(_SELF_DIRPATH_PARENT, DONE_BASENAME)
 
 
-def is_readable_file(file_path):
-    return os.path.isfile(file_path) and os.access(file_path, os.R_OK)
+def is_readable_file(filepath):
+    return os.path.isfile(filepath) and os.access(filepath, os.R_OK)
 
 
 def get_source_files(paths):
@@ -145,8 +145,8 @@ def find_todo_ids_in_lines(lines):
     return found_ids
 
 
-def find_todo_ids_in_file(file_path):
-    with open(file_path, 'r', encoding='utf8') as fh:
+def find_todo_ids_in_file(filepath):
+    with open(filepath, 'r', encoding='utf8') as fh:
         file_contents = fh.readlines()
 
     return find_todo_ids_in_lines(file_contents)

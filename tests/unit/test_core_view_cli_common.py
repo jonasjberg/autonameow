@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -17,18 +17,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
-from unittest import TestCase, skipIf
+from unittest import TestCase
 from unittest.mock import patch
-
-# TODO: Test behaviour when colorama is missing!
-#       (program still runs but output is not colored)
-try:
-    import colorama
-except ImportError:
-    COLORAMA_IS_NOT_AVAILABLE = True, 'Missing required module "colorama"'
-else:
-    COLORAMA_IS_NOT_AVAILABLE = False, ''
 
 import unit.utils as uu
 from core.view.cli.common import colorize
@@ -41,11 +31,18 @@ from core.view.cli.common import msg_rename
 from core.view.cli.common import _colorize_string_diff
 
 
+class TestColoramaIsAvailable(TestCase):
+    def test_successfully_imported_colorama(self):
+        try:
+            import colorama
+        except ImportError:
+            self.fail('Failed to import vendored module "colorama"')
+
+
 ANSI_RESET_FG = '\x1b[39m'
 ANSI_RESET_BG = '\x1b[49m'
 
 
-@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsg(TestCase):
     def _check_msg(self, *args, **kwargs):
         expected = kwargs.pop('expected')
@@ -126,8 +123,6 @@ class TestMsg(TestCase):
 ''')
 
 
-# NOTE(jonas): This will likely fail on some platforms!
-@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorize(TestCase):
 
     COLORIZE_FOREGROUND_ANSI_LOOKUP = {
@@ -245,8 +240,6 @@ class TestColorize(TestCase):
                               fore='BLUE', back='BLUE')
 
 
-# NOTE(jonas): This will likely fail on some platforms!
-@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestMsgRename(TestCase):
     ANSI_COL_FROM = '\x1b[37m'
     ANSI_COL_DEST = '\x1b[92m'
@@ -598,8 +591,6 @@ OOOOOOOOOOAAAAJM{p}B
                C{p}D               {p}E'''.lstrip('\n'))
 
 
-# NOTE(jonas): This will likely fail on some platforms!
-@skipIf(*COLORAMA_IS_NOT_AVAILABLE)
 class TestColorizeQuoted(TestCase):
     def test_colorize_quoted(self):
         # ANSI_COLOR must match actual color. Currently 'LIGHTGREEN_EX'

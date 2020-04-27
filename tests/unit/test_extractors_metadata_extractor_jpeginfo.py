@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -41,7 +41,7 @@ UNMET_DEPENDENCIES = (
 class TestJpeginfoMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_jpg.jpg')
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -54,7 +54,7 @@ class TestJpeginfoMetadataExtractor(CaseExtractorBasics, TestCase):
 class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_jpg.jpg')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('health', float, 1.0),
         ('is_jpeg', bool, True),
@@ -65,7 +65,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileA(CaseExtractorOutput,
 class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_png.png')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_png.png')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('health', float, 0.66),
         ('is_jpeg', bool, False),
@@ -76,7 +76,7 @@ class TestJpeginfoMetadataExtractorOutputTestFileB(CaseExtractorOutput,
 class TestJpeginfoMetadataExtractorOutputTestFileC(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = JpeginfoMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_txt.txt')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_txt.txt')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('health', float, 0.66),
         ('is_jpeg', bool, False),

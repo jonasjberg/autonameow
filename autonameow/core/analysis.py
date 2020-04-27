@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -22,8 +22,8 @@ import logging
 import analyzers
 from core import logs
 from core import master_provider
-from core import repository
 from core.config.configuration import Configuration
+from core.datastore import repository
 from core.exceptions import AutonameowException
 from core.model import force_meowuri
 from util import sanity
@@ -48,10 +48,8 @@ def _execute_run_queue(analyzer_queue):
     Executes analyzers in the analyzer run queue.
     """
     for i, analyzer_instance in enumerate(analyzer_queue):
-        log.debug('Executing queue item %d/%d: %s',
+        log.debug('Running analyzer (queue item %d/%d): %s',
                   i + 1, len(analyzer_queue), analyzer_instance)
-
-        log.debug('Running Analyzer "%s"', analyzer_instance)
         try:
             with logs.log_runtime(log, str(analyzer_instance)):
                 results = analyzer_instance.run()
@@ -70,7 +68,7 @@ def _execute_run_queue(analyzer_queue):
 
 def request_global_data(fileobject, uri_string):
     # NOTE(jonas): String to MeowURI conversion boundary.
-    sanity.check_internal_string(uri_string)
+    assert isinstance(uri_string, str)
 
     uri = force_meowuri(uri_string)
     if not uri:
@@ -152,7 +150,7 @@ def _start(fileobject, config, analyzers_to_run=None):
 
     # TODO: [TD0126] Remove assertions once "boundaries" are cleaned up.
     sanity.check_isinstance_fileobject(fileobject)
-    sanity.check_isinstance(config, Configuration)
+    assert isinstance(config, Configuration)
 
     all_available_analyzers = analyzers.registry.all_providers
 

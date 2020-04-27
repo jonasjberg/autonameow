@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -22,7 +22,6 @@ import logging
 
 from core import view
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -105,34 +104,30 @@ def meowuri_prompt(message):
     return response
 
 
+def _ask_confirm(message):
+    assert isinstance(message, str)
+
+    response = view.ask_confirm('{!s} [y/n]'.format(message))
+    assert isinstance(response, bool)
+    return response
+
+
 def ask_confirm_use_rule(fileobject, rule):
     # TODO: [TD0171] Separate logic from user interface.
     view.msg(enc.displayable_path(fileobject), style='section')
-    user_response = ask_confirm(
+    user_response = _ask_confirm(
         'Best matched rule "{!s}"'
         '\nProceed with this rule?'.format(rule.description)
     )
     return user_response
 
 
-def ask_confirm(message=None):
-    if message is None:
-        msg = 'Please Confirm (unspecified action)? [y/n]'
-    else:
-        sanity.check_internal_string(message)
-        msg = '{!s}  [y/n]'.format(message)
-
-    response = view.ask_confirm(msg)
-    assert isinstance(response, bool)
-    return response
-
-
 def ask_confirm_rename(from_basename, dest_basename):
-    sanity.check_internal_string(from_basename)
-    sanity.check_internal_string(dest_basename)
+    assert isinstance(from_basename, str)
+    assert isinstance(dest_basename, str)
 
     # TODO: [TD0171] Separate logic from user interface.
     view.msg_possible_rename(from_basename, dest_basename)
-    response = view.ask_confirm('Proceed with rename? [y/n]')
+    response = _ask_confirm('Proceed with rename?')
     assert isinstance(response, bool)
     return response

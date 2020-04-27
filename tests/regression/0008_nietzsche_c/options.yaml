@@ -5,11 +5,11 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/pg38145-images.epub
+  - $SAMPLEFILES/pg38145-images.epub
 list_all: true
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
+automagic: true
+batch: true
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

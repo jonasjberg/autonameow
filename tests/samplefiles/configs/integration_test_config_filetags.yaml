@@ -1,0 +1,33 @@
+DATETIME_FORMAT:
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
+FILESYSTEM_OPTIONS:
+  ignore:
+    - '*.swp'
+    - '*/.*'
+  sanitize_filename: true
+  sanitize_strict: false
+FILETAGS_OPTIONS:
+  between_tag_separator: ' '
+  filename_tag_separator: ' -- '
+NAME_TEMPLATES:
+  default_book: '{publisher} {title} {edition} - {author} {datetime}.{extension}'
+  default_document: '{title} - {author} {datetime}.{extension}'
+  default_photo: '{datetime} {description} -- {tags}.{extension}'
+RULES:
+  Filetags cleanup:
+    CONDITIONS:
+      extractor.metadata.filetags.follows_filetags_convention: true
+      extractor.filesystem.xplat.extension: '(txt|md)'
+      extractor.filesystem.xplat.mime_type: 'text/*'
+    DATA_SOURCES:
+      datetime: extractor.metadata.filetags.datetime
+      extension: extractor.filesystem.xplat.mime_type
+      description: extractor.metadata.filetags.description
+      tags: extractor.metadata.filetags.tags
+    NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
+    exact_match: true
+    ranking_bias: 1
+COMPATIBILITY:
+  autonameow_version: v0.5.7

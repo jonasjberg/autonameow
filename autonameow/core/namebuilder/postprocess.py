@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -18,6 +18,7 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 from util import text
+from util.text import regexbatch
 
 
 class FilenamePostprocessor(object):
@@ -52,7 +53,7 @@ class FilenamePostprocessor(object):
 
     @staticmethod
     def _do_replacements(filename, regex_replacement_tuples):
-        return text.batch_regex_replace(regex_replacement_tuples, filename)
+        return regexbatch.replace(regex_replacement_tuples, filename)
 
     @staticmethod
     def _do_simplify_unicode(filename):

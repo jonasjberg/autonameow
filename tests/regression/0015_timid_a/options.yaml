@@ -5,12 +5,12 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/magic_txt
+  - $SAMPLEFILES/magic_txt
 list_all: false
-mode_automagic: true
-mode_batch: true
-mode_interactive: false
-mode_timid: true
+automagic: true
+batch: true
+interactive: false
+timid: true
 quiet: false
 recurse_paths: false
 show_version: false

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,7 +19,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import sys
 import time
 
 from core import config
@@ -31,8 +30,8 @@ from core import interactive
 from core import logs
 from core import master_provider
 from core import persistence
-from core import repository
 from core.context import FileContext
+from core.datastore import repository
 from core.namebuilder import FilenamePostprocessor
 from core.renamer import FileRenamer
 from util import disk
@@ -69,7 +68,7 @@ class Autonameow(object):
 
         self.renamer = file_renamer(
             dry_run=self.opts.get('dry_run'),
-            timid=self.opts.get('mode_timid')
+            timid=self.opts.get('timid')
         )
 
         self._exit_code = C.EXIT_SUCCESS
@@ -80,6 +79,13 @@ class Autonameow(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._dispatch_event_on_shutdown()
+
+        if self.opts and self.opts.get('verbose'):
+            self.ui.print_exit_info(self.exit_code, self.runtime_seconds)
+
+        logs.log_previously_logged_runtimes(log)
+        log.debug('Exiting with exit code: %d', self.exit_code)
+        log.debug('Total execution time: %.6f seconds', self.runtime_seconds)
 
     def _dispatch_event_on_startup(self):
         # Send "global" startup call to all registered listeners.
@@ -100,26 +106,38 @@ class Autonameow(object):
         # Display startup banner with program version and exit.
         if self.opts.get('show_version'):
             self.ui.print_version_info(verbose=self.opts.get('verbose'))
-            self.exit_program(C.EXIT_SUCCESS)
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         # Check the configuration file.
         # If a specific config path was not passed in with the options
         # and no config file is found in the OS-specific default paths,
         # write the default "example" config, tell the user and exit.
-        if self.opts.get('config_path'):
-            self._load_config_from_options_config_path()
+
+        # TODO: This is broken! Instead, always use the default config and then
+        #       merge and override with settings from the user-provided config.
+        opts_config_path = self.opts.get('config_path')
+        if opts_config_path:
+            loaded_config = self._load_config_from_path(opts_config_path)
         else:
             filepath_default_config = persistence.DefaultConfigFilePath
             if persistence.has_config_file():
-                self._load_config_from_path(filepath_default_config)
+                loaded_config = self._load_config_from_path(filepath_default_config)
             else:
                 log.info('No configuration file was found.')
-                self._write_example_config_to_path(filepath_default_config)
-                self.exit_program(C.EXIT_SUCCESS)
+                if self._write_example_config_to_path(filepath_default_config):
+                    self.exit_code = C.EXIT_SUCCESS
+                    return self.exit_code
+                else:
+                    self.exit_code = C.EXIT_ERROR
+                    return self.exit_code
 
-        if not self.config:
+        if not loaded_config:
             log.critical('Unable to load configuration --- Aborting ..')
-            self.exit_program(C.EXIT_ERROR)
+            self.exit_code = C.EXIT_ERROR
+            return self.exit_code
+
+        self.config = loaded_config
 
         # Dispatch configuration change event.
         config.set_global_configuration(self.config)
@@ -129,7 +147,10 @@ class Autonameow(object):
 
         if self.opts.get('dump_config'):
             # TODO: [TD0148] Fix '!!python/object' in '--dump-config' output.
-            self._dump_active_config_and_exit()
+            self.ui.msg('Active Configuration:', style='heading')
+            self.ui.msg(str(self.config))
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         if self.opts.get('dump_meowuris'):
             self._dump_registered_meowuris()
@@ -146,14 +167,20 @@ class Autonameow(object):
         # Abort if input paths are missing.
         if not self.opts.get('input_paths'):
             log.warning('No input files specified ..')
-            self.exit_program(C.EXIT_SUCCESS)
+            self.exit_code = C.EXIT_SUCCESS
+            return self.exit_code
 
         # Path name encoding boundary. Returns list of paths in internal format.
         files_to_process = self._collect_paths_from_opts()
         log.info('Got %d files to process', len(files_to_process))
 
         # Handle any input paths/files.
-        self._handle_files(files_to_process)
+        try:
+            self._handle_files(files_to_process)
+        except KeyboardInterrupt:
+            # TODO: [TD0202] Handle signals and graceful shutdown properly!
+            print('Caught KeyboardInterrupt in Autonameow._handle_files()')
+            pass
 
         stats = 'Processed {t} files. Renamed {r}  Skipped {s}  ' \
                 'Failed {f}'.format(t=len(files_to_process),
@@ -162,7 +189,7 @@ class Autonameow(object):
                                     f=self.renamer.stats['failed'])
         log.info(stats)
 
-        self.exit_program(self.exit_code)
+        return self.exit_code
 
     def _collect_paths_from_opts(self):
         path_collector = disk.PathCollector(
@@ -176,18 +203,11 @@ class Autonameow(object):
 
         return list(path_collector.filepaths)
 
-    @logs.log_func_runtime(log)
-    def load_config(self, path):
-        try:
-            self.config = persistence.load_config_from_file(path)
-        except exceptions.ConfigError as e:
-            log.critical('Unable to load configuration --- %s', e)
-
     def _dump_options(self):
         filepath_config = persistence.get_config_persistence_path()
         filepath_default_config = persistence.DefaultConfigFilePath
         include_opts = {
-            'config_file_path': '"{!s}"'.format(
+            'config_filepath': '"{!s}"'.format(
                 enc.displayable_path(filepath_default_config)
             ),
             'cache_directory_path': '"{!s}"'.format(
@@ -195,11 +215,6 @@ class Autonameow(object):
             )
         }
         self.ui.options.prettyprint_options(self.opts, include_opts)
-
-    def _dump_active_config_and_exit(self):
-        self.ui.msg('Active Configuration:', style='heading')
-        self.ui.msg(str(self.config))
-        self.exit_program(C.EXIT_SUCCESS)
 
     def _dump_registered_meowuris(self):
         if self.opts.get('verbose'):
@@ -225,14 +240,13 @@ class Autonameow(object):
 
         self.ui.msg('\n')
 
+    @logs.log_func_runtime(log)
     def _load_config_from_path(self, filepath):
-        str_filepath = enc.displayable_path(filepath)
-        log.info('Using configuration: "%s"', str_filepath)
-        self.load_config(filepath)
-
-    def _load_config_from_options_config_path(self):
-        filepath = self.opts.get('config_path')
-        self._load_config_from_path(filepath)
+        log.info('Using configuration: "%s"', enc.displayable_path(filepath))
+        try:
+            return persistence.load_config_from_file(filepath)
+        except exceptions.ConfigError as e:
+            log.critical('Unable to load configuration --- %s', e)
 
     def _write_example_config_to_path(self, filepath):
         str_filepath = enc.displayable_path(filepath)
@@ -241,12 +255,13 @@ class Autonameow(object):
         except exceptions.ConfigError as e:
             log.critical('Unable to write template configuration file to path: '
                          '"%s" --- %s', str_filepath, e)
-            self.exit_program(C.EXIT_ERROR)
+            return False
 
         message = 'Wrote default configuration file to "{!s}"'.format(str_filepath)
         self.ui.msg(message, style='info')
+        return True
 
-    def _handle_files(self, file_paths):
+    def _handle_files(self, filepaths_to_handle):
         """
         Main loop. Iterate over input paths/files.
         Assume all state is setup and completely reset for each loop iteration.
@@ -256,22 +271,22 @@ class Autonameow(object):
 
         should_list_all = self.opts.get('list_all')
 
-        for file_path in file_paths:
-            str_file_path = enc.displayable_path(file_path)
-            log.info('Processing: "%s"', str_file_path)
+        for filepath in filepaths_to_handle:
+            str_filepath = enc.displayable_path(filepath)
+            log.info('Processing: "%s"', str_filepath)
 
             try:
-                current_file = FileObject(file_path)
+                current_file = FileObject(filepath)
             except (exceptions.InvalidFileArgumentError,
                     exceptions.FilesystemError) as e:
-                log.warning('%s --- SKIPPING: "%s"', e, str_file_path)
+                log.warning('%s --- SKIPPING: "%s"', e, str_filepath)
                 continue
 
             if should_list_all:
                 log.debug('Calling provider.delegate_every_possible_meowuri()')
                 master_provider.delegate_every_possible_meowuri(current_file)
 
-            if self.opts.get('mode_postprocess_only'):
+            if self.opts.get('postprocess_only'):
                 new_name = str(current_file)
             else:
                 context = FileContext(
@@ -285,7 +300,7 @@ class Autonameow(object):
                 try:
                     new_name = context.find_new_name()
                 except exceptions.AutonameowException as e:
-                    log.critical('%s --- SKIPPING: "%s"', e, str_file_path)
+                    log.critical('%s --- SKIPPING: "%s"', e, str_filepath)
                     self.exit_code = C.EXIT_WARNING
                     continue
 
@@ -357,27 +372,6 @@ class Autonameow(object):
     def runtime_seconds(self):
         return time.time() - self.start_time
 
-    def exit_program(self, exit_code_value):
-        """
-        Main program exit point.  Shuts down this autonameow instance/session.
-
-        Args:
-            exit_code_value: Integer exit code to pass to the parent process.
-                Indicate success with 0, failure non-zero.
-        """
-        self.exit_code = exit_code_value
-
-        elapsed_time = self.runtime_seconds
-        if self.opts and self.opts.get('verbose'):
-            self.ui.print_exit_info(self.exit_code, elapsed_time)
-
-        logs.log_previously_logged_runtimes(log)
-        log.debug('Exiting with exit code: %d', self.exit_code)
-        log.debug('Total execution time: %.6f seconds', elapsed_time)
-
-        self._dispatch_event_on_shutdown()
-        sys.exit(self.exit_code)
-
     @property
     def exit_code(self):
         """
@@ -411,34 +405,34 @@ def check_option_combinations(options):
 
     # TODO: [cleanup] This is pretty messy ..
     # Check legality of option combinations.
-    if opts.get('mode_automagic') and opts.get('mode_interactive'):
+    if opts.get('automagic') and opts.get('interactive'):
         log.warning('Operating mode must be either one of "automagic" or '
                     '"interactive", not both. Reverting to default: '
                     '[interactive mode].')
-        opts['mode_automagic'] = False
-        opts['mode_interactive'] = True
+        opts['automagic'] = False
+        opts['interactive'] = True
 
-    if opts.get('mode_batch'):
-        if opts.get('mode_interactive'):
+    if opts.get('batch'):
+        if opts.get('interactive'):
             log.warning('Operating mode "batch" can not be used with '
                         '"interactive".  Disabling "interactive"..')
-            opts['mode_interactive'] = False
+            opts['interactive'] = False
 
-    if opts.get('mode_interactive'):
-        if opts.get('mode_timid'):
+    if opts.get('interactive'):
+        if opts.get('timid'):
             log.warning('Operating mode "interactive" implies "timid". '
                         'Disabling "timid"..')
-            opts['mode_timid'] = False
+            opts['timid'] = False
 
-    if opts.get('mode_postprocess_only'):
+    if opts.get('postprocess_only'):
         # Do not figure out a new name; do "post-processing" on existing.
-        if opts.get('mode_automagic'):
+        if opts.get('automagic'):
             log.warning('Operating mode "automagic" can not be used with '
                         '"post-process only". Disabling "automagic".')
-            opts['mode_automagic'] = False
-        if opts.get('mode_interactive'):
+            opts['automagic'] = False
+        if opts.get('interactive'):
             log.warning('Operating mode "interactive" can not be used with '
                         '"post-process only". Disabling "interactive".')
-            opts['mode_interactive'] = False
+            opts['interactive'] = False
 
     return opts

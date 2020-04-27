@@ -2,7 +2,7 @@
 
 # 'meowxtract.sh' -- Stand-alone autonameow Content Extraction
 # ============================================================
-# Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+# Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 # Source repository: https://github.com/jonasjberg/autonameow
 # _____________________________________________________________________________
 #
@@ -24,7 +24,7 @@
 set -o nounset -o pipefail
 
 # Make sure that Python 3 is available.
-if ! command -v python3 >/dev/null 2>&1
+if ! command -v python3 &>/dev/null
 then
     cat >&2 <<EOF
 
@@ -50,13 +50,6 @@ EOF
 esac
 
 
-# NOTE: The version of readlink shipped with MacOS does not have the '-f'
-#       option. Description from the "readlink (GNU coreutils) 8.25" manpage:
-#
-#       -f, --canonicalize
-#       canonicalize by following every symlink in every component of
-#       the given name recursively; all but the last component must exist
-#
 if readlink --version 2>/dev/null | grep -q 'GNU coreutils'
 then
     # Using GNU coreutils version of readlink.
@@ -65,7 +58,7 @@ then
 else
     # Not using GNU coreutils readlink or readlink is not available.
     self_abspath="$(python -c "import os; print(os.path.realpath(os.path.join(\"$0\", os.pardir)))")"
-    AUTONAMEOW_PATH="$(dirname -- "${self_abspath}")"
+    AUTONAMEOW_PATH="$(dirname -- "$self_abspath")"
 fi
 
 

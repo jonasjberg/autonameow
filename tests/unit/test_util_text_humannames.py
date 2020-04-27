@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,9 +20,9 @@
 import itertools
 import unittest
 from collections import namedtuple
-from unittest import skipIf, TestCase
+from unittest import TestCase
 
-from thirdparty import nameparser as _nameparser
+import nameparser
 from util.text.humannames import filter_multiple_names
 from util.text.humannames import filter_name
 from util.text.humannames import format_name
@@ -67,7 +67,7 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Bertrand Russell', expect='Russell B.'),
 
     # First, compound last
-    TD(given='Do van Thanh', expect='vanThanh D.'),
+    TD(given='Do van Thanh', expect='Thanh D.v.'),
     TD(given='David Simchi-Levi', expect='Simchi-Levi D.'),
 
     # First, middle, last
@@ -113,7 +113,8 @@ TESTDATA_NAME_LASTNAME_INITIALS = [
     TD(given='Awan I.', expect='Awan I.'),
     TD(given='Kryvinska N.', expect='Kryvinska N.'),
     TD(given='Strauss C.', expect='Strauss C.'),
-    TD(given='vanThanh D.', expect='vanThanh D.'),
+    TD(given='vanThanh D.V.', expect='vanThanh D.V.'),
+    TD(given='Thanh D.V.', expect='Thanh D.V.'),
     TD(given='Ziemba W.T.', expect='Ziemba W.T.'),
     TD(given='Vickson R.G.', expect='Vickson R.G.'),
     TD(given='Wei Y.', expect='Wei Y.'),
@@ -155,7 +156,7 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
 
     TD(given=['Muhammad Younas', 'Irfan Awan', 'Natalia Kryvinska',
               'Christine Strauss', 'Do van Thanh'],
-       expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'vanThanh D.',
+       expect=['Awan I.', 'Kryvinska N.', 'Strauss C.', 'Thanh D.v.',
                'Younas M.']),
 
     TD(given=['William T. Ziemba', 'Raymond G. Vickson'],
@@ -235,10 +236,6 @@ TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS = [
        expect=['Swamy M.N.S.']),
 
 ]
-
-
-def nameparser_unavailable():
-    return _nameparser is None, 'Failed to import "thirdparty.nameparser"'
 
 
 class TeststripAuthorEtAl(TestCase):
@@ -429,14 +426,13 @@ class TestNormalizeLetterCase(TestCase):
 
 class TestNameParser(TestCase):
     def test_thirdparty_nameparser_is_available(self):
-        self.assertIsNotNone(_nameparser)
+        self.assertIsNotNone(nameparser)
 
     def test__parse_name_returns_expected_type_given_single_word_name(self):
         actual = _parse_name('foo')
         self.assertIsInstance(actual, dict)
 
 
-@skipIf(*nameparser_unavailable())
 class TestHumanNameParser(TestCase):
     TESTDATA_FULLNAME_EXPECTED = [
         TD(given=None, expect={}),
@@ -618,12 +614,12 @@ class TestHumanNameFormatter(TestCase):
             _ = self.name_formatter(None)
 
 
-@skipIf(*nameparser_unavailable())
 class TestLastNameInitialsFormatter(TestCase):
     def test_formats_full_human_names(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
-            actual = format_name(given, formatter=LastNameInitialsFormatter)
-            self.assertEqual(expect, actual)
+            with self.subTest(given=given, expect=expect):
+                actual = format_name(given, formatter=LastNameInitialsFormatter)
+                self.assertEqual(expect, actual)
 
     def test_raises_exception_given_byte_strings(self):
         with self.assertRaises(AssertionError):
@@ -642,7 +638,6 @@ class TestLastNameInitialsFormatter(TestCase):
         _aE('\t ')
 
 
-@skipIf(*nameparser_unavailable())
 class TestFormatName(TestCase):
     def test_formats_full_name_with_default_formatter(self):
         for given, expect in TESTDATA_NAME_LASTNAME_INITIALS:
@@ -662,7 +657,6 @@ class TestFormatName(TestCase):
             self.assertEqual(expect, actual)
 
 
-@skipIf(*nameparser_unavailable())
 class TestFormatNameList(TestCase):
     def test_formats_list_of_full_human_names_with_default_formatter(self):
         for given, expect in TESTDATA_LIST_OF_NAMES_LASTNAME_INITIALS:
@@ -792,6 +786,13 @@ class TestSplitMultipleNames(TestCase):
         self._assert_unchanged(['Foobar, S.', 'Paul, Baz', 'Gibson, N.'])
         self._assert_unchanged(['Foobar, S.', 'Paul, Baz'])
         self._assert_unchanged(['Paul, Baz', 'Gibson, N.'])
+        self._assert_unchanged(['Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt'])
+
+    @unittest.expectedFailure
+    def test_does_not_split_names_with_some_name_parts_separated_by_comma(self):
+        self._assert_unchanged(['Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt',
+                                'Carl Jewett',
+                                'Jonathan Sullivan'])
 
     def test_splits_two_names_separated_by_ampersand(self):
         self._assert_that_it_returns(
@@ -1323,4 +1324,30 @@ class PreProcessNames(TestCase):
                 ['Kubasiek, John R.;', 'Morrissey, Steven.;', 'Basilone, John.'],
                 ['Kubasiek, John R.', ';Morrissey, Steven.', ';Basilone, John.'],
             ]
+        )
+
+    @unittest.expectedFailure
+    def test_duplicate_names(self):
+        # TODO: Improve splitting and/or remove duplicates.
+        self._assert_preprocess_names_returns(
+            expected=['Sullivan J.', 'Jewett C.', 'Hibbs K.'],
+            given=[
+                'Sullivan, Jonathan, Jewett, Carl, Hibbs, Kurt',
+                'Carl Jewett',
+                'Jonathan Sullivan',
+            ]
+        )
+
+    def test_duplicated_names_with_slight_variations(self):
+        self._assert_preprocess_names_returns(
+            expected=['Dan K. Barrett', 'Dan K Barrett', 'Ken F. Silverman', 'Ken Silverman'],
+            given=['Dan K. Barrett', 'Dan K.. Barrett', 'Ken F. Silverman', 'Ken Silverman']
+        )
+
+    @unittest.expectedFailure
+    def test_duplicated_names_with_slight_variations_are_deduplicated(self):
+        # TODO: Improve splitting and/or remove duplicates.
+        self._assert_preprocess_names_returns(
+            expected=['Dan K. Barrett', 'Ken F. Silverman'],
+            given=['Dan K. Barrett', 'Dan K.. Barrett', 'Ken F. Silverman', 'Ken Silverman']
         )

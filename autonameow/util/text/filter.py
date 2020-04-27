@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -18,8 +18,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-
-from util import sanity
 
 
 # TODO: [TD0034] All filtering must be (re-)designed.
@@ -86,7 +84,8 @@ class RegexFilter(object):
 
         regexes = set()
         for expression in expressions:
-            sanity.check_internal_string(expression)
+            assert isinstance(expression, str)
+
             if expression in self._seen_expressions:
                 # Can't do de-duplication by adding compiled regexes to a set ..
                 continue

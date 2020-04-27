@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -52,32 +52,25 @@ def _get_autonameow(*args, **kwargs):
 
 
 @skipIf(*prompt_toolkit_unavailable())
-class TestAutonameowWithoutOptions(TestCase):
-    @patch('core.autonameow.Autonameow.exit_program', MagicMock())
+class TestAutonameow(TestCase):
     @patch('core.autonameow.master_provider', MagicMock())
     def test_instantiated_instance_is_not_none(self):
         instance = _get_autonameow()
         self.assertIsNotNone(instance)
 
-    @patch('core.autonameow.Autonameow.exit_program')
-    @patch('core.autonameow.master_provider', MagicMock())
-    def test_instantiated_does_not_call_exit_program(self, exit_program_mock):
-        _ = _get_autonameow()
-        exit_program_mock.assert_not_called()
-
     # TODO: [cleanup] This much mocking indicates poor design choices ..
     @patch('core.master_provider._initialize_master_data_provider', MagicMock())
     @patch('core.master_provider.Registry')
-    @patch('core.autonameow.Autonameow.exit_program')
     @patch('core.autonameow.master_provider', MagicMock())
-    def test_exit_program_called_after_running_context(
-            self, exit_program_mock, mock_registry
+    def test_returns_exit_code_success(
+            self, mock_registry
     ):
         mock_registry.might_be_resolvable.return_value = True
 
         with _get_autonameow() as a:
-            a.run()
-        exit_program_mock.assert_called_with(C.EXIT_SUCCESS)
+            exitcode = a.run()
+
+        self.assertEqual(C.EXIT_SUCCESS, exitcode)
 
 
 class TestCheckOptionCombinations(TestCase):
@@ -91,158 +84,145 @@ class TestCheckOptionCombinations(TestCase):
 
     def test_valid_user_interaction_combination(self):
         self._check_options(
-            given={'mode_batch': False,
-                   'mode_interactive': False},
-            expect={'mode_batch': False,
-                    'mode_interactive': False}
+            given={'batch': False,
+                   'interactive': False},
+            expect={'batch': False,
+                    'interactive': False}
         )
         self._check_options(
-            given={'mode_batch': True,
-                   'mode_interactive': False},
-            expect={'mode_batch': True,
-                    'mode_interactive': False}
+            given={'batch': True,
+                   'interactive': False},
+            expect={'batch': True,
+                    'interactive': False}
         )
         self._check_options(
-            given={'mode_batch': False,
-                   'mode_interactive': True},
-            expect={'mode_batch': False,
-                    'mode_interactive': True}
+            given={'batch': False,
+                   'interactive': True},
+            expect={'batch': False,
+                    'interactive': True}
         )
 
     def test_illegal_user_interaction_combination(self):
         # Only "batch" is a no-op
         self._check_options(
-            given={'mode_batch': True,
-                   'mode_interactive': False,
-                   'mode_timid': False},
-            expect={'mode_batch': True,
-                    'mode_interactive': False,
-                    'mode_timid': False}
+            given={'batch': True,
+                   'interactive': False,
+                   'timid': False},
+            expect={'batch': True,
+                    'interactive': False,
+                    'timid': False}
         )
         # Mode "batch" disables "interactive"
         self._check_options(
-            given={'mode_batch': True,
-                   'mode_interactive': True,
-                   'mode_timid': False},
-            expect={'mode_batch': True,
-                    'mode_interactive': False,
-                    'mode_timid': False}
+            given={'batch': True,
+                   'interactive': True,
+                   'timid': False},
+            expect={'batch': True,
+                    'interactive': False,
+                    'timid': False}
         )
         # Mode "batch" should not affect "timid"
         self._check_options(
-            given={'mode_batch': True,
-                   'mode_interactive': False,
-                   'mode_timid': True},
-            expect={'mode_batch': True,
-                    'mode_interactive': False,
-                    'mode_timid': True}
+            given={'batch': True,
+                   'interactive': False,
+                   'timid': True},
+            expect={'batch': True,
+                    'interactive': False,
+                    'timid': True}
         )
         self._check_options(
-            given={'mode_batch': True,
-                   'mode_interactive': True,
-                   'mode_timid': True},
-            expect={'mode_batch': True,
-                    'mode_interactive': False,
-                    'mode_timid': True}
+            given={'batch': True,
+                   'interactive': True,
+                   'timid': True},
+            expect={'batch': True,
+                    'interactive': False,
+                    'timid': True}
         )
         # Mode "interactive" is basically a superset of "timid"
         self._check_options(
-            given={'mode_batch': False,
-                   'mode_interactive': True,
-                   'mode_timid': True},
-            expect={'mode_batch': False,
-                    'mode_interactive': True,
-                    'mode_timid': False}
+            given={'batch': False,
+                   'interactive': True,
+                   'timid': True},
+            expect={'batch': False,
+                    'interactive': True,
+                    'timid': False}
         )
 
     def test_user_interaction_and_operating_mode_combination(self):
         self._check_options(
-            given={'mode_automagic': False,
-                   'mode_batch': False},
-            expect={'mode_automagic': False,
-                    'mode_batch': False}
+            given={'automagic': False,
+                   'batch': False},
+            expect={'automagic': False,
+                    'batch': False}
         )
         self._check_options(
-            given={'mode_automagic': True,
-                   'mode_batch': False},
-            expect={'mode_automagic': True,
-                    'mode_batch': False}
+            given={'automagic': True,
+                   'batch': False},
+            expect={'automagic': True,
+                    'batch': False}
         )
         self._check_options(
-            given={'mode_automagic': False,
-                   'mode_batch': True},
-            expect={'mode_automagic': False,
-                    'mode_batch': True}
+            given={'automagic': False,
+                   'batch': True},
+            expect={'automagic': False,
+                    'batch': True}
         )
 
     def test_postprocess_only(self):
         self._check_options(
             given={
-                'mode_automagic': False,
-                'mode_batch': False,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': False,
+                'postprocess_only': True
             },
             expect={
-                'mode_automagic': False,
-                'mode_batch': False,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': False,
+                'postprocess_only': True
             }
         )
 
     def test_postprocess_only_combined_with_batch_is_valid(self):
         self._check_options(
             given={
-                'mode_automagic': False,
-                'mode_batch': True,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': True,
+                'postprocess_only': True
             },
             expect={
-                'mode_automagic': False,
-                'mode_batch': True,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': True,
+                'postprocess_only': True
             }
         )
 
     def test_illegal_postprocess_only_and_automagic_combination(self):
         self._check_options(
             given={
-                'mode_automagic': True,
-                'mode_batch': False,
-                'mode_postprocess_only': True
+                'automagic': True,
+                'batch': False,
+                'postprocess_only': True
             },
             expect={
-                'mode_automagic': False,
-                'mode_batch': False,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': False,
+                'postprocess_only': True
             }
         )
 
     def test_illegal_batch_postprocess_only_and_automagic_combination(self):
         self._check_options(
             given={
-                'mode_automagic': True,
-                'mode_batch': True,
-                'mode_postprocess_only': True
+                'automagic': True,
+                'batch': True,
+                'postprocess_only': True
             },
             expect={
-                'mode_automagic': False,
-                'mode_batch': True,
-                'mode_postprocess_only': True
+                'automagic': False,
+                'batch': True,
+                'postprocess_only': True
             }
         )
-
-
-class TestAutonameowContextManagementProtocol(TestCase):
-    # TODO: [cleanup] This much mocking indicates poor design choices ..
-    @patch('core.autonameow.master_provider', MagicMock())
-    @patch('core.master_provider._initialize_master_data_provider', MagicMock())
-    @patch('core.master_provider.Registry')
-    def test_with_statement(self, mock_registry):
-        mock_registry.might_be_resolvable.return_value = True
-        Autonameow.exit_program = MagicMock()
-
-        with _get_autonameow() as ameow:
-            ameow.run()
 
 
 class TestAutonameowHash(TestCase):

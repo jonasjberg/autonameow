@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,10 +20,9 @@
 import os
 
 from util import encoding as enc
-from util import sanity
 
 
-COMPOUND_SUFFIX_LAST_PARTS = [
+COMPOUND_SUFFIX_TAILS = frozenset([
     b'.7z',
     b'.bz2',
     b'.gz',
@@ -38,10 +37,12 @@ COMPOUND_SUFFIX_LAST_PARTS = [
     b'.z',
     b'.zip',
     b'.zipx',
-]
+])
+
+EMPTY_FILENAME_PART = b''
 
 
-def split_basename(file_path):
+def split_basename(filepath):
     """
     Splits the basename of the specified path into two parts.
 
@@ -55,33 +56,31 @@ def split_basename(file_path):
     leftmost part (basename) is called the "prefix".
 
     Args:
-        file_path (bytes): The path name to split as an "internal bytestring".
+        filepath (bytes): The path name to split as an "internal bytestring".
 
     Returns:
-        The basename of the given path split into two parts,
-        as a tuple of bytestrings.
-
-    Raises:
-        EncodingBoundaryViolation: Given arguments are not bytestrings.
+        The basename of the given path split into two parts, as a tuple of
+        bytestrings. Empty parts are substituted with EMPTY_FILENAME_PART.
     """
-    sanity.check_internal_bytestring(file_path)
+    assert isinstance(filepath, bytes)
 
-    prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(file_path)))
+    prefix, suffix = os.path.splitext(os.path.basename(enc.syspath(filepath)))
     prefix = enc.bytestring_path(prefix)
     suffix = enc.bytestring_path(suffix)
 
     # Split "prefix" twice to make compound suffix out of the two extensions.
-    if suffix.lower() in COMPOUND_SUFFIX_LAST_PARTS:
+    if suffix.lower() in COMPOUND_SUFFIX_TAILS:
         suffix = os.path.splitext(prefix)[1] + suffix
         prefix = os.path.splitext(prefix)[0]
 
-    suffix = suffix.lstrip(b'.')
-    if suffix and suffix.strip():
+    suffix = suffix.lstrip(b'.').strip()
+    if suffix:
         return prefix, suffix
-    return prefix, None
+
+    return prefix, EMPTY_FILENAME_PART
 
 
-def basename_suffix(file_path, make_lowercase=True):
+def basename_suffix(filepath, make_lowercase=True):
     """
     Returns the "suffix" or file extension of the basename, for a given file.
 
@@ -92,25 +91,25 @@ def basename_suffix(file_path, make_lowercase=True):
           "suffix", 'tar.gz' and not just the conventional extension 'gz'.
 
     Args:
-        file_path (bytes): Path from which to get the full "suffix", I.E.
-                           the file extension part of the basename, with special
-                           treatment of compound file extensions.
+        filepath (bytes): Path from which to get the full "suffix", I.E.
+                          the file extension part of the basename, with special
+                          treatment of compound file extensions.
 
         make_lowercase (bool): Whether to convert the suffix to lower case
                                before returning it. Defaults to True.
 
     Returns:
         The "suffix" or compound file extension for the given path as a
-        "internal bytestring".  None is returned if it is not present.
+        "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
-    _, suffix = split_basename(file_path)
+    _, suffix = split_basename(filepath)
     if suffix and make_lowercase:
         suffix = suffix.lower()
 
-    return suffix if suffix else None
+    return suffix if suffix else EMPTY_FILENAME_PART
 
 
-def basename_prefix(file_path):
+def basename_prefix(filepath):
     """
     Returns the basename _without_ any extension ("suffix"), for a given file.
 
@@ -119,15 +118,15 @@ def basename_prefix(file_path):
     or extension, not to be included in the output.
 
     Args:
-        file_path (bytes): Path to the file from which to get the "prefix",
-                           I.E. the basename without the extension ("suffix").
+        filepath (bytes): Path to the file from which to get the "prefix",
+                          I.E. the basename without the extension ("suffix").
 
     Returns:
         The basename of the specified path, without any extension ("suffix"),
-        as a "internal bytestring".  None is returned if it is not present.
+        as a "internal bytestring" or EMPTY_FILENAME_PART if it is not present.
     """
-    prefix, _ = split_basename(file_path)
-    return prefix if prefix else None
+    prefix, _ = split_basename(filepath)
+    return prefix if prefix else EMPTY_FILENAME_PART
 
 
 def compare_basenames(basename_one, basename_two):
@@ -140,72 +139,7 @@ def compare_basenames(basename_one, basename_two):
 
     Returns (bool):
         True if the basenames are equal, otherwise False.
-
-    Raises:
-        ValueError: Any of the arguments is None.
-        EncodingBoundaryViolation: Any argument is not of type bytes.
     """
-    if None in (basename_one, basename_two):
-        raise ValueError('Expected two non-None bytestrings')
-
-    sanity.check_internal_bytestring(basename_one)
-    sanity.check_internal_bytestring(basename_two)
+    assert all(x is not None and isinstance(x, bytes)
+               for x in (basename_one, basename_two))
     return bool(basename_one == basename_two)
-
-
-def path_ancestry(path):
-    """
-    Return a list consisting of path's parent directory, its grandparent,
-    and so on. For instance:
-
-       >>> path_ancestry('/a/b/c')
-       ['/', '/a', '/a/b']
-
-    NOTE:  This function is based on code from the "beets" project.
-           Source repo: https://github.com/beetbox/beets
-           Source file: 'beets/util/__init__.py'
-           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
-    """
-    out = list()
-
-    last_path = None
-    while path:
-        path = os.path.dirname(path)
-
-        if path == last_path:
-            break
-        last_path = path
-
-        if path:
-            out.insert(0, path)
-
-    return out
-
-
-def path_components(path):
-    """
-    Return a list of the path components for a given path. For instance:
-
-       >>> path_components('/a/b/c')
-       ['a', 'b', 'c']
-
-    NOTE:  This function is based on code from the "beets" project.
-           Source repo: https://github.com/beetbox/beets
-           Source file: 'beets/util/__init__.py'
-           Commit hash: b38f34b2c06255f1c51e8714c8af6962e297a3c5
-    """
-    out = list()
-
-    ancestors = path_ancestry(path)
-    for anc in ancestors:
-        comp = os.path.basename(anc)
-        if comp:
-            out.append(comp)
-        else:  # root
-            out.append(anc)
-
-    last = os.path.basename(path)
-    if last:
-        out.append(last)
-
-    return out

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,10 +19,10 @@
 
 import datetime
 import logging
+import re
 
 from core import exceptions
 from util import coercers
-from util import sanity
 from util import text
 
 
@@ -82,7 +82,7 @@ class _Title(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
@@ -95,9 +95,11 @@ class _Title(NameTemplateField):
         else:
             str_value = value
 
-        sanity.check_internal_string(str_value)
-        formatted_value = str_value.strip(',.:;-_ ')
+        assert isinstance(str_value, str)
         # TODO: [TD0036] Allow per-field replacements and customization.
+        # TODO: [TD0043] Allow the user to tweak hardcoded settings.
+        formatted_value = str_value.strip(',.:;-_ ')
+        formatted_value = re.sub(r'\.', '', formatted_value)
         return formatted_value
 
 
@@ -113,7 +115,7 @@ class _Edition(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if coercer in (coercers.AW_PATHCOMPONENT, coercers.AW_PATH):
             str_value = coercers.force_string(value)
@@ -128,7 +130,7 @@ class _Edition(NameTemplateField):
                 'Got incompatible data: {!r}'.format(databundle)
             )
 
-        sanity.check_internal_string(str_value)
+        assert isinstance(str_value, str)
         # TODO: [TD0036] Allow per-field replacements and customization.
         formatted_value = '{}E'.format(str_value)
         return formatted_value
@@ -146,7 +148,7 @@ class _Extension(NameTemplateField):
         # TODO: [TD0129] Data validation at this point should be made redundant
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         if not value:
             # Might be 'NullMIMEType', which evaluates False here.
@@ -176,13 +178,13 @@ class _Author(NameTemplateField):
         # TODO: [TD0036] Allow per-field replacements and customization.
         value = databundle.value
         coercer = databundle.coercer
-        sanity.check_isinstance(coercer, coercers.BaseCoercer)
+        assert isinstance(coercer, coercers.BaseCoercer)
 
         # TODO: Coercer references that are passed around are class INSTANCES!
         # TODO: [hack] Fix 'coercers.listof()' expects classes!
         coercer = coercers.listof(coercer)
         str_list_value = coercer(value)
-        sanity.check_isinstance(str_list_value, list)
+        assert isinstance(str_list_value, list)
 
         # TODO: [TD0129] Data validation at this point should be made redundant
         if any(not s.strip() for s in str_list_value):
@@ -192,7 +194,7 @@ class _Author(NameTemplateField):
             )
         formatted_names = list()
         for author in str_list_value:
-            sanity.check_internal_string(author)
+            assert isinstance(author, str)
             formatted_names.append(text.format_name(author))
 
         formatted_value = ' '.join(sorted(formatted_names))
@@ -292,26 +294,9 @@ class _Publisher(NameTemplateField):
 
     @classmethod
     def format(cls, databundle, *args, **kwargs):
+        formatted_value = coercers.force_string(databundle.value)
+
         # TODO: [TD0036] Allow per-field replacements and customization.
-
-        candidates = dict()
-
-        # TODO: [TD0174] Don't do field value replacements here!
-        c = kwargs.get('config')
-        if c:
-            name_template_field_options = c.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-            if name_template_field_options:
-                candidates = name_template_field_options.get('candidates', {})
-
-        # TODO: [TD0152] Fix too many replacements applied? Stop after first?
-        value = databundle.value
-        sanity.check_internal_string(value)
-
-        formatted_value = value
-        for replacement, patterns in candidates.items():
-            for pattern in patterns:
-                formatted_value = pattern.sub(replacement, formatted_value)
-
         return formatted_value
 
 
@@ -328,9 +313,9 @@ class _Tags(NameTemplateField):
         str_list_value = coercers.listof(coercers.AW_STRING)(value)
 
         # TODO: [TD0129] Is this kind of double-double-check really necessary..?
-        sanity.check_isinstance(str_list_value, list)
+        assert isinstance(str_list_value, list)
         for t in str_list_value:
-            sanity.check_isinstance(t, str)
+            assert isinstance(t, str)
 
         if len(str_list_value) == 1:
             # Single tag doesn't need to be joined.
@@ -339,7 +324,7 @@ class _Tags(NameTemplateField):
         c = kwargs.get('config')
         if c:
             sep = c.options['FILETAGS_OPTIONS']['between_tag_separator']
-            sanity.check_internal_string(sep)
+            assert isinstance(sep, str)
             formatted_value = sep.join(str_list_value)
             return formatted_value
         else:
@@ -427,7 +412,7 @@ def is_valid_template_field(template_field):
 
 
 def formatted_datetime(datetime_object, format_string):
-    sanity.check_isinstance(datetime_object, datetime.datetime)
+    assert isinstance(datetime_object, datetime.datetime)
     return datetime_object.strftime(format_string)
 
 

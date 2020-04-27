@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -16,11 +16,6 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
 
 from core import constants as C
 from extractors import ExtractorError
@@ -52,7 +47,7 @@ def get_plaintext_from_markdown_file_with_pandoc(filepath):
         stdout = process.blocking_read_stdout(
             'pandoc', '--from', 'markdown', '--to', 'plain', '--', filepath
         )
-    except process.ChildProcessError as e:
+    except process.ChildProcessFailure as e:
         raise ExtractorError(e)
 
     # NOTE(jonas): pandoc uses UTF-8 encoding for both input and output

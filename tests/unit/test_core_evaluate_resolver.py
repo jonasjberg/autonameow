@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -30,7 +30,7 @@ from core.evaluate.resolver import TemplateFieldDataResolver
 
 class TestDedupeListOfDatabundles(TestCase):
     def _t(self, given, expected):
-        from core.repository import DataBundle
+        from core.datastore.repository import DataBundle
 
         bundles = [DataBundle.from_dict(g) for g in given]
         actual = dedupe_list_of_databundles(bundles)
@@ -162,9 +162,9 @@ class TestFieldDataCandidate(TestCase):
 class TestSortDatadictsByMappingWeights(TestCase):
     @classmethod
     def setUpClass(cls):
+        from core.datastore.repository import DataBundle
         from core.model import WeightedMapping
         from core.namebuilder import fields
-        from core.repository import DataBundle
 
         cls.fields_Author = fields.Author
         cls.fields_Creator = fields.Creator

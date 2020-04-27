@@ -1,6 +1,6 @@
 `autonameow`
 ============
-Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>  
 Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
@@ -11,6 +11,8 @@ Source repository: <https://github.com/jonasjberg/autonameow>
 
 High Priority
 -------------
+
+* `[TD0202]` __Handle signals and graceful shutdown properly!__
 
 * `[TD0198]` __Separate repositories for "provider" and "internal" data__  
     One repository would store data for URIs like
@@ -150,38 +152,6 @@ Medium Priority
     ("records"), check if the chosen metadata record has any missing or empty
     field values that are present in the other metadata record.  If so, "join"
     fields with missing values before discarding the "duplicate" record.
-
-* `[TD0189]` __Canonicalize metadata values with direct replacements.__  
-    Should probably store some kind of lookup tables in external files.
-    These should be used to reduce the space of possible values by doing
-    fixed-value replacements.
-
-    This would be a improved version of the template field "candidates",
-    currently not fully and/or poorly implemented.
-
-    Example configuration file section;
-
-    ```yaml
-    NAME_TEMPLATE_FIELDS:
-        publisher:
-            candidates:
-                FooBooks:
-                - Foo Books
-                - Foo Books Inc.
-                - Foo Books, Inc.
-                - FOO BOOKS PUBLISHERS
-                ProjectGutenberg:
-                - Gutenberg Project
-                - Project Gutenberg
-                - The Gutenberg Project
-    ```
-
-    I.E. replace variations and/or equivalent values of "foo books" with the
-    canonical values "FooBooks" and "ProjectGutenberg".
-
-* `[TD0182]` Isolate third-party metadata services like `isbnlib`.
-
-* `[TD0174]` Do not do replacements in the NameTemplateField classes.
 
 * `[TD0161]` Handle mapping/translation between "generic"/specific MeowURIs.
 
@@ -449,12 +419,6 @@ Low Priority
         foo.TXT       ->  foo.TXT
         ```
 
-* `[TD0152]` __Fix invalid name template field replacements.__  
-    Replacements in the `Publisher` class in `fields.py` are always applied if
-    any substring matches, which might cause undesired results.  Might be
-    better to stop after the first replacement has been applied, or do the
-    replacements ordered by the number of matched characters to be replaced.
-
 * `[TD0149]` Handle exceptions raised in `evaluate_boolean_operation()`.
 
 * `[TD0148]` Fix `!!python/object` in `--dump-config` output.
@@ -489,8 +453,6 @@ Low Priority
 
 * `[TD0121]` Create a script for generating regression tests.
 
-* `[TD0114]` Improve the `EbookAnalyzer`.
-
 * `[TD0109]` __Allow arbitrary name template placeholder fields.__  
     It is currently difficult to use a rule similar to this:
 
@@ -501,9 +463,9 @@ Low Priority
             extractor.filesystem.xplat.contents.mime_type: video/*
         NAME_TEMPLATE: '{title} S{season}E{episode}.{extension}'
         DATA_SOURCES:
-            title: extractor.filesystem.guessit.title
-            season: extractor.filesystem.guessit.season
-            episode: extractor.filesystem.guessit.episode
+            title: extractor.metadata.guessit.title
+            season: extractor.metadata.guessit.season
+            episode: extractor.metadata.guessit.episode
             extension: extractor.filesystem.xplat.contents.mime_type
         exact_match: true
     ```
@@ -585,10 +547,6 @@ Low Priority
   configuration.
 
 * `[TD0045]` Add ability to rename directories.
-
-* `[TD0010]` Think about how data might need to be processed in multiple
-  consecutive runs.
-  In relation to future weighting and prioritizing of analysis results.
 
 * `[TD0094]` __Search text for DOIs and query external services__  
   Similar to ISBN-numbers. Could be used as primary identifier/key in records

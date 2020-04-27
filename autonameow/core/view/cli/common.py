@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,19 +23,16 @@ import platform
 import re
 from datetime import datetime
 
-try:
-    import colorama
-    colorama.init()
-except ImportError:
-    colorama = None
+import colorama
 
 from core import constants as C
 from util import coercers
 from util import process
-from util import sanity
 
 
+colorama.init()
 log = logging.getLogger(__name__)
+
 BE_QUIET = False
 
 
@@ -125,32 +122,28 @@ def colorize(text, fore=None, back=None, style=None):
     """
     Adds ANSI formatting to text strings with "colorama".
 
-    The text is returned as-is if the top-level import of "colorama" failed.
-
-    Refer the "colorama" library documentation for additional information;
-        https://pypi.python.org/pypi/colorama
+    The text is returned as-is if no options are specified.
 
     Args:
         text: The text to colorize.
-        fore: Optional foreground color as a string. Available options;
+        fore: Optional foreground color as a string. Available options:
               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
               LIGHTBLACK_EX, LIGHTRED_EX, LIGHTGREEN_EX, LIGHTYELLOW_EX
               LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
-        back: Optional background color as a string. Available options;
+        back: Optional background color as a string. Available options:
               BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
               LIGHTBLACK_EX, LIGHTRED_EX LIGHTGREEN_EX, LIGHTYELLOW_EX,
               LIGHTBLUE_EX, LIGHTMAGENTA_EX, LIGHTCYAN_EX, LIGHTWHITE_EX
-        style: Optional style settings as a string. Available options;
+        style: Optional style settings as a string. Available options:
                DIM, NORMAL, BRIGHT, RESET_ALL
 
     Returns:
         The given string with the specified coloring and style options applied.
-        If no options are specified or if "colorama" is not available, the
-        text is returned as-is. If "text" is None, an empty string is returned.
+        An empty string is returned if "text" is None.
     """
     if text is None:
         return ''
-    if not (fore or back or style) or not colorama:
+    if not (fore or back or style):
         return text
 
     buffer = list()
@@ -256,33 +249,23 @@ def msg(message, style=None, ignore_quiet=False):
                Should be one of 'info', 'heading', 'section', 'color_quoted'
                or 'highlight'.
         ignore_quiet: Whether to ignore the global quiet ('--quiet') option.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
     if not ignore_quiet:
         global BE_QUIET
         if BE_QUIET:
             return
 
-    def _print_default_msg(text):
-        colored_text = colorize(text)
-        print_stdout(colored_text)
-
-    def _print_info_msg(text):
-        prefix = colorize('[info]', fore='LIGHTBLACK_EX')
-        colored_text = colorize(text)
-        print_stdout(prefix + ' ' + colored_text)
-
-    sanity.check_internal_string(message)
+    assert isinstance(message, str)
     if not message:
         return
 
     if not style:
-        _print_default_msg(message)
+        print_stdout(message)
 
     elif style == 'info':
-        _print_info_msg(message)
+        prefix = colorize('[info]', fore='LIGHTBLACK_EX')
+        colored_message = colorize(message)
+        print_stdout(prefix + ' ' + colored_message)
 
     elif style == 'heading':
         heading_underline = C.CLI_MSG_HEADING_CHAR * len(message.strip())
@@ -303,7 +286,7 @@ def msg(message, style=None, ignore_quiet=False):
 
     else:
         log.warning('Unknown message style "%s"', style)
-        _print_default_msg(message)
+        print_stdout(message)
 
 
 def msg_rename(from_basename, dest_basename, dry_run):
@@ -316,12 +299,9 @@ def msg_rename(from_basename, dest_basename, dry_run):
         dest_basename: New basename of the file to be renamed, as a Unicode
                        string.
         dry_run: True if the operation was a "dry run"/simulation.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    sanity.check_internal_string(from_basename)
-    sanity.check_internal_string(dest_basename)
+    assert isinstance(from_basename, str)
+    assert isinstance(dest_basename, str)
 
     _name_old = colorize_quoted('"{!s}"'.format(from_basename),
                                 color='WHITE')
@@ -348,12 +328,9 @@ def msg_possible_rename(from_basename, dest_basename):
                        as a Unicode string.
         dest_basename: New basename of the file that might renamed, as a
                        Unicode string.
-
-    Raises:
-        EncodingBoundaryViolation: Given message is not a Unicode string.
     """
-    sanity.check_internal_string(from_basename)
-    sanity.check_internal_string(dest_basename)
+    assert isinstance(from_basename, str)
+    assert isinstance(dest_basename, str)
 
     _name_old = colorize_quoted('"{!s}"'.format(from_basename),
                                 color='WHITE')

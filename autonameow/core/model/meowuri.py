@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -25,7 +25,6 @@ from functools import lru_cache
 from core import constants as C
 from core.exceptions import InvalidMeowURIError
 from util import coercers
-from util import sanity
 from util.misc import flatten_sequence_type
 
 
@@ -460,7 +459,7 @@ def evaluate_meowuri_globs(meowuri_string, glob_list,
     if not meowuri_string or not glob_list:
         return False
 
-    sanity.check_isinstance(glob_list, list)
+    assert isinstance(glob_list, list)
 
     for glob in glob_list:
         if not isinstance(glob, (str, MeowURI)):

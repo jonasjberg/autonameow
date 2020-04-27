@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,25 +24,29 @@ declare -r EXIT_SUCCESS=0
 declare -r EXIT_FAILURE=1
 declare -r EXIT_CRITICAL=2
 
-SELF_BASENAME="$(basename "$0")"
-SELF_DIRNAME="$(dirname "$0")"
+self_basename="$(basename -- "$0")"
+self_dirpath="$(realpath --canonicalize-existing -- "$(dirname -- "$0")")"
+readonly self_basename
+readonly self_dirpath
 
-if ! source "${SELF_DIRNAME}/setup_environment.sh"
+# shellcheck source=tests/setup_environment.sh
+if ! source "${self_dirpath}/setup_environment.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${SELF_DIRNAME}/setup_environment.sh"
+[ERROR] Unable to source "${self_dirpath}/setup_environment.sh"
         Environment variable setup script is missing. Aborting ..
 
 EOF
     exit "$EXIT_CRITICAL"
 fi
 
-if ! source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+# shellcheck source=tests/common_utils.sh
+if ! source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
 then
     cat >&2 <<EOF
 
-[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIR}/tests/common_utils.sh"
+[ERROR] Unable to source "${AUTONAMEOW_ROOT_DIRPATH}/tests/common_utils.sh"
         Shared test utility library is missing. Aborting ..
 
 EOF
@@ -54,11 +58,11 @@ exit_with_error_message_if_missing_command()
 {
     local -r _cmdname="$1"
 
-    if ! command -v "${_cmdname}" >/dev/null 2>&1
+    if ! command -v "$_cmdname" &>/dev/null
     then
         cat >&2 <<EOF
 
-    [ERROR] This program requires "${_cmdname}" to run.
+    [ERROR] This program requires "$_cmdname" to run.
 
 EOF
         exit 1
@@ -70,18 +74,18 @@ exit_with_error_message_if_missing_command 'pytest'
 
 
 # Default configuration.
-option_write_report='false'
-option_quiet='false'
-option_enable_coverage='false'
-option_run_last_failed='false'
+option_write_report=false
+option_quiet=false
+option_enable_coverage=false
+option_run_last_failed=false
 
 print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  autonameow unit tests runner
+"$self_basename"  --  autonameow unit tests runner
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:     -h   Display usage information and exit.
                -c   Enable checking unit test coverage.
@@ -94,9 +98,9 @@ print_usage_info()
   All options are optional. Default behaviour is to not write any
   reports and print the test results to stdout/stderr in real-time.
 
-  EXIT CODES:   ${EXIT_SUCCESS}   All tests/assertions passed.
-                ${EXIT_FAILURE}   Any tests/assertions FAILED.
-                ${EXIT_CRITICAL}   Runner itself failed or aborted.
+  EXIT CODES:   $EXIT_SUCCESS    All tests/assertions passed.
+                $EXIT_FAILURE    Any tests/assertions FAILED.
+                $EXIT_CRITICAL   Runner itself failed or aborted.
 
 
 Project website: www.github.com/jonasjberg/autonameow
@@ -105,21 +109,18 @@ EOF
 }
 
 
-# Set options to 'true' here and invert logic as necessary when testing (use
-# "if not true"). Motivated by hopefully reducing bugs and weird behaviour
-# caused by users setting the default option variables to unexpected values.
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
     while getopts chlwq opt
     do
         case "$opt" in
-            c) option_enable_coverage='true' ;;
+            c) option_enable_coverage=true ;;
             h) print_usage_info ; exit "$EXIT_SUCCESS" ;;
-            l) option_run_last_failed='true' ;;
-            w) option_write_report='true' ;;
-            q) option_quiet='true' ;;
+            l) option_run_last_failed=true ;;
+            w) option_write_report=true ;;
+            q) option_quiet=true ;;
         esac
     done
 
@@ -130,29 +131,39 @@ fi
 # Workaround for pytest crashing when writing something other than stdout ..
 captured_pytest_help="$(pytest --help 2>&1)"
 
-if [ "$option_write_report" == 'true' ]
+if [ "$option_write_report" = 'true' ]
 then
     if ! grep -q -- '--html' <<< "$captured_pytest_help"
     then
-        echo 'This script requires "pytest-html" to generate HTML reports.' 1>&2
-        echo 'Install using pip by executing:  pip3 install pytest-html'
+        command cat 1>&2 <<'EOF'
+This script requires "pytest-html" to generate HTML reports.
+Install by executing:
+
+    $ pip3 install pytest-html
+
+EOF
         exit "$EXIT_CRITICAL"
     fi
 fi
 
-if [ "$option_enable_coverage" == 'true' ]
+if [ "$option_enable_coverage" = 'true' ]
 then
     if ! grep -q -- '--cov' <<< "$captured_pytest_help"
     then
-        echo 'This script requires "pytest-cov" to check test coverage.' 1>&2
-        echo 'Install using pip by executing:  pip3 install pytest-cov'
+        command cat 1>&2 <<'EOF'
+This script requires "pytest-cov" to check test coverage.
+Install by executing:
+
+    $ pip3 install pytest-cov
+
+EOF
         exit "$EXIT_CRITICAL"
     fi
 fi
 
 
-_timestamp="$(date "+%Y-%m-%dT%H%M%S")"
-_unittest_log="${AUTONAMEOW_TESTRESULTS_DIR}/unittest_log_${_timestamp}.html"
+_timestamp="$(date "+%Y-%m-%dT%H%M%S.%N")"
+_unittest_log="${AUTONAMEOW_TESTRESULTS_DIRPATH}/unittest_log_${_timestamp}.html"
 if [ -e "$_unittest_log" ]
 then
     printf 'File exists: "%s" .. Aborting\n' "$_unittest_log" >&2
@@ -162,36 +173,34 @@ fi
 
 run_pytest()
 {
-    _pytest_report_opts=''
-    [ "$option_write_report" != 'true' ] || _pytest_report_opts="--self-contained-html --html=\"${_unittest_log}\""
+    declare -a _pytest_opts=('')
 
-    _pytest_coverage_opts=''
-    [ "$option_enable_coverage" != 'true' ] || _pytest_coverage_opts="--cov=autonameow --cov-report=term"
+    if [ "$option_write_report" = 'true' ]
+    then
+        _pytest_opts+=('--self-contained-html')
+        _pytest_opts+=(--html="$_unittest_log")
+    fi
 
-    _pytest_misc_opts=''
-    [ "$option_run_last_failed" != 'true' ] || _pytest_misc_opts='--last-failed'
+    if [ "$option_enable_coverage" = 'true' ]
+    then
+        _pytest_opts+=('--cov=autonameow')
+        _pytest_opts+=('--cov-report=term')
+    fi
 
+    if [ "$option_run_last_failed" = 'true' ]
+    then
+        _pytest_opts+=('--last-failed')
+    fi
 
     (
-      cd "$AUTONAMEOW_ROOT_DIR" || return 1
-      PYTHONPATH=autonameow:tests \
-      pytest ${_pytest_report_opts} ${_pytest_coverage_opts} ${_pytest_misc_opts} \
-      tests/unit/test_*.py
+        cd "$AUTONAMEOW_ROOT_DIRPATH" || return 1
+        PYTHONPATH=autonameow:tests pytest ${_pytest_opts[@]} tests/unit/test_*.py
     )
 }
 
 
 declare -i COUNT_FAIL=0
 run_task "$option_quiet" "Running \"pytest\"" run_pytest
-
-
-if [ -s "$_unittest_log" ]
-then
-    printf 'Wrote unit test HTML log file: "%s"\n' "$_unittest_log"
-
-    # Write log file name to temporary file, used by other scripts.
-    echo "${_unittest_log}" >| "${AUTONAMEOW_TESTRESULTS_DIR}/.unittestlog.toreport"
-fi
 
 
 if [ "$COUNT_FAIL" -eq "0" ]

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -21,8 +21,11 @@
 Utility functions for controlling and interacting with system processes.
 """
 
+import contextlib
+import logging
 import os
 import shutil
+import signal
 import subprocess
 from functools import lru_cache
 
@@ -30,7 +33,10 @@ from core import constants as C
 from core.exceptions import AutonameowException
 
 
-class ChildProcessError(AutonameowException):
+log = logging.getLogger(__name__)
+
+
+class ChildProcessFailure(AutonameowException):
     """Child process was not successfully executed."""
 
 
@@ -38,8 +44,8 @@ def blocking_read_stdout(*args):
     """
     Executes a child process and returns its standard output.
 
-    Catches all exceptions and re-raising a 'ChildProcessError'.
-    The 'ChildProcessError' exception is also raised if the child
+    Catches all exceptions and re-raising a 'ChildProcessFailure'.
+    The 'ChildProcessFailure' exception is also raised if the child
     process returns a non-zero exit code.
 
     Args:
@@ -50,7 +56,7 @@ def blocking_read_stdout(*args):
         Standard output of the executed child process as a bytestring.
 
     Raises:
-        ChildProcessError: Process returned non-zero or any other error.
+        ChildProcessFailure: Process returned non-zero or any other error.
     """
     try:
         process = subprocess.Popen(
@@ -61,11 +67,11 @@ def blocking_read_stdout(*args):
         )
         stdout, stderr = process.communicate()
     except (OSError, ValueError, subprocess.SubprocessError) as e:
-        raise ChildProcessError(e)
+        raise ChildProcessFailure(e)
 
     returncode = process.returncode
     if returncode != 0:
-        raise ChildProcessError(
+        raise ChildProcessFailure(
             'Process returned {!s}. stderr:\n{!s}'.format(returncode, stderr)
         )
     return stdout or b''
@@ -118,3 +124,39 @@ def current_process_id():
     Returns the current process ID as an integer.
     """
     return os.getpid()
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+@contextlib.contextmanager
+def signal_handler(signum, handler):
+    original_handler = signal.signal(signum, handler)
+    try:
+        yield
+    finally:
+        signal.signal(signum, original_handler)
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+def oneshot_exception_handler(exception_klass):
+    def _handler(_signum, _frame):
+        log.debug('One-shot exception handler called with signum=%r frame=%r',
+                  _signum, _frame)
+
+        # Ignore all signals while this exception is handled.
+        signal.signal(_signum, signal.SIG_IGN)
+        raise exception_klass
+
+    return _handler
+
+
+# TODO: [TD0202] Handle signals and graceful shutdown properly!
+def dummy_placeholder_handler(*_, **__):
+    pass
+
+
+# Imported for easy access to users of this module.
+from signal import SIGHUP as signal_SIGHUP    #  1 -- kill -HUP
+from signal import SIGINT as signal_SIGINT    #  2 -- ctrl-c
+# TODO: Can SIGKILL be handled at all? Pretty sure it is not possible ..
+from signal import SIGKILL as signal_SIGTERM  #  9 -- killed violently
+from signal import SIGTERM as signal_SIGTERM  # 15 -- killed nicely

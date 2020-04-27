@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -18,46 +18,6 @@
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
 import pprint
-
-from core import exceptions
-
-
-def check_internal_bytestring(value):
-    """
-    Checks that a given value is an "internal bytestring", I.E. bytes.
-
-    Intended for sanity checking, in place of assertions.
-
-    Args:
-        value: The value to test.
-    Raises:
-        EncodingBoundaryViolation: The given value is not a bytestring.
-    """
-    if not __debug__:
-        return
-    if not isinstance(value, bytes):
-        _msg = 'Expected a "internal" bytestring.  Got {!s}:\n{!s}'.format(
-            type(value), pprint.pformat(value))
-        raise exceptions.EncodingBoundaryViolation(_msg)
-
-
-def check_internal_string(value):
-    """
-    Checks that a given value is an "internal string", I.E. Unicode str.
-
-    Intended for sanity checking, in place of assertions.
-
-    Args:
-        value: The value to test.
-    Raises:
-        EncodingBoundaryViolation: The given value is not a Unicode str.
-    """
-    if not __debug__:
-        return
-    if not isinstance(value, str):
-        _msg = 'Expected a Unicode string.  Got {!s}:\n{!s}'.format(
-            type(value), pprint.pformat(value))
-        raise exceptions.EncodingBoundaryViolation(_msg)
 
 
 def check_isinstance(thing, expected_type, msg=None):

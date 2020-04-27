@@ -1,0 +1,17 @@
+config_path: $THISTEST/config.yaml
+debug: false
+dry_run: true
+dump_config: false
+dump_meowuris: false
+dump_options: false
+input_paths:
+  - $SAMPLEFILES/4123.epub
+list_all: false
+automagic: false
+batch: true
+interactive: false
+timid: false
+quiet: false
+recurse_paths: false
+show_version: false
+verbose: false

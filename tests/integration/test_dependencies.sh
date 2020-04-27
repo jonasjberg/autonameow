@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,22 +31,24 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "${AUTONAMEOW_ROOT_DIR}/tests/integration/utils.sh"
+# shellcheck source=tests/integration/utils.sh
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
+readonly vendor_dirpath="${AUTONAMEOW_ROOT_DIRPATH}/autonameow/vendor"
 
 assert_can_import_python_module()
 {
     local -r _module_name="$1"
-    assert_true 'python3 -c "import ${_module_name}"' \
-                "System python3 can import required module \"${_module_name}\""
+    aw_utils.assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; import ${_module_name}"' \
+                "python3 can import required module \"${_module_name}\""
 }
 
 assert_can_import_python_module_member()
 {
     local -r _module_name="$1"
     local -r _member_name="$2"
-    assert_true 'python3 -c "from ${_module_name} import ${_member_name}"' \
-                "System python3 can import required module \"${_module_name}\" member \"${_member_name}\""
+    aw_utils.assert_true 'python3 -c "import sys ; sys.path.insert(0, \"${vendor_dirpath}\") ; from ${_module_name} import ${_member_name}"' \
+                "python3 can import required module \"${_module_name}\" member \"${_member_name}\""
 }
 
 
@@ -55,10 +57,10 @@ assert_can_import_python_module_member()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Dependencies'
-logmsg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
@@ -66,35 +68,34 @@ logmsg "Running the ${TESTSUITE_NAME} test suite .."
 #
 # Verify that required commands are available.
 
-assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
+aw_utils.assert_true 'case $OSTYPE in darwin*) ;; linux*) ;; *) false ;; esac' \
             'Should be running a target operating system'
 
-assert_false '[ -z "$TERM" ]' \
+aw_utils.assert_false '[ -z "$TERM" ]' \
              'Environment variable "$TERM" should be set'
 
-assert_has_command 'python3'
-assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
+aw_utils.assert_has_command 'python3'
+aw_utils.assert_true 'python3 --version | grep "Python 3\.[5-9]\.[0-9]"' \
             'System python3 is version v3.5.0 or newer'
 
-assert_has_command 'git'
-assert_true 'git --version | grep "git version 2\..*"' \
+aw_utils.assert_has_command 'git'
+aw_utils.assert_true 'git --version | grep "git version 2\..*"' \
             'System git version is newer than v2.x.x'
 
 
 # Developer scripts and testing dependencies.
-assert_has_command 'pytest'
+aw_utils.assert_has_command 'pytest'
 _pytesthelp="$(pytest --help 2>&1)"
-assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
+aw_utils.assert_true 'grep -q -- "--html" <<< "$_pytesthelp"' \
             'Module "pytest-html" is available on the system'
 
-# assert_has_command 'vulture'
-# assert_has_command 'aha'
-# assert_has_command 'pylint'
+# aw_utils.assert_has_command 'vulture'
+# aw_utils.assert_has_command 'pylint'
 
 
 # ______________________________________________________________________________
 #
-# Verify Python dependencies by running imports with system python3.
+# Verify Python dependencies by running imports with python3.
 
 assert_can_import_python_module 'bs4'
 assert_can_import_python_module_member 'bs4' 'BeautifulSoup'
@@ -115,22 +116,22 @@ assert_can_import_python_module 'yaml'  # pyyaml
 
 # ______________________________________________________________________________
 #
-# Make sure that system binary dependencies are available.
+# Make sure that binary dependencies are available.
 
-assert_has_command 'exiftool'
-assert_has_command 'jpeginfo'
-assert_has_command 'pandoc'  # MarkdownTextExtractor
-assert_has_command 'pdftotext'
-assert_has_command 'tesseract'
-assert_has_command 'unrtf'
-assert_has_command 'djvutxt'
+aw_utils.assert_has_command 'exiftool'
+aw_utils.assert_has_command 'jpeginfo'
+aw_utils.assert_has_command 'pandoc'  # MarkdownTextExtractor
+aw_utils.assert_has_command 'pdftotext'
+aw_utils.assert_has_command 'tesseract'
+aw_utils.assert_has_command 'unrtf'
+aw_utils.assert_has_command 'djvutxt'
 
 
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

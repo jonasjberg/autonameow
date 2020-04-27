@@ -1,0 +1,112 @@
+COMPATIBILITY:
+  autonameow_version: v0.6.0
+
+DATETIME_FORMAT:
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
+
+FILESYSTEM_OPTIONS:
+  ignore:
+    - '*.swp'
+    - '*/.*'
+
+FILETAGS_OPTIONS:
+  between_tag_separator: ' '
+  filename_tag_separator: ' -- '
+
+NAME_TEMPLATES:
+  default_book: '{publisher} {title} {edition} - {author} {year}.{extension}'
+  default_document: '{title} - {author} {datetime}.{extension}'
+  default_photo: '{datetime} {description} -- {tags}.{extension}'
+
+PERSISTENCE:
+  cache_directory: null
+  history_filepath: null
+
+POST_PROCESSING:
+  lowercase_filename: false
+  replacements:
+    -{2,}: '-'
+    \.{2,}: .
+    _{2,}: _
+  sanitize_filename: true
+  sanitize_strict: false
+  simplify_unicode: true
+  uppercase_filename: false
+
+RULES:
+  Sample Entry for E-books:
+    CONDITIONS:
+      extractor.filesystem.xplat.extension: (pdf|mobi)
+      extractor.filesystem.xplat.mime_type:
+        - application/epub+zip
+        - image/vnd.djvu
+        - application/pdf
+        - application/octet-stream
+    DATA_SOURCES:
+      author: analyzer.ebook.author
+      edition:
+        - analyzer.ebook.edition
+        - analyzer.filename.edition
+      extension: extractor.filesystem.xplat.mime_type
+      publisher:
+        - analyzer.ebook.publisher
+        - analyzer.filename.publisher
+      title: analyzer.ebook.title
+      year: analyzer.ebook.date
+    NAME_TEMPLATE: default_book
+    exact_match: false
+    ranking_bias: 0.1
+
+  Sample Entry for Photos with strict rules:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: DCIM*
+      extractor.filesystem.xplat.extension: jpg
+      extractor.filesystem.xplat.mime_type: image/jpeg
+      extractor.filesystem.xplat.pathname_full: ~/Pictures/incoming
+    DATA_SOURCES:
+      datetime:
+        - extractor.metadata.exiftool.EXIF:DateTimeOriginal
+        - extractor.metadata.exiftool.EXIF:DateTimeDigitized
+        - extractor.metadata.exiftool.EXIF:CreateDate
+      description: extractor.metadata.filetags.description
+      extension: extractor.filesystem.xplat.extension
+      tags: extractor.metadata.filetags.tags
+    NAME_TEMPLATE: '{datetime} {description} -- {tags}.{extension}'
+    exact_match: true
+    ranking_bias: 1
+
+  samplefiles Gmail print-to-pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: gmail.pdf
+      extractor.filesystem.xplat.extension: pdf
+      extractor.filesystem.xplat.mime_type: application/pdf
+    DATA_SOURCES:
+      datetime: extractor.metadata.exiftool.PDF:CreateDate
+      extension: extractor.filesystem.xplat.extension
+      title: extractor.filesystem.xplat.basename_prefix
+    NAME_TEMPLATE: '{datetime} {title}.{extension}'
+    exact_match: true
+    ranking_bias: null
+
+  samplefiles simplest_pdf.md.pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
+    DATA_SOURCES:
+      extension: extractor.filesystem.xplat.extension
+    NAME_TEMPLATE: simplest_pdf.md.{extension}
+    exact_match: true
+    ranking_bias: 1
+
+  samplefiles smulan.jpg:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: smulan.jpg
+      extractor.filesystem.xplat.mime_type: image/jpeg
+    DATA_SOURCES:
+      datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
+      description: extractor.metadata.filetags.description
+      extension: extractor.filesystem.xplat.extension
+    NAME_TEMPLATE: '{datetime} {description}.{extension}'
+    exact_match: true
+    ranking_bias: 1

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -45,14 +45,14 @@ class TestExiftoolMetadataExtractor(CaseExtractorBasics, TestCase):
 class TestExiftoolMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                                TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('magic_jpg.jpg')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('magic_jpg.jpg')
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('smulan.jpg')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('smulan.jpg')
     _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('EXIF:CreateDate', datetime, _dt('2010-01-31 161251')),
@@ -69,7 +69,7 @@ class TestExiftoolMetadataExtractorOutputTestFileA(CaseExtractorOutput,
 class TestExiftoolMetadataExtractorOutputTestFileB(CaseExtractorOutput,
                                                    TestCase):
     EXTRACTOR_CLASS = ExiftoolMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('simplest_pdf.md.pdf')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('simplest_pdf.md.pdf')
     _dt = uu.str_to_datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('File:FileSize', int, 51678),
@@ -254,7 +254,9 @@ class TestIsBadMetadata(TestCase):
         self._assert_bad_any_tag('http://freepdf-books.com')
         self._assert_bad_any_tag('http://www.epubor.com')
         self._assert_bad_any_tag('IT eBooks')
+        self._assert_bad_any_tag('ModDate')
         self._assert_bad_any_tag('MyStringValue')
+        self._assert_bad_any_tag('null')
         self._assert_bad_any_tag('test')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com')
         self._assert_bad_any_tag('Toolkit http://www.activepdf.com(Infix)')

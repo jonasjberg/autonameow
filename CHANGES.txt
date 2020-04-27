@@ -1,3 +1,1018 @@
+2020-04-27  [autonameow v0.6.0]
+            It has just been too long since I merged to master, too many
+            branches, too many bugs, too difficult to work with the codebase.
+            This means nothing.
+
+            Additions
+            - Add refactor and incomplete handling of signals.
+              Adds a experimental WIP implementation of handling termination.
+
+              Starts refactoring of the main 'Autonameow' class to not call
+              'sys.exit()' directly.  Instead, the outer layer should handle this
+              and _somehow_ propagate events like aborting due to errors, exiting
+              after receiving keyboard interrupts, etc.
+
+              The only way to handle this and also become more of a *proper*
+              application is to add real signal handling.
+
+              My current idea is to first reset all signal handlers to defaults
+              (or assume defaults) in the "outer layers", maybe around 'cli_main()'.
+              Then before entering the 'Autonameow' class context, install signal
+              handlers that can process and translate received signals to appropriate
+              events, that can be handled by the "core", I.E. everything that follows
+              the call to 'Autonameow.run()'.
+
+              Adds TODO [TD0202] on handling signals and graceful shutdown properly.
+
+            - Add ability to grab all possible CLI options.
+              Adds function 'get_gnu_style_optionals_from_argparser()'.
+
+              Intended to be used primarily (solely) by the regression test
+              runner; replacing the currently hardcoded list of options in
+              'tests/regression/utils.py' with a mechanism that fetches the
+              data by introspecting an instance of 'ArgumentParser'.
+
+              Returns *options of interest for the regression runner* in
+              the longer "GNU-style" form ("--help" as compared to "-h") as
+              a set of Unicode strings.
+
+            - Implement querying metadata for ISBN numbers.
+              Improves finding ISBN numbers in the 'EbookAnalyzer'.
+
+              If the textual contents does not turn up a match, the
+              'generic.metadata.identifier' MeowURI is queried and any
+              results are run through the same text extraction functions
+              as used for searching through the textual contents.
+
+              This drastically improves the chances of finding valid ISBN
+              numbers for files of some types and contents.
+
+            - Add static analysis of YAML files.
+              Adds utilities for static analysis of YAML files using 'yamllint'.
+
+              Include a new wrapper script 'devscripts/lint_yaml.sh' that runs the
+              linter with the custom 'yamllint' configuration '$GITROOT/.yamllint'
+              from a known starting directory.
+              Also updates various tests not so much because it seems like such a
+              great idea, but rather just to stay consistent.
+
+            - Add debug function 'collect_callstack_entries()'.
+              Decorator to collect call stack information leading up to the
+              decorated callable, going back at most 'stack_size' items.
+
+              Example usage:
+
+                  from util.debug import collect_callstack_entries
+
+                  results_list = list()
+
+                  @collect_callstack_entries(results_list)
+                  def foo(x):
+                      return x
+
+                  for result in results_list:
+                      print(result)
+
+            - Add ability to get known incorrect field values.
+              Adds new function 'incorrect_values()' with unit tests.
+
+              Returns values known to be incorrect for the given field name.
+
+              Accepts a field value that corresponds to the basenames of files
+              stored in the 'core/truths/data' directory and returns a set of
+              all values known to be incorrect for the given field name.
+
+            - Add function 'find_replacement_value()'.
+              Adds function for searching with multiple regular expressions.
+
+              Takes a dictionary of keyed by value, each storing one or more
+              regular expression patterns.
+              The value whose associated regular expressions produced the
+              longest total substring match is returned.
+
+            - Add better verbose regression runner listing.
+              Adds fancier '--list --verbose' regression runner listing.
+
+              Also adds a lot of integration tests to make up for the lack of
+              unit tests. These somewhat cover the new functionality but a lot
+              of new tests covering unrelated behaviour are also added.
+
+            - Add tests of specific start/stop messages.
+              Adds additional tests of verbose startup and shutdown messages.
+
+              These expect this very specific syntax and are likely to cause future
+              false negatives. However, this is justified by likely detecting date-
+              and time-formatting issues.
+
+            - Add function 'find_longest_match()'.
+              Adds function for searching with multiple regular expressions.
+
+              Searches a string with a list of regular expressions for the
+              longest match found by any of the regular expressions.
+
+              NOTE: Does not handle groups!
+
+            - Add new "generic" field class 'Identifier'.
+              For unique identifiers like CID, DOI, GUID, ISBN, .., etc.
+
+              Also updates some identifier field entries in the fieldmeta for
+              the 'ExiftoolMetadataExtractor' and 'PandocMetadataExtractor'.
+
+            - Add prefix to functions in 'integration/utils.sh'.
+              Prefixes all functions in 'integration/utils.sh' with 'aw_utils.'.
+
+              Intended to make the source of a function obvious, from the names.
+
+            - Add 'devscripts/unit_test_badness_metrics.py'.
+              Adds (INCOMPLETE) script for finding unit test dependencies.
+
+              Calculates metrics from a CSV-file produced by 'smother'.
+
+            - Add prefix 'aw_utils.' to 'initialize_logging()'.
+              Renames function 'initialize_logging()' to 'aw_utils.initialize_logging()'.
+
+            - Add prefix 'aw_utils.' to 'assert_false()'.
+              Renames function 'assert_false()' to 'aw_utils.assert_false()'.
+
+            - Add human name parser unit tests, expect failure.
+              Adds tests demonstrating cases currently not handled properly.
+
+            - Add prefix 'aw_utils.' to 'assert_true()'.
+              Renames function 'assert_true()' to 'aw_utils.assert_true()'.
+
+            - Add failing path string unit test.
+              Adds tests demonstrating case currently not handled properly.
+
+            - Add prefix 'aw_utils.' to 'log_msg()'.
+              Renames function 'log_msg()' to 'aw_utils.log_msg()'.
+
+            - Adds new regression tests '0024_show_version*'.
+
+            - Add/modify known metadata patterns and tests.
+
+            - Add/modify creatortool canonicalization patterns.
+
+            - Add/modify canonical publisher patterns and tests.
+
+            - Add tiny delay between ISBN metadata requests.
+
+            - Add syntax descriptions to "known data" YAML files.
+
+            - Add sanity-checks of "canonical" YAML test data.
+
+            - Add missing unit test for MIME-type mapping.
+
+            - Add missing explicit function returns.
+
+            - Add MIME-type to magic mapping tests.
+
+            - Add MIME-type to extension mappings.
+
+            - Add integration tests of fieldmeta YAML files.
+
+            - Add human name parser unit tests.
+
+            - Add explicit and missing return values.
+
+            - Add canonical publisher unit tests.
+
+            - Add additional 'known_data_loader.py' unit tests.
+
+            - Add 'DataBundle.__repr__()'.
+
+
+            Changes
+            - Refactor the 'Canonicalizer' and data files.
+              Extracts a separate subsystem for loading the lookup data files.
+
+              Moves 'metadata/canonical_creatortool.yaml' to ..
+                    'truths/data/creatortool.yaml'
+              Moves 'metadata/canonical_language.yaml' to ..
+                    'truths/data/language.yaml
+              Moves 'metadata/canonical_publisher.yaml' to ..
+                    'truths/data/publisher.yaml'
+
+              Reworks 'CanonicalizerConfigParser' into 'KnownDataFileParser'
+              located in a new file 'core/truths/known_data_loader.py'.
+
+              This gives much better separation and allows using these "known"
+              metadata values and patterns from other systems.
+
+              Public access to the lookups dict is provided through functions
+              'regex_lookup_dict()', 'literal_lookup_dict()' and 'lookup_values()'.
+
+            - Rewrite 'ArgumentParser' introspection function.
+              Removes 'get_gnu_style_optionals_from_argparser()'
+
+              Adds a new function 'get_optional_argparser_options()'.
+
+              Grabs information *options of interest for the regression runner*
+              by introspecting an instance of 'ArgumentParser'.
+
+              Intended to be used primarily (solely) by the regression tests so
+              that options only need to be defined in this file as compared to
+              manually keeping changes in sync.
+              Returns *options of interest for the regression runner* as tuples
+              of three strings; [SHORT] [GNU] [DEST]:
+
+                SHORT Short form of the command-line option ("-h")
+                LONG  Longer "GNU-style" form of the command-line option ("--help")
+                DEST  Name of the attribute that stores the option value.
+
+            - Simplify and rework interface to 'isbnlib'.
+              Because 'isbnlib' is now vendored it is always available.
+
+              Modifies the 'ISBN_METADATA_SERVICE' which is named with
+              all caps to signify it being a global singleton instance.
+
+              Includes some stashed changes that have been modified.
+              These included a incomplete implementation of "throttling"
+              or "rate-limiting" 'isbnlib' API calls, which were removed.
+              Should probably implement something similar from scratch to
+              handle 'ISBNLibHTTPError' "with code 403 [Forbidden]".
+              Added a TODO-note on this.
+
+              Completes TODO-list item [TD0182].
+
+            - Remove left-behind part of project wiki updates.
+              Removes remnants of commit 7120f12de9cfaa18894c97003c27450d40dd8b56.
+
+              > commit 7120f12de9cfaa18894c97003c27450d40dd8b56
+              > Author: Jonas Sjöberg <jomeganas@gmail.com>
+              > Date:   2018-01-22 16:51:10 +0100
+              >
+              >     Remove option flag '-u' from 'run_all_tests.sh'.
+              >
+              >     Removes option for adding test reports to the project wiki.
+              >
+              >     If this kind of functionality would ever be needed again, it will be
+              >     under different circumstances and best be reimplemented from scratch.
+
+            - Rewrite 'setup_environment.sh'.
+              Major overhaul of 'setup_environment.sh' to be less destructive.
+
+              Cleans up the initialization script that exports various global
+              constants to the environment.
+
+              Manually sourcing this script broke auto-completion in my shell,
+              likely because of enabling the 'nounset' option.
+
+              The script should now impact the environment a lot less following
+              these fixes, primarily namespace collision avoidance and also the
+              above mentioned setting of shell options.
+
+            - Modify how 'Rule.__gt__()' compares instances.
+              Attempt at fixing inconsistent behaviour of rule listing.
+
+              Compare 'Rule' instances by comparing additional attributes.
+
+              Also adds more unit tests in the (failed) process of debugging
+              non-deterministic results of the local regression testsuite '9028'.
+
+              However, it _seems_ that the problem actually lies in the function
+              'prioritize_rules()' in 'rulematcher.py'; that does the sorting
+              of rules prior to rule evaluation. This is is still not verified.
+
+            - Move 'BaseMetadataExtractor' to related package.
+              Moves the 'BaseMetadataExtractor' to the 'metadata' package.
+
+              This base class is only ever inherited from by classes in the
+              'autonameow.extractors.metadata' module and so it makes sense to move
+              the file containing the base class, 'base.py' to the same package.
+
+              This also makes the structure consistent with that of the text extractor
+              base class 'BaseTextExtractor' and inheriting classes, in the
+              'autonameow.extractors.text' module.
+
+            - Rework basename splitting function return values.
+              Replaces returning None values for missing parts.
+
+              Return 'EMPTY_FILENAME_PART' instead of None for empty "parts".
+              Given a basename "foo.bar", the prefix is "foo" and "bar" is the
+              suffix.  Basenames without either part; like ".foo" or "foo",
+              are split into tuples of ("foo", EMPTY_FILENAME_PART).
+
+              This makes for a cleaner interface and removes the need for callers
+              to explicitly check for and replace None values.
+
+            - Remove redundant method. Add TODOs.
+              Removes '_load_config_from_options_config_path()'.
+
+              Adds TODO on fixing up the configuration handling.
+
+              The 'ConfigError' exception is just logged and then ignored.
+              The logic does not account for this and just carries on without
+              any loaded configuration.
+              Should probably just merge various configuration; starting with
+              a default and then overriding with the user configuration and
+              possibly other sources.
+
+            - Remove outer 'KeyboardInterrupt' except-block.
+              Removes likely redundant catching of 'KeyboardInterrupt' exception.
+
+              Looks like this could only be triggered within a very small window
+              of time, from the start of execution until having instantiated the
+              main 'Autonameow' instance and entered the context manager.
+
+              Even though a lot of things could go wrong here, removing this now
+              makes upcoming changes less messy.
+
+            - Remove 'nameparser' Git submodule.
+              Replaces Git submodule 'nameparser' with vendored source files.
+
+              Deletes submodule under 'autonameow/thirdparty/nameparser'.
+              Adds vendored sources under 'autonameow/vendor/nameparser'.
+
+              This also results in a version bump from v1.0.0 to v1.0.2.
+
+              Modifies two 'nameparser' config-files in order to make the
+              autonameow unit tests for 'humannames' pass.
+
+            - Remove 'check_internal_bytestring()'.
+              Replaces calls to 'check_internal_bytestring()' with assertions.
+
+              Also removes the 'EncodingBoundaryViolation' exception class and
+              modifies some using code.
+
+              Also removes 'Raises:' sections from docstrings that are only
+              assertions. Assertions should prevent errors by developers and
+              is not part of any kind of internal or public API.
+
+            - Assert readable 'vendor' directory exists.
+              Adds sanity-check assertion before modifying 'sys.path'.
+
+              Asserts that the effective UID/GID can list and "cd" to the
+              'vendor' directory; R_OK for access and X_OK for being able
+              to enter and write _into_ the directory.
+              Note that this uses the real UID and GID, not the effective
+              ones.  This may prove to be a problem down the line ..
+
+            - Remove 'mode_' prefixes from option keys.
+              Renames argument parser option "destination" attributes.
+
+              Squashed commits:
+              * Rename option 'mode_automagic' to 'automagic'.
+              * Rename option 'mode_batch' to 'batch'.
+              * Rename option 'mode_interactive' to 'interactive'.
+              * Rename option 'mode_timid' to 'timid'.
+              * Rename option 'mode_postprocess_only' to 'postprocess_only'.
+
+            - Handle unset '$TERM' and/or missing 'tput'.
+              Adds checking that '$TERM' is set and that 'tput' is executable.
+
+              Disable ANSI colors and attributes in bash scripts if '$TERM' is
+              unset, which could happen when connecting over SSH and within the
+              integrated PyCharm terminal. Also don't try to use 'tput' before
+              checking that it is actually installed and executable.
+
+            - Replace autonameow wrapper script.
+              Replaces the bash wrapper script with a Python version.
+
+              Replaces 'bin/autonameow.sh' with Python script 'bin/autonameow'.
+              This is a lot simpler but contains less "sanity-checks", which
+              really should not matter as we will still just fail to run.
+              The initial startup delay is also (almost noticeably) decreased.
+
+            - Treat the "basename prefix" as a potential title.
+              Adds a 'WeightedMapping' to 'Title' for 'basename_prefix'.
+
+              Also make the 'basename_prefix' a generic 'title' field.
+              Because this value is coerced into a bytes string, some other parts
+              also had to be modified to handle this case where the incoming values
+              are bytes strings rather than Unicode strings.
+
+            - Remove unused  method '_normalize()'.
+              Removes unused method 'RegexConfigFieldParser._normalize()'.
+
+              Intended to be used for normalizing "unwieldy" text which might
+              hopefully matching more intuitive when dealing with text that
+              "should" match but doesn't due to Unicode symbols looking very
+              similar.  But was never actually used.
+
+            - Remove zero-width spaces in post-processing.
+              Remove zero-width spaces after populating the name template.
+
+              Even though this is even more hardcoded behaviour; lets go out on
+              a limb and assume the most people don't want invisible characters
+              in their filenames..
+
+              Also adds docstring to the 'remove_zerowidth_spaces()' function.
+
+            - Remove 'NAME_TEMPLATE_FIELDS'.
+              Removes the 'NAME_TEMPLATE_FIELDS' section from the configuration.
+
+              This was especially poorly done and barely used. The places that
+              did use this data now fetches known patterns from services in the
+              'truths' module.
+
+              This commit also includes various minor improvements.
+
+            - Remove hardcoded command-line option lookup.
+              Use actual 'ArgumentParser' options in the regression test utilities.
+
+              This removes having to manually keep the data in 'regression/utils.py'
+              in sync with the 'ArgumentParser' in 'cli/options.py'.
+
+              Adds additional unit tests that covers the modified functions.
+
+            - Improve regression test loader error handling.
+              Rework validation of test suite options 'input_paths'.
+
+              Improve error reporting by including the source file being read when
+              the error occurred, made possible by reworking the exception class
+              'RegressionTestError' to accept an optional keyword argument.
+
+            - Get regression runner persistence mechanism once.
+              Reworks the 'get_persistence()' call in 'regression/history.py'.
+
+              Do a single call at module import to speed things up quite a bit.
+              Passes the global 'DATASTORE' instance to all accessor functions
+              to allow easier unit testing and similar, if need be.
+
+            - Modify how rules are prioritized.
+              Look at yet another field when prioritizing rules.
+
+              Meant to resolve inconsistent results when the rule fields used
+              for prioritization were equal. Adding another arbitrary piece of
+              data should remove these inconsistencies between program runs.
+
+            - Modify (WIP) canonicalization of exiftool metadata.
+              Modifies canonicalization of specific metadata fields.
+
+              Still very much a work in progress.  References TODO-list
+              item [TD0189] on canonicalizing metadata values by direct
+              and regular expression replacements.
+
+            - Rework functions  in 'debug.py'.
+              Replaces 'print_callstack_names()' with 'collect_callstack_info()'.
+
+              Extends the functionality of 'collect_callstack_info()' to the point
+              that the previous version 'print_callstack_names()' is now redundant.
+
+            - Move regression runner persistence to new file.
+              Extracts parts of 'regression_runner.py' to new file 'history.py'.
+
+              Moves the function related to reading/writing persisted files to a
+              separate file to allow additional changes and trim the line counts.
+
+            - Rename 'FiletagsExtractor' to 'FiletagsMetadataExtractor'.
+              Part of moving the "filetags" extractor to 'extractors.metadata'.
+
+              This makes the class name consistent with the metadata extractor
+              classes already present in the 'extractors.metadata' package.
+
+            - Simplify patterns and use 'RegexCache()'.
+              Further simplifies 'find_publisher_in_copyright_notice()'.
+
+              Adds using 'RegexCache()' to delay compilation of regular
+              expressions to actual usage, instead of when the module is
+              first imported.
+
+            - Rename 'GuessitExtractor' to 'GuessitMetadataExtractor'.
+              Part of moving the "guessit" extractor to 'extractors.metadata'.
+
+              This makes the class name consistent with the metadata extractor
+              classes already present in the 'extractors.metadata' package.
+
+            - Correct inconsistent use of 'ask_confirm()'.
+              Rework how 'ask_confirm()' is accessed in core/interactive.py'.
+
+              Renames 'ask_confirm()' to '_ask_confirm()' and re-orders the
+              functions so that the function is defined prior to first use.
+
+            - Remove 'pyexiftool' Git submodule.
+              Replaces Git submodule 'pyexiftool' with vendored source files.
+
+              Deletes submodule under 'autonameow/thirdparty/pyexiftool'.
+              Adds vendored sources under 'autonameow/vendor/pyexiftool'.
+
+            - Remove integration test report functionality.
+              Removes the '-w' flag from the 'run_integration_tests.sh' script.
+
+              This is poorly implemented and has not been used since autonameow
+              was developed as part of university coursework.
+
+            - Remove handling of missing 'colorama' module.
+              Removes handling of cases where 'colorama' is unavailable.
+
+              Assume 'colorama' is always available since it is now bundled
+              with the autonameow sources in the 'vendor' directory.
+
+            - Move 'batch_regex_replace' to separate file.
+              Moves and renames the 'batch_regex_replace' function.
+
+              Part of an effort to de-duplicate various ad-hoc implementations
+              of batched regular expression matching and replacements.
+
+            - Remove handling of missing 'chardet' module.
+              Removes handling of cases where 'chardet' is unavailable.
+
+              Assume 'chardet' is always available since it is now bundled
+              with the autonameow sources in the 'vendor' directory.
+
+            - Modify 'MANIFEST.in' and 'setup.py'.
+              Removes pip packages and adds tons of auxiliary files ..
+
+              TODO: This is INCOMPLETE and BROKEN!
+                    Missing Python package 'lxml'!
+                    Missing Python package 'Pillow'!
+
+            - Prefix 'GuessitExtractor' files with 'extractor_'.
+              Adds the prefix 'extractor_' to all 'GuessitExtractor' files.
+
+              Part of moving the 'extractor_guessit.py' file (and related files)
+              to the 'extractors.metadata' package.
+
+            - Prefix 'FiletagsExtractor' files with 'extractor_'.
+              Adds the prefix 'extractor_' to all 'FiletagsExtractor' files.
+
+              Part of moving 'extractor_filetags.py' and related files to the
+              'extractors.metadata' package.
+
+            - Clean up unit tests.
+              Changes to unit tests to match previous changes to the code under test.
+
+              Should have been part of commit 52de27b997176d29dd635850f4b862d286c286.
+
+            - Clean up variable 'SELF_DIRPATH' in Bash scripts.
+              Use lower-case for variables that are not exported to the environment.
+
+              Unset variables after use if possible, otherwise declare as readonly.
+
+            - Clean up variable 'SELF_BASENAME' in Bash scripts.
+              Use lower-case for variables that are not exported to the environment.
+
+              Unset variables after use if possible, otherwise declare as readonly.
+
+            - Move directory 'test_files' to 'tests/samplefiles'.
+              Moves 'test_files' and its contents to new path 'tests/samplefiles'.
+
+              Includes search and replace changes across the entire project.
+
+            - Remove method '_meowuri_node_from_module_name()'.
+              Removes now redundant method '_meowuri_node_from_module_name()'.
+
+              This method now only ever returns the string 'metadata'.
+
+            - Modify 'get_one_from_many_generic_values()'.
+              Cleans up and modifies 'get_one_from_many_generic_values()'.
+
+              Minor rewrite and use secondary mapped fields when sorting.
+
+            - Improve 'find_publisher_in_copyright_notice()'.
+              Simplify and improve results of messy regex matching publishers.
+
+              Also cleans up existing and adds additional unit tests.
+
+            - Clean up querying mapped fields from the resolver.
+              Simplifies getting candidates by querying mapped fields.
+
+              Inline function 'datadict_maps_field()'. Various cleanup.
+
+            - Rename exported environment variables.
+              Renames exported variables to match the "dirpath" convention.
+
+              Also adds additional tests of these variables.
+
+            - Move 'GuessitMetadataExtractor' to 'extractors.metadata'.
+              Completes moving the 'extractor_guessit.py' file (and related files)
+              to the 'extractors.metadata' package.
+
+            - Rename 'config_file_path()'.
+              Renames 'config_file_path()' to 'config_filepath_for_platform()'.
+
+              Also minor fixes of the docstring.
+
+            - Rename 'check-spelling.sh'.
+              Renames spellchecker script and wordlist to use '_' instead of '-'.
+
+              Also includes some minor fixes.
+
+            - Use 'regexbatch.find_replacement_value()'.
+              Adds using shared utility function in the 'FilenameAnalyzer'.
+
+              References TODO-list item [TD0130].
+
+            - Use 'regexbatch.find_replacement_value()'.
+              Adds using shared utility function in the 'DocumentAnalyzer'.
+
+              References TODO-list item [TD0130].
+
+            - Move 'FiletagsMetadataExtractor' to 'extractors.metadata'.
+              Completes moving 'extractor_filetags.py' and related files
+              to the 'extractors.metadata' package.
+
+            - Rename 'config_dirs()'.
+              Renames 'config_dirs()' to 'config_dirpath_candidates()'.
+
+              Also minor fixes to the docstring.
+
+            - Move 'CrossPlatformFileSystemExtractor' to 'extractors.metadata'.
+              Moves 'extractor_crossplatform.py' and related files to the
+              'extractors.metadata' package.
+
+            - Move 'autodetect_encoding()'.
+              Moves 'autodetect_encoding()' from 'extractor_plain.py' ..
+
+              .. to 'util/encoding.py'.
+
+            - Prefix 'CrossPlatformFileSystemExtractor' files with 'extractor_'.
+              Adds the prefix 'extractor_' to all 'CrossPlatformFileSystemExtractor' files.
+
+            - Get sample files path from environment variable.
+              Use existing environment variable '$AUTONAMEOW_SAMPLEFILES_DIRPATH'.
+
+            - Rename function 'aw_utils.abspath_testfile'.
+              Renames integration test function to 'aw_utils.samplefile_abspath'.
+
+            - Remove completed ("orphaned") TODO [TD0174].
+              Should have been part of commit 9efcdec2f3b304d8b039c4574620c33f096
+
+            - Remove completed ("orphaned") TODO [TD0152].
+              Should have been part of commit 9efcdec2f3b304d8b039c4574620c33f096
+
+            - Reformat all '*.yaml' files.
+              Mass reformatting of all '*.yaml' files with the PyCharm formatter.
+
+            - Move logging out of 'rename_file()'.
+              Allows removing logging altogether in 'autonameow/util/disk/io.py'.
+
+            - Simplify arguments passed to the main run function.
+              Following the previous commit, move display logic to the reporter.
+
+            - Rename 'fileobject_testfile()'.
+              Renames 'fileobject_testfile()' to 'fileobject_from_samplefile()'.
+
+            - Remove redundant shift of function arguments.
+              Removes duplicate 'shift' in integration test assertion functions.
+
+            - Remove 'sanity.check_internal_string()'.
+              Replaces calls to 'check_internal_string()' with plain assertions.
+
+            - Rename and cleanup 'abspath_testconfig()'.
+              Renames 'abspath_testconfig()' to 'samplefile_config_abspath()'.
+
+            - Move 'QueryResponseFailure' to separate file.
+              Moves the 'QueryResponseFailure' class to a new file 'query.py'.
+
+            - Clean up booleans in all test bash scripts.
+              Replaces strings with actual booleans. Simplifies strange logic.
+
+            - Remove unused import.
+              Left over from commit 75540677ce39cf27bda9d0e9ac413e8072002a61.
+
+            - Rework integration test framework.
+              Removes timestamps from integration test output. Refactoring.
+
+            - Do not consider "basename prefix" a generic title.
+              Also decrease the weight of the 'WeightedMapping' to 'Title'.
+
+            - Various minor cleanup in bash scripts.
+              Adds missing ' -- ', fixes naming and other inconsistencies.
+
+            - Rename regression test '$TESTFILES' to '$SAMPLEFILES'.
+              Renames regression test variable to match renamed directory.
+
+            - Rename module-level variable.
+              Renames 'global_logged_runtime' to '_GLOBAL_LOGGED_RUNTIME'.
+
+            - Remove unused path string functions.
+              Removes functions 'path_ancestry()' and 'path_components()'.
+
+            - Remove failing regression test.
+              This test has never actually been used on my primary devbox.
+
+            - Call the YAML linter in from the integration tests.
+              Lint YAML files in the "Source Code" integration test suite.
+
+            - Rename environment variable 'AUTONAMEOW_ROOT_DIR'.
+              Renames 'AUTONAMEOW_ROOT_DIR' to 'AUTONAMEOW_ROOT_DIRPATH'.
+
+            - Remove use of 'check_isinstance()'.
+              Replaces 'sanity.check_isinstance()' with plain assertions.
+
+            - Remove periods when formatting title fields.
+              Adds even more arbitrary hardcoded behaviour in bad spots..
+
+            - Rename function 'as_fileobject()'.
+              Renames 'as_fileobject()' to 'fileobject_from_filepath()'.
+
+            - Rename 'write-default-config.sh'.
+              Renames script to use '_' instead of '-' for consistency.
+
+            - Rename 'list-imported-modules.sh'.
+              Renames script to use '_' instead of '-' for consistency.
+
+            - Rename 'functions-rarely-called.sh'.
+              Renames script to use '_' instead of '-' for consistency.
+
+            - Rename 'delete-python-caches.sh'.
+              Renames script to use '_' instead of '-' for consistency.
+
+            - Modify integration test output format.
+              Replace '[PASS]' with 'PASS:' and '[FAIL]' with 'FAIL:'.
+
+            - Import top-level 'prompt_toolkit' package.
+              Prefer explicitly stating full module paths for clarity.
+
+            - Rename function 'abspath_testfile()'.
+              Renames 'abspath_testfile()' to 'samplefile_abspath()'.
+
+            - Use 'regexbatch.find_replacement_value()'.
+              Replaces duplicate code in 'StringValueCanonicalizer'.
+
+            - Move 'name_template.py'.
+              Moves 'name_template.py' to the 'namebuilder' module.
+
+            - Simplify 'known_data_loader.py' functions.
+              Inline the '_get_known_data_file_parser()' function.
+
+            - Rename 'name_template.py' to 'template.py'.
+              Renames source file and modifies how it is imported.
+
+            - Move 'repository.py' to 'datastore/repository.py'.
+              Moves 'repository.py' to a new module 'datastore'.
+
+            - Rewrite 'Rule.__repr__()'.
+              Explicitly specify which attributes to include.
+
+            - Rename 'ChildProcessError' to 'ChildProcessFailure'.
+              Renames exception class to not shadow built-in.
+
+            - Remove outdated 'filter_list-all_meowuris.sh'.
+              Removes outdated (non-functional) shell script.
+
+            - Minor cleanup in 'match_any_unix_timestamp()'.
+              Completes (irrelevant) TODO-list item [TD0010].
+
+            - Coerce 'author' field values in 'PandocMetadataExtractor'.
+              Completes TODO-list item [TD0189].
+
+            - Write weights as floats in fieldmeta YAML files.
+
+            - Use 'RegexCache()' for module-level 'RE_EDITION'.
+
+            - Use 'namedtuple' for readability.
+
+            - Use '&>' and remove trailing '2>&1'.
+
+            - Update notes on "change operations".
+
+            - Try vendoring all pip dependencies.
+
+            - Suppress shellcheck SC1090.
+
+            - Sort tests in the output of 'skipped.sh'.
+
+            - Skip debug logging loop if not at log level debug.
+
+            - Simplify top-level exception error message.
+
+            - Simplify regression test filtering.
+
+            - Simplify configuration loading. Collapse methods.
+
+            - Simplify 'datadict_maps_field()'.
+
+            - Simplify 'calculate_authors_similarity()'.
+
+            - Rewrite description of integration test assertion.
+
+            - Rewrite 'install.md'.
+
+            - Rework 'config_dirpath_candidates()'.
+
+            - Replace HTML-encoded copyright symbol.
+
+            - Replace call to 'grep' with Bash case command.
+
+            - Replace 'echo' with 'printf' in Bash scripts.
+
+            - Rename variations of '_PATH_THIS_DIR' to '_SELF_DIRPATH'.
+
+            - Rename test constants 'PATH_*' to 'DIRPATH_*'.
+
+            - Rename sample file variables in integration test.
+
+            - Rename parameter 'dir_path' to 'dirpath'.
+
+            - Rename functions to fit 'samplefiles' convention.
+
+            - Rename 'requirements.txt' to 'vendored.txt'.
+
+            - Rename 'autodetect_encoding()' to 'detect_encoding()'.
+
+            - Remove superfluous 'assert_bash_function()'.
+
+            - Remove sourcing of already sourced 'utils.sh'.
+
+            - Remove redundant utility function.
+
+            - Remove redundant newline-escapes in bash-scripts.
+
+            - Remove redundant debug log message.
+
+            - Remove redundant curly braces in Bash scripts.
+
+            - Remove redundant cast to string.
+
+            - Remove outdated script 'analyze-available-data.sh'.
+
+            - Remove forgotten debug echo call.
+
+            - Remove extraneous empty line.
+
+            - Remove duplicated code in 'get_mock_fileobject()'.
+
+            - Remove duplicate, redundant function calls.
+
+            - Remove 'SECTION_' prefix from class variables.
+
+            - Remove 'rebulk' tests.
+
+            - Remove 'pytz' tests.
+
+            - Remove 'lxml' tests.
+
+            - Remove 'isbnlib' tests.
+
+            - Remove 'guessit' tests.
+
+            - Remove 'devscripts/list_imported_modules.sh'.
+
+            - Remove 'dateutil' tests.
+
+            - Remove 'bs4' tests.
+
+            - Remove 'babelfish' tests and test-only data.
+
+            - Remove "self-tests" in 'integration/utils.sh'.
+
+            - Refactor 'config_dirpath_candidates()'. Remove mocking.
+
+            - Reduce nesting by replacing "if" with "continue".
+
+            - Prefer most commonly used form of variable names.
+
+            - Pass in 'TerminalReporter' to the run function.
+
+            - Pass in 'filepath' to 'get_probable_extension_config()'.
+
+            - Only de-dupe databundles when there are multiple.
+
+            - Move function so that it is defined prior to use.
+
+            - Modify regression runner output format.
+
+            - Modify publisher search in 'DocumentAnalyzer'.
+
+            - Modify exiftool fieldmeta. Ignore XMP fields.
+
+            - Modify blacklisted exiftool field values and tests.
+
+            - Modify 'print_callstack_names()'. Add docstring.
+
+            - Minor rework of time duration formatting.
+
+            - Minor refactoring in 'known_data_loader.py'.
+
+            - Make sure the spellchecker wordlist is not empty.
+
+            - Include nanoseconds in the unittest log filename.
+
+            - Improve readability of 'make_temporary_file()'.
+
+            - Ignore exiftool tag 'ExifTool:Error'.
+
+            - Ignore 'vendor' directory in integration tests.
+
+            - Ensure changelog entries end with a period.
+
+            - Document and polish 'find_unit_test_visits.sh'.
+
+            - Do not evaluate "booleans" in Bash scripts.
+
+            - Discard "known bad" string values in the resolver.
+
+            - Describe temporary fix for 'lxml' troubles on MacOS.
+
+            - Cleanup calls to 'realpath' in Bash scripts.
+
+            - Cleanup 'rename_file()' and related unit tests.
+
+            - Clean up unit tests.
+
+            - Clean up unit tests in 'test_regression_utils.py'.
+
+            - Bump year in copyright notices.
+
+            - Avoid unnecessary subshells in 'skipped.sh'.
+
+
+            Fixes
+            - Handle unexpected value in "known truths" YAML file.
+              Skip entries where the literal values are not a list of strings.
+
+              Fixes cases when, given this bad YAML data:
+
+                  FooPub:
+                      match_any_literal: non_list_value
+
+              Would result in the following malformed lookup entry:
+
+                  {
+                      'FooPub': {
+                          'e', 'n', 'o', '_', 'i', 't', 'l', 's', 'v', 'u', 'a'
+                      }
+                  }
+
+              Bad entries are skipped and logged.
+
+            - Fix crash when listing multiple excluded providers.
+              Fixes possible crash when running '--dump-meowuris --verbose'.
+
+              If multiple providers are excluded, the 'sorted()' call fails
+              with a TypeError due to the providers does not have a common
+              base class that makes the types unorderable.
+
+              Fixed by adding an accessor that sorts the providers by class
+              names each time the property is accessed.
+
+            - Fix incorrect capitalization in pandoc fieldmeta.
+              Add integration test to detect if this happens again.
+
+              This really is too fragile and has gone undetected for more than
+              6 months, since commit 53119ccec89e2e83ae49697bca25f4b1332e061a.
+              But rather than make the key lookup case-insensitive the added
+              integration test case will have to do for now.
+
+            - Fix bug caused by missing Unicode coercion.
+              Fixes crashing for some '{publisher}' placeholder sources.
+
+              If the '{publisher}' placeholder source was set to some provider that
+              returns other types than Unicode strings, the "internal string"
+              assertion error would be triggered.
+
+              Adds regression testsuite that verifies that the bug is fixed.
+
+            - Fix misleading variable names.
+              Fix misleading naming. Use explicit variable names.
+
+              The variable '_self_dir_relative' references a file; not a directory,
+              that the name might have indicated.
+
+            - Minor fixes in 'known_data_loader.py'.
+              Wraps filename string operation with 'lru_cache'.
+
+              Also adds additional unit tests and modifies calls
+              to 'clear_lookup_cache()' between unit tests.
+
+            - Fix typo in non-functional regression test assert.
+              This does not do anything either way, this is yet to be implemented.
+
+            - Fix inconsistent use of 'file_path' and 'filepath'.
+              Mass rename various uses of 'file_path' in variable names, etc.
+
+            - Fix implicit item in array expansion.
+              Explicitly specify which item to get when expanding Bash array.
+
+            - Rename variable 'entry' to 'logentry'.
+              Fixes variable name 'entry' shadowing variable in outer scope
+
+            - Fix bad arguments passed to pytest.
+              Fixes '--cov=autonameow' argument added to the log file path.
+
+            - Normalize path before prepending to 'sys.path'.
+              Fixes relative paths being used in import statement lookups.
+
+            - Fix integration tests failing after new year.
+              Fixes bad grep patterns in integration test assertions.
+
+            - Use assertions instead of exceptions. Minor fixes.
+
+            - Minor robustness fixes in integration tests.
+
+            - Fix wrong options dict used in 'meowxtract.py'.
+
+            - Fix logging level for skipped known bad values.
+
+            - Fix incorrect test of debug logging level.
+
+            - Fix incorrect integration test description.
+
+            - Fix incorrect filenames in 'setup.py'.
+
+            - Fix inconsistent use of curly braces in Bash scripts.
+
+            - Fix inconsistent assertion placement.
+
+            - Fix experimental new syntax committed by mistake.
+
+            - Fix bad variable name used in error message.
+
+            - Fix 'Registry.excluded_providers' sorting.
+
+
 2018-11-06  [autonameow v0.5.9]
             Various bug fixes and minor improvements.
             Fixes 'prompt_toolkit' 2.0 breakage.

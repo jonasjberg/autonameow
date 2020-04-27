@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -32,10 +32,11 @@ log = logging.getLogger(__name__)
 AUTONAMEOW_EXTRACTOR_PATH = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, AUTONAMEOW_EXTRACTOR_PATH)
 
-EXTRACTOR_CLASS_PACKAGES_FILESYSTEM = ['filesystem']
 EXTRACTOR_CLASS_PACKAGES_METADATA = ['metadata']
-EXTRACTOR_CLASS_PACKAGES = (EXTRACTOR_CLASS_PACKAGES_FILESYSTEM
-                            + EXTRACTOR_CLASS_PACKAGES_METADATA)
+EXTRACTOR_CLASS_PACKAGES = (
+    EXTRACTOR_CLASS_PACKAGES_METADATA +
+    []
+)
 
 
 class ExtractorError(AutonameowException):
@@ -44,7 +45,7 @@ class ExtractorError(AutonameowException):
 
 def _find_extractor_classes_in_packages(packages):
     klasses = list()
-    from extractors.base import BaseMetadataExtractor
+    from extractors.metadata.base import BaseMetadataExtractor
 
     for package in packages:
         __import__(package)
@@ -80,7 +81,6 @@ class ExtractorRegistry(object):
     def __init__(self):
         self._all_providers = None
         self._metadata_providers = None
-        self._filesystem_providers = None
         self._excluded_providers = set()
 
     def _get_cached_or_collect(self, self_attribute, packages):
@@ -108,11 +108,6 @@ class ExtractorRegistry(object):
     def metadata_providers(self):
         return self._get_cached_or_collect('_metadata_providers',
                                            EXTRACTOR_CLASS_PACKAGES_METADATA)
-
-    @property
-    def filesystem_providers(self):
-        return self._get_cached_or_collect('_filesystem_providers',
-                                           EXTRACTOR_CLASS_PACKAGES_FILESYSTEM)
 
     @property
     def excluded_providers(self):

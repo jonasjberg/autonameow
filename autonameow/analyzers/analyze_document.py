@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -17,11 +17,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-
 from analyzers import BaseAnalyzer
+from core.truths import known_data_loader
 from core.metadata.normalize import cleanup_full_title
 from util.text import collapse_whitespace
+from util.text import regexbatch
 from util.text import remove_blacklisted_lines
 from util.text import TextChunker
 from util.text.filter import RegexLineFilter
@@ -108,10 +108,6 @@ class DocumentAnalyzer(BaseAnalyzer):
     def __init__(self, fileobject, config, request_data_callback):
         super().__init__(fileobject, config, request_data_callback)
 
-        self.text = None
-        self.num_text_lines = 0
-        self.candidate_publishers = {}
-
     def analyze(self):
         maybe_text = self.request_any_textual_content()
         if not maybe_text:
@@ -119,11 +115,12 @@ class DocumentAnalyzer(BaseAnalyzer):
 
         filtered_text = remove_blacklisted_lines(maybe_text, BLACKLISTED_TEXTLINES)
         normalized_whitespace_text = collapse_whitespace(filtered_text)
-        self.text = normalized_whitespace_text
-        self.num_text_lines = len(self.text.splitlines())
 
         # Arbitrarily search the text in chunks of 10%
-        text_chunks = TextChunker(self.text, chunk_to_text_ratio=0.1)
+        text_chunks = TextChunker(
+            text=normalized_whitespace_text,
+            chunk_to_text_ratio=0.02
+        )
         leading_text = text_chunks.leading
 
         # TODO: Search text for datetime information.
@@ -139,41 +136,49 @@ class DocumentAnalyzer(BaseAnalyzer):
             # should help with comparing the candidate values against values
             # from other sources and also with other methods that look at
             # relationships between fields within a single record and also
-            # betweeen multiple records.
+            # between multiple records.
             maybe_text_title = text_titles[0]
             clean_title = cleanup_full_title(maybe_text_title)
             if clean_title:
                 self._add_intermediate_results('title', clean_title)
 
-        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if _options:
-            self.candidate_publishers = _options.get('candidates', {})
-
-        if self.candidate_publishers:
+        literal_lookup_dict = known_data_loader.literal_lookup_dict('publisher')
+        if literal_lookup_dict:
             # TODO: Pass multiple possible publishers with probabilities.
             #       (publisher is not "multivalued")
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_candidate_publisher(leading_text)
-            )
-            self._add_intermediate_results(
-                'publisher',
-                self._search_text_for_copyright_publisher(leading_text)
-            )
+            result = self._search_text_for_copyright_publisher(leading_text, literal_lookup_dict)
+            if result:
+                self._add_intermediate_results('publisher', result)
+            else:
+                result = self._search_text_for_candidate_publisher(leading_text, literal_lookup_dict)
+                if result:
+                    self._add_intermediate_results('publisher', result)
+                else:
+                    regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
+                    if regex_lookup_dict:
+                        # TODO: Pass multiple possible publishers with probabilities.
+                        #       (publisher is not "multivalued")
+                        result = self._search_text_for_copyright_publisher(leading_text, regex_lookup_dict)
+                        if result:
+                            self._add_intermediate_results('publisher', result)
+                        else:
+                            result = self._search_text_for_candidate_publisher(leading_text, regex_lookup_dict)
+                            if result:
+                                self._add_intermediate_results('publisher', result)
 
-    def _search_text_for_candidate_publisher(self, text):
+    def _search_text_for_candidate_publisher(self, text, patterns):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-        result = find_publisher(text, self.candidate_publishers)
+        result = find_publisher(text, patterns)
         return result
 
-    def _search_text_for_copyright_publisher(self, text):
+    def _search_text_for_copyright_publisher(self, text, patterns):
         # TODO: [TD0130] Implement general-purpose substring matching/extraction.
         possible_publishers = find_publisher_in_copyright_notice(text)
         if not possible_publishers:
             return None
 
         # TODO: [cleanup] ..
-        result = find_publisher(possible_publishers, self.candidate_publishers)
+        result = find_publisher(possible_publishers, patterns)
         return result
 
     @classmethod
@@ -214,10 +219,8 @@ def find_titles_in_text(text, num_lines_to_search):
 
 
 def find_publisher(text, candidates):
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
-    text = text.lower()
-    for replacement, patterns in candidates.items():
-        for pattern in patterns:
-            if re.search(pattern, text):
-                return replacement
+    replacement = regexbatch.find_replacement_value(candidates, text)
+    if replacement:
+        return replacement
+
     return None

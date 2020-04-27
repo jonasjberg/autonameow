@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,52 +24,52 @@ from unittest.mock import MagicMock, Mock, patch
 
 import unit.utils as uu
 from core.persistence.config import CONFIG_BASENAME
-from core.persistence.config import config_dirs
-from core.persistence.config import config_file_path
+from core.persistence.config import config_dirpath_candidates
+from core.persistence.config import config_filepath_for_platform
 from core.persistence.config import load_config_from_file
 
 
-class TestConfigDirs(TestCase):
+class TestConfigDirpathCandidates(TestCase):
     def _assert_unicode_encoding(self, path_list):
         for path in path_list:
             self.assertTrue(uu.is_internalstring(path))
 
-    def test_config_dirs_on_mac(self):
-        with patch('platform.system', MagicMock(return_value='Darwin')):
-            dirs = config_dirs()
+    def _assert_candidate(self, _expected_dirpath, _actual_dirpaths):
+        self.assertIn(os.path.expanduser(_expected_dirpath), _actual_dirpaths)
 
-            self.assertIsNotNone(dirs)
-            self._assert_unicode_encoding(dirs)
-            self.assertIn(os.path.expanduser('~/.config'), dirs)
-            self.assertIn(os.path.expanduser('~/Library/Application Support'), dirs)
+    def test_config_dirs_on_mac(self):
+        dirpaths = config_dirpath_candidates(system_platform='Darwin')
+        self._assert_unicode_encoding(dirpaths)
+        self._assert_candidate('~/.config', dirpaths)
+        self._assert_candidate('~/Library/Application Support', dirpaths)
 
     def test_config_dirs_on_windows(self):
         self.skipTest('TODO: Mock expanding "~" to "C:/Users/whatever"')
-        with patch('platform.system', MagicMock(return_value='Windows')):
-            dirs = config_dirs()
 
-            self.assertIsNotNone(dirs)
-            self._assert_unicode_encoding(dirs)
-            self.assertIn(os.path.expanduser('~\\AppData\\Roaming'), dirs)
+        dirpaths = config_dirpath_candidates(system_platform='Windows')
+        self._assert_unicode_encoding(dirpaths)
+        self._assert_candidate('~\\AppData\\Roaming', dirpaths)
 
     def test_config_dirs_on_linux(self):
-        with patch('platform.system', MagicMock(return_value='Linux')):
-            dirs = config_dirs()
-
-            self.assertIsNotNone(dirs)
-            self._assert_unicode_encoding(dirs)
-            self.assertIn(os.path.expanduser('~/.config'), dirs)
+        dirpaths = config_dirpath_candidates(system_platform='Linux')
+        self._assert_unicode_encoding(dirpaths)
+        self._assert_candidate('~/.config', dirpaths)
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
-        with patch('platform.system', MagicMock(return_value='dummy')):
-            dirs = config_dirs()
+        dirpaths = config_dirpath_candidates(system_platform='dummy')
+        self._assert_unicode_encoding(dirpaths)
+        self._assert_candidate('~/.config', dirpaths)
 
-            self.assertIsNotNone(dirs)
-            self._assert_unicode_encoding(dirs)
-            self.assertIn(os.path.expanduser('~/.config'), dirs)
+    def test_config_dirs_works_with_lowercase_system_platform_string(self):
+        dirpaths_linux = config_dirpath_candidates(system_platform='linux')
+        self._assert_candidate('~/.config', dirpaths_linux)
+
+        dirpaths_darwin = config_dirpath_candidates(system_platform='darwin')
+        self._assert_candidate('~/.config', dirpaths_darwin)
+        self._assert_candidate('~/Library/Application Support', dirpaths_darwin)
 
 
-class TestConfigFilePath(TestCase):
+class TestConfigFilepathForPlatform(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.expect_basename = uu.encode(CONFIG_BASENAME)
@@ -82,24 +82,24 @@ class TestConfigFilePath(TestCase):
 
     def test_config_dirs_on_mac(self):
         with patch('platform.system', MagicMock(return_value='Darwin')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_filepath_for_platform()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_windows(self):
         # TODO: Mock expanding "~" to "C:/Users/whatever" ..
         with patch('platform.system', MagicMock(return_value='Windows')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_filepath_for_platform()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_linux(self):
         with patch('platform.system', MagicMock(return_value='Linux')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_filepath_for_platform()
+        self._check_result(config_filepath)
 
     def test_config_dirs_on_dummy_system_defaults_to_unix(self):
         with patch('platform.system', MagicMock(return_value='dummy')):
-            config_path = config_file_path()
-        self._check_result(config_path)
+            config_filepath = config_filepath_for_platform()
+        self._check_result(config_filepath)
 
 
 MOCK_REGISTRY = Mock()
@@ -114,6 +114,6 @@ class TestLoadConfigFromFile(TestCase):
 
     @patch('core.config.rules.master_provider.Registry', MOCK_REGISTRY)
     def test_loads_valid_config_from_absolute_path(self):
-        _config_path = uu.normpath(uu.abspath_testconfig())
-        actual = load_config_from_file(_config_path)
+        config_filepath = uu.normpath(uu.samplefile_config_abspath())
+        actual = load_config_from_file(config_filepath)
         self.assertIsNotNone(actual)

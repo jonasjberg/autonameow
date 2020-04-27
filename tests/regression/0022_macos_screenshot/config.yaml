@@ -1,22 +1,22 @@
 RULES:
-    MacBookPro Desktop Screenshots:
-        CONDITIONS:
-            extractor.filesystem.xplat.mime_type: image/png
-            extractor.filesystem.xplat.basename_suffix: png
-            extractor.filesystem.xplat.pathname_parent: test_files
-            extractor.filesystem.xplat.basename_full: Screen Shot 20\d\d-\d\d-\d\d at \d\d.\d\d.\d\d.png
-            extractor.filesystem.xplat.abspath_full: .*/Screen Shot 20\d\d-\d\d-\d\d at \d\d.\d\d.\d\d.png
-        NAME_TEMPLATE: '{datetime} -- macbookpro screenshot.png'
-        DATA_SOURCES:
-            datetime:
-            - analyzer.filename.datetime
-        exact_match: true
+  MacBookPro Desktop Screenshots:
+    CONDITIONS:
+      extractor.filesystem.xplat.mime_type: image/png
+      extractor.filesystem.xplat.basename_suffix: png
+      extractor.filesystem.xplat.pathname_parent: samplefiles
+      extractor.filesystem.xplat.basename_full: Screen Shot 20\d\d-\d\d-\d\d at \d\d.\d\d.\d\d.png
+      extractor.filesystem.xplat.abspath_full: .*/Screen Shot 20\d\d-\d\d-\d\d at \d\d.\d\d.\d\d.png
+    NAME_TEMPLATE: '{datetime} -- macbookpro screenshot.png'
+    DATA_SOURCES:
+      datetime:
+        - analyzer.filename.datetime
+    exact_match: true
 
 FILETAGS_OPTIONS:
-    between_tag_separator: ' '
-    filename_tag_separator: ' -- '
+  between_tag_separator: ' '
+  filename_tag_separator: ' -- '
 
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'

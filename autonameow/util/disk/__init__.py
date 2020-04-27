@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,8 +23,6 @@ from .io import *
 from .pathstring import basename_prefix
 from .pathstring import basename_suffix
 from .pathstring import compare_basenames
-from .pathstring import path_ancestry
-from .pathstring import path_components
 from .pathstring import split_basename
 from .sanitize import sanitize_filename
 from .yaml import load_yaml

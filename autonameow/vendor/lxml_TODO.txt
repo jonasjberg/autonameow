@@ -1,0 +1,46 @@
+TODO(jonas): Handle this PROPERLY! Use the compiled Cython version.
+TODO(jonas): Running "from ebooklib import epub" currently FAILS on MacOS!
+
+________________________________________________________________________________
+FAILURE on MacOS!
+This is caused by ebooklib running "from lxml import etree" which fails
+because the only "etree" file that is vendored must be compiled ..
+
+Temporary fix:
+
+* Disable the vendored package by renaming the directory:
+
+    mv -nv -- '${SOURCEROOT}/autonameow/vendor/lxml{,_DISABLED}'
+
+Activate a autonameow virtualenv:
+
+    source env/bin/activate
+
+Install "lxml" with pip inside the virtualenv:
+
+    pip3 install lxml==4.2.5
+
+Verify that the installed package is used:
+
+    PYTHONPATH=autonameow/vendor python3 -c "from ebooklib import epub ; print(epub.__file__)"
+    resulting stdout: ${SOURCEROOT}/autonameow/vendor/ebooklib/epub.py
+
+    PYTHONPATH=autonameow/vendor python3 -c "from lxml import etree ; print(etree.__file__)"
+    resulting stdout: ${SOURCEROOT}/env/lib/python3.7/site-packages/lxml/etree.cpython-37m-darwin.so
+
+________________________________________________________________________________
+
+
+
+The 'lxml' package was extracted from
+'lxml-4.2.5-cp35-cp35m-manylinux1_x86_64.whl', which was downloaded with:
+
+    $ STATIC_DEPS=true pip3 install lxml --download .
+
+And then extracted by doing something like:
+
+    $ unzip lxml-4.2.5-cp35-cp35m-manylinux1_x86_64.whl
+
+
+Refer to:
+https://github.com/lxml/lxml/blob/master/INSTALL.txt

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,7 +23,6 @@ from core import constants as C
 from core import persistence
 from util import coercers
 from util import encoding as enc
-from util import sanity
 from util.text import normalize_unicode
 from util.text import normalize_horizontal_whitespace
 from util.text import normalize_vertical_whitespace
@@ -48,7 +47,7 @@ class BaseTextExtractor(object):
 
     def extract_text(self, fileobject):
         text = self._check_cache_and_do_extraction(fileobject)
-        sanity.check_internal_string(text)
+        assert isinstance(text, str)
 
         # TODO: [TD0173] Use 'pandoc' to extract information from documents.
         return text
@@ -171,7 +170,7 @@ def cleanup(raw_text):
     if not raw_text:
         return ''
 
-    sanity.check_internal_string(raw_text)
+    assert isinstance(raw_text, str)
     text = raw_text
     text = normalize_unicode(text)
     text = normalize_horizontal_whitespace(text)

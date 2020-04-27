@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -53,7 +53,6 @@ from core import constants as C
 from core import exceptions
 from util import encoding as enc
 from util import mimemagic
-from util import sanity
 
 
 class AWTypeError(exceptions.AutonameowException):
@@ -634,7 +633,6 @@ def try_parse_datetime(s):
 
     Raises:
         ValueError: The given string could not be parsed.
-        AssertionError: The given string is not a Unicode string.
     """
     assert isinstance(s, str)
 
@@ -675,7 +673,6 @@ def try_parse_date(s):
 
     Raises:
         ValueError: The given string could not be parsed.
-        AssertionError: The given string is not a Unicode string.
     """
     assert isinstance(s, str)
 
@@ -741,7 +738,7 @@ class MultipleTypes(object):
         formatted_list = coercers.listof(coercers.AW_STRING).format(raw_list)
     """
     def __init__(self, coercer):
-        sanity.check_isinstance(coercer, BaseCoercer)
+        assert isinstance(coercer, BaseCoercer)
         self.coercer = coercer
 
     def __call__(self, values):

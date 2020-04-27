@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,7 +20,7 @@
 import re
 import subprocess
 
-from extractors.base import BaseMetadataExtractor
+from extractors.metadata.base import BaseMetadataExtractor
 from extractors import ExtractorError
 from util import coercers
 from util import process

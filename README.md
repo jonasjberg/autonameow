@@ -1,6 +1,6 @@
 `autonameow`
 ============
-Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>  
 Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ guide to installing under Linux and MacOS.
 
 Running
 =======
-Use the wrapper script `bin/autonameow.sh` to start `autonameow`.
+Use the wrapper script `bin/autonameow` to start `autonameow`.
 Pass `--help` to get up-to-date usage information.
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,16 +24,18 @@ import re
 from analyzers import AnalyzerError
 from analyzers import BaseAnalyzer
 from core import constants as C
+from core.truths import known_data_loader
+from core.truths import known_metadata
 from util import coercers
 from util import dateandtime
 from util import disk
-from util import sanity
 from util.text import find_and_extract_edition
+from util.text import regexbatch
 
 
-_PATH_THIS_DIR = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
+_SELF_DIRPATH = coercers.AW_PATH(os.path.abspath(os.path.dirname(__file__)))
 BASENAME_PROBABLE_EXT_LOOKUP = coercers.AW_PATHCOMPONENT('probable_extension_lookup')
-PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_PATH_THIS_DIR, BASENAME_PROBABLE_EXT_LOOKUP)
+PATH_PROBABLE_EXT_LOOKUP = disk.joinpaths(_SELF_DIRPATH, BASENAME_PROBABLE_EXT_LOOKUP)
 
 log = logging.getLogger(__name__)
 
@@ -92,14 +94,14 @@ class FilenameAnalyzer(BaseAnalyzer):
         self._file_mimetype = None
 
     def analyze(self):
-        basename_prefix = self.fileobject.basename_prefix
-        self._basename_prefix = coercers.force_string(basename_prefix)
+        self._basename_prefix = coercers.force_string(
+            self.fileobject.basename_prefix
+        )
+        self._basename_suffix = coercers.force_string(
+            self.fileobject.basename_suffix
+        )
+        self._file_mimetype = self.fileobject.mime_type or coercers.NULL_AW_MIMETYPE
 
-        basename_suffix = self.fileobject.basename_suffix
-        self._basename_suffix = coercers.force_string(basename_suffix)
-
-        file_mimetype = self.fileobject.mime_type
-        self._file_mimetype = file_mimetype or coercers.NULL_AW_MIMETYPE
         self._add_intermediate_results('datetime', self._get_datetime())
         self._add_intermediate_results('edition', self._get_edition())
         self._add_intermediate_results('extension', self._get_extension())
@@ -172,26 +174,50 @@ class FilenameAnalyzer(BaseAnalyzer):
         if not self._basename_prefix:
             return None
 
-        _options = self.config.get(['NAME_TEMPLATE_FIELDS', 'publisher'])
-        if not _options:
+        known_publisher_values = known_metadata.canonical_values('publisher')
+        if not known_publisher_values:
             return None
 
-        _candidates = _options.get('candidates', {})
-        self.log.debug('Searching for publisher in basename prefix with %d candidates', len(_candidates))
-        result = find_publisher(self._basename_prefix, _candidates)
-        self.log.debug('Search for publisher in basename prefix found "%s"', result)
-        return result
+        self.log.debug(
+            'Searching basename prefix for %d known publisher values',
+            len(known_publisher_values)
+        )
+        result = find_known_publisher(self._basename_prefix, known_publisher_values)
+        if result:
+            self.log.debug('Found known publisher in basename prefix "%s"',
+                           result)
+            return result
+
+        regex_lookup_dict = known_data_loader.regex_lookup_dict('publisher')
+        result = find_publishers(self._basename_prefix, regex_lookup_dict)
+        if result:
+            self.log.debug('Found possible publisher in basename prefix "%s"',
+                           result)
+            return result
+
+        return None
 
     @classmethod
     def dependencies_satisfied(cls):
         return True
 
 
+def _read_probable_extension_config_file(filepath):
+    try:
+        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
+            file_data = fh.read()
+    except OSError as e:
+        raise AnalyzerError(
+            'Error while loading probable extension data file :: {!s}'.format(e)
+        )
+    return _parse_mimetype_extension_suffixes_map_data(file_data)
+
+
 # Populated at first access.
 _PROBABLE_EXTENSION_CONFIG = None
 
 
-def get_probable_extension_config():
+def get_probable_extension_config(filepath=PATH_PROBABLE_EXT_LOOKUP):
     """
     Retrieves the data used to find a likely extension from
     a given MIME-type and basename suffix.
@@ -204,7 +230,7 @@ def get_probable_extension_config():
     global _PROBABLE_EXTENSION_CONFIG
     if _PROBABLE_EXTENSION_CONFIG is None:
         _PROBABLE_EXTENSION_CONFIG = _read_probable_extension_config_file(
-            PATH_PROBABLE_EXT_LOOKUP
+            filepath,
         )
     return _PROBABLE_EXTENSION_CONFIG
 
@@ -300,17 +326,6 @@ def _parse_mimetype_extension_suffixes_map_data(data):
         )
 
 
-def _read_probable_extension_config_file(filepath):
-    try:
-        with open(filepath, 'r', encoding=C.DEFAULT_ENCODING) as fh:
-            file_data = fh.read()
-    except OSError as e:
-        raise AnalyzerError(
-            'Error while loading probable extension data file :: {!s}'.format(e)
-        )
-    return _parse_mimetype_extension_suffixes_map_data(file_data)
-
-
 def likely_extension(basename_suffix, mime_type):
     # TODO: [TD0200] Improve system for finding probable file extensions.
     #                Use additional information, like the "basename prefix".
@@ -318,7 +333,7 @@ def likely_extension(basename_suffix, mime_type):
     #                certain name like 'METADATA', having any of a list of
     #                MIME-types, so that the probable extension is empty, etc.
     if mime_type and basename_suffix is not None:
-        sanity.check_internal_string(mime_type)
+        assert isinstance(mime_type, str)
 
         # For each MIME-type; use the file extension in the dict key if the
         # current file extension is any of the dict values stored under that key.
@@ -365,16 +380,16 @@ def get_most_likely_datetime_from_string(string):
     return match
 
 
-def find_publisher(text, candidates):
-    # TODO: [TD0130] Implement general-purpose substring matching/extraction.
+def find_known_publisher(text, known_publishers):
     lowercase_text = text.lower()
 
-    for repl, patterns in candidates.items():
-        if repl.lower() in lowercase_text:
-            return repl
-
-        for pattern in patterns:
-            if re.search(pattern, text):
-                return repl
+    for publisher in known_publishers:
+        if publisher.lower() in lowercase_text:
+            return publisher
 
     return None
+
+
+def find_publishers(text, candidates):
+    match = regexbatch.find_replacement_value(candidates, text)
+    return match or None

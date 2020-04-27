@@ -1,12 +1,77 @@
 `autonameow`
 ============
-Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>  
+Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>  
 Source repository: <https://github.com/jonasjberg/autonameow>
 
 --------------------------------------------------------------------------------
 
 Completed TODO-list Entries
 ===========================
+
+### 2018-12-28
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0182]` Isolate third-party metadata services like `isbnlib`.
+>
+> * `[TD0189]` __Canonicalize metadata values with direct replacements.__  
+>     Should probably store some kind of lookup tables in external files.
+>     These should be used to reduce the space of possible values by doing
+>     fixed-value replacements.
+>
+>     This would be a improved version of the template field "candidates",
+>     currently not fully and/or poorly implemented.
+>
+>     Example configuration file section;
+>
+>     ```yaml
+>     NAME_TEMPLATE_FIELDS:
+>         publisher:
+>             candidates:
+>                 FooBooks:
+>                 - Foo Books
+>                 - Foo Books Inc.
+>                 - Foo Books, Inc.
+>                 - FOO BOOKS PUBLISHERS
+>                 ProjectGutenberg:
+>                 - Gutenberg Project
+>                 - Project Gutenberg
+>                 - The Gutenberg Project
+>     ```
+>
+>     I.E. replace variations and/or equivalent values of "foo books" with the
+>     canonical values "FooBooks" and "ProjectGutenberg".
+>
+> Low Priority
+> ------------
+>
+> * `[TD0114]` Improve the `EbookAnalyzer`.
+
+### 2018-12-24
+
+> Low Priority
+> ------------
+>
+> * `[TD0010]` Think about how data might need to be processed in multiple
+>   consecutive runs.
+>   In relation to future weighting and prioritizing of analysis results.
+
+### 2018-12-21
+
+> Medium Priority
+> ---------------
+>
+> * `[TD0174]` Do not do replacements in the NameTemplateField classes.
+>
+> Low Priority
+> ------------
+>
+> * `[TD0152]` __Fix invalid name template field replacements.__  
+>     Replacements in the `Publisher` class in `fields.py` are always applied if
+>     any substring matches, which might cause undesired results.  Might be
+>     better to stop after the first replacement has been applied, or do the
+>     replacements ordered by the number of matched characters to be replaced.
 
 ### 2018-06-11
 

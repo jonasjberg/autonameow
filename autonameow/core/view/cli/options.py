@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,6 +19,7 @@
 
 import argparse
 import os
+from collections import namedtuple
 
 from core import constants as C
 from core.view import cli
@@ -109,7 +110,7 @@ def init_argparser():
     )
     optgrp_mode_method.add_argument(
         '--automagic',
-        dest='mode_automagic',
+        dest='automagic',
         action='store_true',
         default=False,
         help='Enable AUTOMAGIC MODE. Try to perform renames without user '
@@ -126,7 +127,7 @@ def init_argparser():
     )
     optgrp_mode_method.add_argument(
         '--postprocess-only',
-        dest='mode_postprocess_only',
+        dest='postprocess_only',
         action='store_true',
         default=False,
         help='Enable POST-PROCESSING ONLY.'
@@ -141,7 +142,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--timid',
-        dest='mode_timid',
+        dest='timid',
         action='store_true',
         default=False,
         help='Enable TIMID MODE. '
@@ -150,7 +151,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--interactive',
-        dest='mode_interactive',
+        dest='interactive',
         action='store_true',
         default=False,
         help='Enable INTERACTIVE MODE. '
@@ -159,7 +160,7 @@ def init_argparser():
     )
     optgrp_mode_interaction.add_argument(
         '--batch',
-        dest='mode_batch',
+        dest='batch',
         action='store_true',
         default=False,
         help='Enable BATCH MODE. '
@@ -297,3 +298,53 @@ def prettyprint_options(opts, extra_opts):
 
     cli.msg('Current Options', style='heading')
     cli.msg(str(cf))
+
+
+ArgparserOption = namedtuple('ArgparserOption', ('short', 'long', 'dest'))
+
+
+def get_optional_argparser_options(parser=None):
+    """
+    Grabs information *options of interest for the regression runner* by
+    introspecting an instance of 'ArgumentParser'.
+
+    Intended to be used primarily (solely) by the regression tests so that
+    options only need to be defined in this file as compared to manually
+    keeping changes in sync.
+    Returns *options of interest for the regression runner* as tuples of three
+    strings; [SHORT] [GNU] [DEST]:
+
+        SHORT  Short form of the command-line option ("-h")
+         LONG  Longer "GNU-style" form of the command-line option ("--help")
+         DEST  Name of the attribute that stores the option value.
+
+    Args:
+        parser: Optional Instance of 'ArgumentParser' to grab options from.
+                Creates a new default parser if unspecified.
+
+    Returns:
+        Information on command-line options as a set of Unicode string tuples.
+    """
+    if not parser:
+        parser = init_argparser()
+
+    option_tuples = set()
+    for _, action in parser._optionals._option_string_actions.items():
+        if action.__class__.__name__ == '_StoreAction':
+            # Skip options that accept arguments, such as "--color always".
+            continue
+
+        # Compare string lengths to get "GNU-style" '--help' and short form '-h'.
+        gnu_style_option_string = max(action.option_strings, key=len)
+        short_option_string = min(action.option_strings, key=len)
+        if short_option_string == gnu_style_option_string:
+            # Option has no short form.
+            short_option_string = ''
+
+        option_tuples.add(ArgparserOption(
+            short=short_option_string,
+            long=gnu_style_option_string,
+            dest=action.dest,
+        ))
+
+    return option_tuples

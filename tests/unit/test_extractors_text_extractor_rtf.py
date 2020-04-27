@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -32,25 +32,25 @@ UNMET_DEPENDENCIES = (
 )
 
 # TODO: This will fail. Either normalize text before returning or skip this!
-TESTFILE_A = uu.abspath_testfile('ObjectCalisthenics.rtf')
-TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('ObjectCalisthenics.rtf')
+SAMPLEFILE_A = uu.samplefile_abspath('ObjectCalisthenics.rtf')
+SAMPLEFILE_A_EXPECTED = uu.get_expected_text_for_samplefile('ObjectCalisthenics.rtf')
 
-TESTFILE_B = uu.abspath_testfile('sample.rtf')
-TESTFILE_B_EXPECTED = uu.get_expected_text_for_testfile('sample.rtf')
+SAMPLEFILE_B = uu.samplefile_abspath('sample.rtf')
+SAMPLEFILE_B_EXPECTED = uu.get_expected_text_for_samplefile('sample.rtf')
 
 
 class TestPrerequisites(TestCase):
-    def test_test_file_exists_a(self):
-        self.assertTrue(uu.file_exists(TESTFILE_A))
+    def test_samplefile_a_exists(self):
+        self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
-    def test_test_file_exists_b(self):
-        self.assertTrue(uu.file_exists(TESTFILE_B))
+    def test_samplefile_b_exists(self):
+        self.assertTrue(uu.file_exists(SAMPLEFILE_B))
 
     def test_expected_text_is_type_str_a(self):
-        self.assertIsInstance(TESTFILE_A_EXPECTED, str)
+        self.assertIsInstance(SAMPLEFILE_A_EXPECTED, str)
 
     def test_expected_text_is_type_str_b(self):
-        self.assertIsInstance(TESTFILE_B_EXPECTED, str)
+        self.assertIsInstance(SAMPLEFILE_B_EXPECTED, str)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -63,46 +63,46 @@ class TestRichTextFormatTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestRichTextFormatTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                                  TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
 
 @skip('TODO: Messy whitespace and unquoted control characters ..')
 @skipIf(*UNMET_DEPENDENCIES)
-class TestRichTextFormatTextExtractorOutputTestFileA(CaseTextExtractorOutput,
+class TestRichTextFormatTextExtractorOutputSamplefileA(CaseTextExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
-    EXPECTED_TEXT = TESTFILE_A_EXPECTED
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
+    EXPECTED_TEXT = SAMPLEFILE_A_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestRichTextFormatTextExtractorOutputTestFileB(CaseTextExtractorOutput,
+class TestRichTextFormatTextExtractorOutputSamplefileB(CaseTextExtractorOutput,
                                                      TestCase):
     EXTRACTOR_CLASS = RichTextFormatTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_B)
-    EXPECTED_TEXT = TESTFILE_B_EXPECTED
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_B)
+    EXPECTED_TEXT = SAMPLEFILE_B_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestRichTextFormatTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.test_fileobject = uu.as_fileobject(TESTFILE_A)
+        self.sample_fileobject = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
         self.e = RichTextFormatTextExtractor()
         # Disable the cache
         self.e.cache = None
 
     def test__get_text_returns_something(self):
-        actual = self.e._extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.sample_fileobject)
         self.assertIsNotNone(actual)
 
     def test__get_text_returns_expected_type(self):
-        actual = self.e._extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.sample_fileobject)
         self.assertIsInstance(actual, str)
 
     def test_method_extract_returns_something(self):
-        self.assertIsNotNone(self.e.extract_text(self.test_fileobject))
+        self.assertIsNotNone(self.e.extract_text(self.sample_fileobject))
 
 
 class TestRichTextFormatTextExtractorCanHandle(TestCase):

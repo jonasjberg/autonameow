@@ -1,13 +1,13 @@
-config_path: $TESTFILES/configs/bad_empty_but_version.yaml
+config_path: $SAMPLEFILES/configs/bad_empty_but_version.yaml
 debug: false
 dry_run: false
 dump_config: false
 dump_meowuris: false
 dump_options: false
 list_all: false
-mode_automagic: false
-mode_batch: false
-mode_interactive: false
+automagic: false
+batch: false
+interactive: false
 quiet: false
 recurse_paths: false
 show_version: false

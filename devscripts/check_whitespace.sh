@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,24 +23,16 @@
 set -o nounset -o noclobber
 
 
-C_RED="$(tput setaf 1)"
-C_GREEN="$(tput setaf 2)"
-C_RESET="$(tput sgr0)"
-
-
-# Get absolute path to the autonameow source root.
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -n "$TERM" ] && command -v tput &>/dev/null
 then
-    self_dirpath="$(realpath -e "$(dirname "$0")")"
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$self_dirpath" && realpath -e -- ".." ) )"
+    C_GREEN="$(tput setaf 2)"
+    C_RED="$(tput setaf 1)"
+    C_RESET="$(tput sgr0)"
 fi
-
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
-then
-    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIR"   >&2
-    printf '        Unable to set "AUTONAMEOW_ROOT_DIR". Aborting.\n' >&2
-    exit 1
-fi
+# Set to empty string if unset or empty.
+C_GREEN="${C_GREEN:+"$C_GREEN"}"
+C_RED="${C_RED:+"$C_RED"}"
+C_RESET="${C_RESET:+"$C_RESET"}"
 
 
 msg_failure()
@@ -57,7 +49,7 @@ msg_success()
 # Check that (most) committed files do not contain carriage returns (\r) (0x0D)
 find_files_with_carriage_returns()
 {
-    git grep -l -I $'\r''$' | grep -v 'test_files\|local\|junk'
+    git grep -l -I $'\r''$' | grep -v 'samplefiles\|local\|junk\|vendor'
 }
 
 if [ "$(find_files_with_carriage_returns | wc -l)" -ne "0" ]
@@ -70,9 +62,12 @@ fi
 
 # Get committed text files to check for whitespace issues, then remove quite a few exceptions.
 textfiles_to_check=(
-    $(git ls-files | xargs file --mime-type -- | grep 'text/' | cut -d':' -f1 \
-        | grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|test_files\|notes\|thirdparty\|.gitmodules' \
-        | grep -v -- 'write_sample_textfiles.py\|test_extractors_text_rtf.py')
+    $(git ls-files |
+      xargs file --mime-type -- |
+      grep ' text/' |
+      cut -d':' -f1 |
+      grep -v -- 'tests.*\.yaml\|\.md\|test_results\|local\|junk\|samplefiles\|notes\|thirdparty\|.gitmodules\|vendor' |
+      grep -v -- 'write_sample_textfiles.py\|test_extractors_text_rtf.py')
 )
 
 files_with_trailing_whitespace="$(grep -l "[[:space:]]\+$" -- "${textfiles_to_check[@]}")"

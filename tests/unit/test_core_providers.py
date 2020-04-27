@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -209,7 +209,7 @@ class TestWrapProviderResults(TestCase):
     def test_wraps_actual_crossplatform_filesystem_extractor_results(self):
         # TODO: [cleanup][temporary] Remove after refactoring!
         # TODO: [cleanup][hack] Use mocks!
-        from extractors.filesystem import CrossPlatformFileSystemExtractor
+        from extractors.metadata import CrossPlatformFileSystemExtractor
         example_provider_instance = CrossPlatformFileSystemExtractor()
         actual = wrap_provider_results(
             datadict=self.EXAMPLE_DATADICT,

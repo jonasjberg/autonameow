@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,8 +24,8 @@ import os
 Writes sample text to files using different encodings.
 """
 
-_THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-DEST_PATH = os.path.join(_THIS_DIR, 'sample_textfiles')
+_SELF_DIRPATH = os.path.abspath(os.path.dirname(__file__))
+DEST_DIRPATH = os.path.join(_SELF_DIRPATH, 'sample_textfiles')
 
 # The Project Gutenberg EBook of Beowulf
 #
@@ -104,9 +104,9 @@ and yield tribute:-      that was a good king!
 '''
 
 
-if not os.path.isdir(DEST_PATH):
+if not os.path.isdir(DEST_DIRPATH):
     try:
-        os.makedirs(DEST_PATH)
+        os.makedirs(DEST_DIRPATH)
     except OSError as e:
         print('Unable to create destination directory; {!s}'.format(e))
         exit(1)
@@ -137,11 +137,11 @@ CODECS = ['ascii', 'cp437', 'cp858', 'cp1252', 'iso-8859-1', 'macroman',
           'utf-8', 'utf-16']
 
 for codec in CODECS:
-    _alnum_dest_path = os.path.join(DEST_PATH, 'text_alnum_{}.txt'.format(codec))
+    _alnum_dest_path = os.path.join(DEST_DIRPATH, 'text_alnum_{}.txt'.format(codec))
     with open(_alnum_dest_path, 'wb') as fh:
         write_alphanumeric_characters(fh, codec, num_chars=512)
 
-    _sampletext_dest_path = os.path.join(DEST_PATH,
+    _sampletext_dest_path = os.path.join(DEST_DIRPATH,
                                          'text_sample_{}.txt'.format(codec))
     with open(_sampletext_dest_path, 'wb') as fh:
         write_sample_text(fh, codec)

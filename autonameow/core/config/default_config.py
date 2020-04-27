@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -57,7 +57,7 @@ DEFAULT_CONFIG = {
     #   TODO: Document all fields ..
     #
     'RULES': {
-        'test_files Gmail print-to-pdf': {
+        'samplefiles Gmail print-to-pdf': {
             'exact_match': True,
             'ranking_bias': None,
             'NAME_TEMPLATE': '{datetime} {title}.{extension}',
@@ -73,7 +73,7 @@ DEFAULT_CONFIG = {
             }
         },
         # ____________________________________________________________________
-        'test_files smulan.jpg': {
+        'samplefiles smulan.jpg': {
             'exact_match': True,
             'ranking_bias': 1,
             'NAME_TEMPLATE': '{datetime} {description}.{extension}',
@@ -83,12 +83,12 @@ DEFAULT_CONFIG = {
             },
             'DATA_SOURCES': {
                 'datetime': 'extractor.metadata.exiftool.EXIF:DateTimeOriginal',
-                'description': 'extractor.filesystem.filetags.description',
+                'description': 'extractor.metadata.filetags.description',
                 'extension': 'extractor.filesystem.xplat.extension'
             }
         },
         # ____________________________________________________________________
-        'test_files simplest_pdf.md.pdf': {
+        'samplefiles simplest_pdf.md.pdf': {
             'exact_match': True,
             'ranking_bias': 1,
             'NAME_TEMPLATE': 'simplest_pdf.md.{extension}',
@@ -116,9 +116,9 @@ DEFAULT_CONFIG = {
                     'extractor.metadata.exiftool.EXIF:DateTimeDigitized',
                     'extractor.metadata.exiftool.EXIF:CreateDate'
                 ],
-                'description': 'extractor.filesystem.filetags.description',
+                'description': 'extractor.metadata.filetags.description',
                 'extension': 'extractor.filesystem.xplat.extension',
-                'tags': 'extractor.filesystem.filetags.tags',
+                'tags': 'extractor.metadata.filetags.tags',
             }
         },
         # ____________________________________________________________________
@@ -162,22 +162,6 @@ DEFAULT_CONFIG = {
         'default_photo': '{datetime} {description} -- {tags}.{extension}'
     },
 
-    #  Name Template Fields
-    #  ====================
-    #  Known good candidates for fields.
-    #  For instance, the publisher field lists user-defined book publisher
-    #  candidates along with a list of patterns that if matched, would be
-    #  replaced with the candidate name.
-    'NAME_TEMPLATE_FIELDS': {
-        'publisher': {
-            'candidates': {
-                'ProjectGutenberg': ['Project Gutenberg', 'www.gutenberg.net'],
-                'FeedBooks': ['This book is brought to you by Feedbooks',
-                              'http://www.feedbooks.com']
-            },
-        },
-    },
-
     #  File Name Date and Time Format
     #  ==============================
     #  Specifies the format of date and time in constructed file names.
@@ -205,7 +189,7 @@ DEFAULT_CONFIG = {
     #  Controls how autonameow stores persistent data to disk.
     'PERSISTENCE': {
         'cache_directory': None,
-        'history_file_path': None,
+        'history_filepath': None,
     },
 
     #  Custom Post-Processing Options

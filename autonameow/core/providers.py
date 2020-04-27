@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -23,7 +23,6 @@ from core.model import genericfields
 from core.model import WeightedMapping
 from core.namebuilder.fields import nametemplatefield_class_from_string
 from util import coercers
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -57,13 +56,13 @@ class ProviderMixin(object):
             )
             return None
 
-        sanity.check_internal_string(coercer_string)
+        assert isinstance(coercer_string, str)
         coercer = get_coercer_for_metainfo_string(coercer_string)
         if not isinstance(coercer, (coercers.BaseCoercer, coercers.MultipleTypes)):
-            msg = 'Expected coercer class. Got {} "{!s}" from coercer_string {!s} "{!s}"'.format(
-                type(coercer), coercer, type(coercer_string), coercer_string
+            error_msg = 'Expected coercer class. Got {!r} from "{!s}"'.format(
+                coercer, coercer_string
             )
-            raise AssertionError(msg)
+            raise AssertionError(error_msg)
 
         if 'multivalued' not in field_metainfo:
             # Abort instead of using a default value. Many systems rely on this
@@ -140,8 +139,7 @@ def wrap_provider_results(datadict, metainfo, source_klass):
     Returns:
         A dict with various information bundled with the actual data.
     """
-    sanity.check_isinstance(metainfo, dict,
-                            msg='Source provider: {!s}'.format(source_klass))
+    assert isinstance(metainfo, dict), repr(source_klass)
     log.debug('Wrapping %s results (datadict len: %d) (metainfo len: %d)',
               source_klass.name(), len(datadict), len(metainfo))
 

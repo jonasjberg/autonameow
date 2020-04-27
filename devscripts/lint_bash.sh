@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -21,7 +21,7 @@
 
 set -o nounset -o pipefail
 
-if ! command -v shellcheck >/dev/null 2>&1
+if ! command -v shellcheck &>/dev/null
 then
     cat >&2 <<EOF
 
@@ -36,15 +36,17 @@ fi
 
 
 # Get absolute path to the autonameow source root.
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
-    self_dirpath="$(realpath -e "$(dirname "$0")")"
-    AUTONAMEOW_ROOT_DIR="$( ( cd "$self_dirpath" && realpath -e -- ".." ) )"
+    self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+    AUTONAMEOW_ROOT_DIRPATH="$(realpath -e -- "${self_dirpath}/..")"
+    unset self_dirpath
 fi
 
-if [ ! -d "$AUTONAMEOW_ROOT_DIR" ]
+if [ ! -d "$AUTONAMEOW_ROOT_DIRPATH" ]
 then
-    echo "[ERROR] Not a directory: \"${AUTONAMEOW_ROOT_DIR}\" .. Aborting" >&2
+    printf '[ERROR] Not a directory: "%s"\n' "$AUTONAMEOW_ROOT_DIRPATH"   >&2
+    printf '        Unable to set "AUTONAMEOW_ROOT_DIRPATH". Aborting.\n' >&2
     exit 1
 fi
 
@@ -54,13 +56,16 @@ fi
 #
 # SC2016: Expressions don't expand in single quotes, use double quotes for that.
 #
-find "${AUTONAMEOW_ROOT_DIR}/tests/integration" -type f -name '*.sh' -print0 \
-    | sort -z | xargs -0 shellcheck -s bash -e 'SC2016' --
+find "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration" \
+    -type f -name '*.sh' -print0 |
+    sort -z |
+    xargs -0 shellcheck -s bash -e 'SC2016' --
 
 
 # Find all other shell scripts.
-find "${AUTONAMEOW_ROOT_DIR}/tests" "${AUTONAMEOW_ROOT_DIR}/bin" "${AUTONAMEOW_ROOT_DIR}/devscripts" \
-    -type f -name '*.sh' -not -path '*/tests/integration/*' -print0 \
-    | sort -z | xargs -0 shellcheck -s bash --
+find "${AUTONAMEOW_ROOT_DIRPATH}/tests" "${AUTONAMEOW_ROOT_DIRPATH}/bin" "${AUTONAMEOW_ROOT_DIRPATH}/devscripts" \
+    -type f -name '*.sh' -not -path '*/tests/integration/*' -print0 |
+    sort -z |
+    xargs -0 shellcheck -s bash --
 
 

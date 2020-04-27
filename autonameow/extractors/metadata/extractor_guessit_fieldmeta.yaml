@@ -1,0 +1,83 @@
+audio_codec:
+  coercer: aw_string
+  multivalued: false
+
+container:
+  # Example: "b'MOV'"
+  coercer: aw_string
+  multivalued: false
+
+date:
+  coercer: aw_timedate
+  generic_field: date_created
+  mapped_fields:
+    - WeightedMapping:
+        field: DateTime
+        weight: 1.0
+    - WeightedMapping:
+        field: Date
+        weight: 1.0
+  multivalued: false
+
+episode:
+  coercer: aw_integer
+  multivalued: false
+
+format:
+  coercer: aw_string
+  multivalued: false
+
+mimetype:
+  # Example: "b'video/quicktime'"
+  coercer: aw_string
+  multivalued: false
+
+release_group:
+  coercer: aw_string
+  mapped_fields:
+    - WeightedMapping:
+        field: Publisher
+        weight: 0.1
+    - WeightedMapping:
+        field: Description
+        weight: 0.001
+  multivalued: false
+
+screen_size:
+  coercer: aw_string
+  multivalued: false
+
+season:
+  coercer: aw_integer
+  multivalued: false
+
+title:
+  coercer: aw_string
+  mapped_fields:
+    - WeightedMapping:
+        field: Title
+        weight: 1.0
+  multivalued: false
+
+type:
+  coercer: aw_string
+  mapped_fields:
+    - WeightedMapping:
+        field: Tags
+        weight: 0.5
+  multivalued: false
+
+video_codec:
+  coercer: aw_string
+  multivalued: false
+
+year:
+  coercer: aw_date
+  mapped_fields:
+    - WeightedMapping:
+        field: DateTime
+        weight: 1.0
+    - WeightedMapping:
+        field: Date
+        weight: 1.0
+  multivalued: false

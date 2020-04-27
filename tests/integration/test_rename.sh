@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,7 +19,7 @@
 
 set -o noclobber -o nounset -o pipefail
 
-if [ -z "${AUTONAMEOW_ROOT_DIR:-}" ]
+if [ -z "${AUTONAMEOW_ROOT_DIRPATH:-}" ]
 then
     cat >&2 <<EOF
 
@@ -31,7 +31,8 @@ EOF
 fi
 
 # Resets test suite counter variables.
-source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
+# shellcheck source=tests/integration/utils.sh
+source "${AUTONAMEOW_ROOT_DIRPATH}/tests/integration/utils.sh"
 
 
 
@@ -41,36 +42,37 @@ source "$AUTONAMEOW_ROOT_DIR/tests/integration/utils.sh"
 # expected base name.  Finally, the used files are deleted.
 # Arguments:
 # 1. A name for this group of tests.
-# 2. Basename of a file in the "$SRCROOT/test_files" directory to be copied
-#    to a temporary directory. Only this copy can be modified during the test.
+# 2. Basename of a file in the "$SRCROOT/tests/samplefiles" directory to be
+#    copied to a temporary directory. Only this copy can be modified during
+#    the test.
 # 3. The expected basename of the file after having been renamed.
 test_automagic_rename()
 {
-    local -r _test_name="RENAME ${1}"
-    local -r _sample_file="$(abspath_testfile "${2}")"
+    local -r _test_name="RENAME $1"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "$2")"
     local -r _expected_basename="$3"
     local _sample_file_basename
     local _temp_dir
     local _expected_name
     local _temp_file
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
-    _sample_file_basename="$(basename -- "${_sample_file}")"
+    _sample_file_basename="$(basename -- "$_sample_file")"
     _temp_dir="$(mktemp -d -t aw_test_integration_rename.XXXXXX)"
     _expected_name="${_temp_dir}/${_expected_basename}"
     _temp_file="${_temp_dir}/${_sample_file_basename}"
 
-    assert_true 'cp -n -- "${_sample_file}" "${_temp_file}"' \
+    aw_utils.assert_true 'cp -n -- "$_sample_file" "$_temp_file"' \
                 "(${_test_name}) Test setup should succeed in copying the sample file to a temporary directory"
 
-    assert_true '[ -f "${_temp_file}" ]' \
+    aw_utils.assert_true '[ -f "$_temp_file" ]' \
                 "(${_test_name}) A copy of the sample file must exit in the temporary directory"
 
-    assert_true '[ -f "$_temp_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "${_temp_file}" && [ -e "$_expected_name" ]' \
+    aw_utils.assert_true '[ -f "$_temp_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic -- "$_temp_file" && [ -e "$_expected_name" ]' \
                 "(${_test_name}) Should be renamed to \"${_expected_basename}\""
 
-    assert_true '[ -f "${_temp_file}" ] && rm -- "${_temp_file}" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
+    aw_utils.assert_true '[ -f "$_temp_file" ] && rm -- "$_temp_file" ; [ -f "$_expected_name" ] && rm -- "$_expected_name" || true' \
                 "(${_test_name}) Test teardown should succeed in deleting temporary files"
 }
 
@@ -79,33 +81,33 @@ test_automagic_rename()
 # The given sample file should NOT be renamed.
 # Arguments:
 # 1. A name for this group of tests.
-# 2. Basename of a file in the "$SRCROOT/test_files" directory.
+# 2. Basename of a file in the "$SRCROOT/tests/samplefiles" directory.
 # 3. The expected basename of the file after having been renamed.
 test_automagic_dryrun()
 {
-    local -r _test_name="DRY-RUN ${1}"
-    local -r _sample_file="$(abspath_testfile "${2}")"
+    local -r _test_name="DRY-RUN $1"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "$2")"
     local -r _expected_basename="$3"
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run --verbose\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--automagic --dry-run --debug\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}" | grep -- "${_expected_basename}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "$_sample_file" | grep -- "$_expected_basename"' \
                 "(${_test_name}) output should include \"${_expected_basename}\" when started with \"--dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}" 2>/dev/null | grep -- "${_expected_basename}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "$_sample_file" 2>/dev/null | grep -- "$_expected_basename"' \
                 "(${_test_name}) output should include \"${_expected_basename}\" when started with \"--dry-run --verbose\""
 
-    assert_true '[ -f "${_sample_file}" ]' \
-                "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
+    aw_utils.assert_true '[ -f "$_sample_file" ]' \
+                "(${_test_name}) The sample file should still exist, I.E. it should not have been renamed."
 }
 
 
@@ -113,99 +115,99 @@ test_automagic_dryrun()
 # ____________________________________________________________________________
 
 # Store current time for later calculation of total execution time.
-time_start="$(current_unix_time)"
+time_start="$(aw_utils.current_unix_time)"
 
 TESTSUITE_NAME='Rename Files'
-logmsg "Running the ${TESTSUITE_NAME} test suite .."
+aw_utils.log_msg "Running the $TESTSUITE_NAME test suite .."
 
 
 
-assert_true 'command_exists python3' \
+aw_utils.assert_true 'aw_utils.command_exists python3' \
             'Python v3.x is available on the system'
 
-assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
+aw_utils.assert_bulk_test "$AUTONAMEOW_RUNNER" n e r x
 
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_1.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_1.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 SAMPLE_PDF_FILE='gmail.pdf'
 SAMPLE_PDF_FILE_EXPECTED='2016-01-11T124132 gmail.pdf'
-test_automagic_rename 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
-test_automagic_dryrun 'test_files Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+test_automagic_rename 'samplefiles Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles Gmail print-to-pdf' "$SAMPLE_PDF_FILE" "$SAMPLE_PDF_FILE_EXPECTED"
 
 
 SAMPLE_SIMPLESTPDF_FILE='simplest_pdf.md.pdf'
 SAMPLE_SIMPLESTPDF_FILE_EXPECTED='simplest_pdf.md.pdf'
-test_automagic_rename 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
-test_automagic_dryrun 'test_files simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_rename 'samplefiles simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles simplest_pdf.md.pdf' "$SAMPLE_SIMPLESTPDF_FILE" "$SAMPLE_SIMPLESTPDF_FILE_EXPECTED"
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_filetags.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_filetags.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_FILETAGS_FILE='2017-09-12T224820 filetags-style name -- tag2 a tag1.txt'
 SAMPLE_FILETAGS_FILE_EXPECTED='2017-09-12T224820 filetags-style name -- a tag1 tag2.txt'
-test_automagic_rename 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
-test_automagic_dryrun 'test_files Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+test_automagic_rename 'samplefiles Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
+test_automagic_dryrun 'samplefiles Filetags cleanup' "$SAMPLE_FILETAGS_FILE" "$SAMPLE_FILETAGS_FILE_EXPECTED"
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_1.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_add-ext_1.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 SAMPLE_EMPTY_FILE='empty'
 SAMPLE_EMPTY_FILE_EXPECTED='empty'
-test_automagic_rename 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 
 
 SAMPLE_NOEXT_FILE='simple-lexical-analysis'
 SAMPLE_NOEXT_FILE_EXPECTED='simple-lexical-analysis.png'
-test_automagic_rename 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 1 test_files/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 1 samplefiles/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 1 samplefiles/simple-lexical-analysis' "$SAMPLE_NOEXT_FILE" "$SAMPLE_NOEXT_FILE_EXPECTED"
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/integration_test_config_add-ext_2.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/integration_test_config_add-ext_2.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
-test_automagic_rename 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 2 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 samplefiles/empty' "$SAMPLE_EMPTY_FILE" "$SAMPLE_EMPTY_FILE_EXPECTED"
 
 
 SAMPLE_MAGICTXTMD_FILE='magic_txt.md'
 SAMPLE_MAGICTXTMD_FILE_EXPECTED='magic_txt.md'
-test_automagic_rename 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
-test_automagic_dryrun 'Fix incorrect extensions Method 2 test_files/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
+test_automagic_rename 'Fix incorrect extensions Method 2 samplefiles/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
+test_automagic_dryrun 'Fix incorrect extensions Method 2 samplefiles/magic_txt.md' "$SAMPLE_MAGICTXTMD_FILE" "$SAMPLE_MAGICTXTMD_FILE_EXPECTED"
 
 
 # ==============================================================================
-ACTIVE_CONFIG="$(abspath_testfile "configs/default.yaml")"
-assert_bulk_test "$ACTIVE_CONFIG" n e r
+ACTIVE_CONFIG="$(aw_utils.samplefile_abspath "configs/default.yaml")"
+aw_utils.assert_bulk_test "$ACTIVE_CONFIG" n e r
 
 
 assert_unable_to_find_new_name()
 {
     local -r _test_name="Expect unable to find new name for \"${1}\""
-    local -r _sample_file="$(abspath_testfile "${1}")"
+    local -r _sample_file="$(aw_utils.samplefile_abspath "$1")"
 
-    assert_bulk_test "$_sample_file" e f r
+    aw_utils.assert_bulk_test "$_sample_file" e f r
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --verbose -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --verbose\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --debug -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --debug\""
 
-    assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --quiet -- "${_sample_file}"' \
+    aw_utils.assert_true '[ -f "$_sample_file" ] && "$AUTONAMEOW_RUNNER" --batch --config-path "$ACTIVE_CONFIG" --automagic --dry-run --quiet -- "$_sample_file"' \
                 "(${_test_name}) returns exit code 0 when started with \"--batch --automagic --dry-run --quiet\""
 
-    assert_true '[ -f "${_sample_file}" ]' \
+    aw_utils.assert_true '[ -f "$_sample_file" ]' \
                 "(${_test_name}) The sample file should still exist, I.E. not have been renamed."
 }
 
@@ -269,8 +271,8 @@ assert_unable_to_find_new_name 'text_sample_utf-8.txt'
 
 
 # Calculate total execution time.
-time_end="$(current_unix_time)"
-total_time="$(calculate_execution_time "$time_start" "$time_end")"
+time_end="$(aw_utils.current_unix_time)"
+total_time="$(aw_utils.calculate_execution_time "$time_start" "$time_end")"
 
-log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
-update_global_test_results
+aw_utils.log_test_suite_results_summary "$TESTSUITE_NAME" "$total_time"
+aw_utils.update_global_test_results

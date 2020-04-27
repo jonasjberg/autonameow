@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,9 +24,10 @@ ITERATIONS=10
 
 run_local_regression_tests_get_runtime()
 {
-    tests/run_regression_tests.sh -f '!*LOCAL*' \
-        | grep 'Regression Test Summary' | grep -o '  in .* seconds$' \
-        | cut -f4 -d' '
+    tests/run_regression_tests.sh -f '!*LOCAL*' |
+        grep 'Regression Test Summary' |
+        grep -o '  in .* seconds$' |
+        cut -f4 -d' '
 }
 
 

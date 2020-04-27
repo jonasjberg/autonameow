@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,15 +19,10 @@
 
 import logging
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
 from core import constants as C
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
-from util import sanity
+from util import encoding as enc
 
 
 log = logging.getLogger(__name__)
@@ -64,44 +59,30 @@ def read_entire_text_file(filepath):
         raise ExtractorError(e)
     except UnicodeDecodeError as e:
         log.debug(str(e))
-        if chardet is not None:
-            log.debug(
-                'Unable to decode text using %s encoding. Reading as bytes and '
-                'trying to auto-detect the encoding.', C.DEFAULT_ENCODING
-            )
-            contents = _read_entire_text_file_autodetect_encoding(filepath)
+        log.debug(
+            'Failed with text encoding %s. Attempting encoding detection.',
+            C.DEFAULT_ENCODING
+        )
+        contents = _read_entire_text_file_autodetect_encoding(filepath)
 
     if not contents:
         log.debug('Read NOTHING from file "%s"', filepath)
         return ''
 
-    log.debug('Read %s bytes from file "%s"', len(contents), filepath)
+    log.debug('Read %s lines from file "%s"', len(contents), filepath)
     text = ''.join(contents)
-    sanity.check_internal_string(text)
     return text
 
 
 def _read_entire_text_file_autodetect_encoding(filepath):
-    _encoding = autodetect_encoding(filepath)
-    if _encoding:
-        log.debug('Auto-detected encoding: %s', _encoding)
+    detected_encoding = enc.detect_encoding(filepath)
+    if detected_encoding:
+        log.debug('Detected text encoding %s', detected_encoding)
         try:
-            with open(filepath, 'r', encoding=_encoding) as fh:
+            with open(filepath, 'r', encoding=detected_encoding) as fh:
                 return fh.readlines()
         except (UnicodeDecodeError, ValueError) as e:
             raise ExtractorError(
-                'Unable to use auto-detected encoding; {!s}'.format(e)
+                'Detected text encoding %s :: {!s}'.format(detected_encoding, e)
             )
     return None
-
-
-def autodetect_encoding(filepath):
-    assert chardet, 'Missing required module "chardet"'
-    try:
-        with open(filepath, 'rb') as fh:
-            detected_encoding = chardet.detect(fh.read())
-    except (OSError, TypeError) as e:
-        log.error('Error while auto-detecting encoding: %s', e)
-        return None
-    else:
-        return detected_encoding.get('encoding', None)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -43,18 +43,20 @@ import os
 import sys
 
 from core import constants as C
-from util import sanity
-
-try:
-    import chardet
-except ImportError:
-    chardet = None
+from vendor import chardet
 
 
 __all__ = [
-    'arg_encoding', 'autodetect_decode', 'bytestring_path',
-    'convert_command_args', 'decode_', 'displayable_path', 'encode_',
-    'normpath', 'syspath'
+    'arg_encoding',
+    'autodetect_decode',
+    'detect_encoding',
+    'bytestring_path',
+    'convert_command_args',
+    'decode_',
+    'displayable_path',
+    'encode_',
+    'normpath',
+    'syspath'
 ]
 
 
@@ -62,8 +64,10 @@ WINDOWS_MAGIC_PREFIX = u'\\\\?\\'
 
 
 def convert_command_args(args):
-    """Convert command arguments to bytestrings on Python 2 and
-    surrogate-escaped strings on Python 3."""
+    """
+    Convert command arguments to bytestrings on Python 2 and
+    surrogate-escaped strings on Python 3.
+    """
     assert isinstance(args, list)
 
     def convert(arg):
@@ -241,67 +245,72 @@ def syspath(path, prefix=True):
     return path
 
 
-def encode_(string):
-    if isinstance(string, bytes):
-        return string
+def encode_(strng):
+    if isinstance(strng, bytes):
+        return strng
 
-    # Try to encode with default encodings, fall back to default (utf-8).
+    # Try to decode with the default system encoding, then try some default.
     try:
-        return string.encode(_fsencoding())
+        return strng.encode(_fsencoding())
     except (UnicodeError, LookupError):
-        return string.encode(C.DEFAULT_ENCODING)
+        return strng.encode(C.DEFAULT_ENCODING)
 
 
-def decode_(string):
-    if isinstance(string, str):
-        return string
+def decode_(strng):
+    if isinstance(strng, str):
+        return strng
 
-    # Try to encode with default encodings, fall back to default (utf-8)
+    # Try to decode with the default system encoding, then try some default.
     try:
-        return string.decode(_fsencoding())
+        return strng.decode(_fsencoding())
     except (UnicodeError, LookupError):
         try:
-            return string.decode(C.DEFAULT_ENCODING)
+            return strng.decode(C.DEFAULT_ENCODING)
         except (UnicodeError, LookupError):
-            return string.decode(C.DEFAULT_ENCODING, errors='replace')
+            return strng.decode(C.DEFAULT_ENCODING, errors='replace')
 
 
-def autodetect_decode(string):
+def autodetect_decode(strng):
     """
-    Tries to decode a string with an unknown encoding to a Unicode str.
+    Tries to decode a string with an unknown encoding to a Unicode string.
 
-    Unicode strings are passed through as-is.
+    Unicode strings and empty bytestrings are passed through as-is.
 
     Args:
-        string: The string to decode as a Unicode str or a bytestring.
+        strng: The string to decode as a Unicode str or a bytestring.
 
     Returns:
         The given string decoded to an ("internal") Unicode string.
+
     Raises:
         ValueError: Autodetection and/or decoding was unsuccessful because
-                    the given string is None or not a string type,
-                    or the "chardet" module is not available.
+                    the given string is None or not a string type.
     """
-    if isinstance(string, str):
-        return string
+    if isinstance(strng, str):
+        return strng
 
-    # Guard against chardet "expects a bytes object, not a unicode object".
-    # Although this check probably only applies if given a non-string arg.
-    if not isinstance(string, bytes):
+    if not isinstance(strng, bytes):
         raise TypeError('Module "chardet" expects bytestrings')
 
-    if string == b'':
+    if strng == b'':
         return ''
 
-    if chardet is None:
-        raise ValueError('Required module "chardet" is not available!')
-
-    detected_encoding = chardet.detect(string)
+    detected_encoding = chardet.detect(strng)
     if detected_encoding and 'encoding' in detected_encoding:
         try:
-            string = string.decode(detected_encoding['encoding'])
+            strng = strng.decode(detected_encoding['encoding'])
         except ValueError:
             raise ValueError('Unable to autodetect encoding and decode string')
 
-    sanity.check_internal_string(string)
-    return string
+    assert isinstance(strng, str)
+    return strng
+
+
+def detect_encoding(filepath):
+    try:
+        with open(filepath, 'rb') as fh:
+            detected_encoding = chardet.detect(fh.read())
+    except (OSError, TypeError):
+        return None
+    else:
+        return detected_encoding.get('encoding', None)

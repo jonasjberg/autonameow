@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -35,11 +35,11 @@ from extractors.meowxtract import TextExtractionResult
 
 
 def _get_input_paths():
-    return [uu.abspath_testfile('magic_txt.txt')]
+    return [uu.samplefile_abspath('magic_txt.txt')]
 
 
 def _get_input_fileobject():
-    return uu.fileobject_testfile('magic_txt.txt')
+    return uu.fileobject_from_samplefile('magic_txt.txt')
 
 
 def _get_text_extraction_result():

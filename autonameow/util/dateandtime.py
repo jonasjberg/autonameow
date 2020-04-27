@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -161,15 +161,15 @@ def match_special_case_no_date(s):
                  or possibly "learned" patterns ..
 
     Args:
-        s: Unicode string to attempt to extract a datetime object from.
+        s (str): Unicode string to attempt to extract a datetime object from.
 
     Returns: A "probable" date as an instance of 'datetime' or None.
     """
     assert isinstance(s, str)
-    if not s.strip():
-        return None
 
     modified_string = re.sub(r'[^\d]+', '', s).strip()
+    if not modified_string:
+        return None
 
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     # TODO: [TD0043] Allow the user to tweak hardcoded settings.
@@ -196,7 +196,7 @@ def match_macos_screenshot(s):
     """
     assert isinstance(s, str)
 
-    match = re.search('(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
+    match = re.search(r'(\d{4}-\d\d-\d\d at \d\d\.\d\d\.\d\d)', s)
     if match:
         try:
             return datetime.strptime(match.group(1), '%Y-%m-%d at %H.%M.%S')
@@ -230,10 +230,10 @@ def match_android_messenger_filename(text):
     results = list()
     for _, dt_str, _ in re.findall(dt_pattern, text):
         try:
-            microsecond = int(dt_str[13:])
-            ms = microsecond % 1000 * 1000
+            microseconds = int(dt_str[13:])
+            ms = microseconds % 1000 * 1000
             dt = datetime.utcfromtimestamp(ms // 1000).replace(microsecond=ms)
-        except ValueError as e:
+        except ValueError:
             pass
         else:
             if date_is_probable(dt):
@@ -243,9 +243,13 @@ def match_android_messenger_filename(text):
 
 def match_any_unix_timestamp(text):
     """
-    Match text against UNIX "seconds since epoch" timestamp.
-    :param text: text to extract date/time from
-    :return: datetime if found otherwise None
+    Searches a string for UNIX "seconds since epoch" timestamps.
+
+    Args:
+        text (str): String to search for UNIX timestamp.
+
+    Returns:
+        The first "valid" date/time as an instance of 'datetime' or None.
     """
     # TODO: [TD0130] Implement general-purpose substring matching/extraction.
     assert isinstance(text, str)
@@ -253,9 +257,6 @@ def match_any_unix_timestamp(text):
         return None
 
     match_iter = re.finditer(r'(\d{10,13})', text)
-    if not match_iter:
-        # Probably not a UNIX timestamp, expected 10-13 consecutive digits.
-        return None
 
     for match in match_iter:
         digits = match.group(0)
@@ -263,19 +264,18 @@ def match_any_unix_timestamp(text):
         # Example Android phone file name: 1461786010455.jpg
         # Remove last 3 digits to be able to convert using GNU date:
         # $ date --date ='@1461786010'
-        #   ons 27 apr 2016 21:40:10 CEST
+        # ons 27 apr 2016 21:40:10 CEST
         if len(digits) == 13:
             digits = digits[:10]
 
-        # TODO: [TD0010] Returns at first "probable" date, should test all.
         try:
-            digits = float(digits)
-            dt = datetime.fromtimestamp(digits)
+            dt = datetime.fromtimestamp(float(digits))
         except (TypeError, ValueError):
             pass
         else:
             if date_is_probable(dt):
                 return dt
+
     return None
 
 

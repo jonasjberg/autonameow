@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -35,7 +35,6 @@ __all__ = [
     'extract_digits',
     'html_unescape',
     'indent',
-    'batch_regex_replace',
     'normalize_unicode',
     'normalize_horizontal_whitespace',
     'normalize_vertical_whitespace',
@@ -66,9 +65,6 @@ def collapse_whitespace(text):
 
     Returns:
         str: Transformed text as a Unicode string.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     if not text:
         return text
@@ -101,9 +97,6 @@ def strip_single_space_lines(text):
     Returns:
         str: The given text with any lines containing only a single space
              replaced by an empty line.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     if not text:
         return text
@@ -128,9 +121,6 @@ def normalize_horizontal_whitespace(text):
 
     Returns:
         str: The given text with all whitespace replaced with a single space.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     assert isinstance(text, str)
     if not text:
@@ -160,9 +150,6 @@ def normalize_vertical_whitespace(text):
 
     Returns:
         str: The given text with any linefeeds removed.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     assert isinstance(text, str)
     if not text:
@@ -190,9 +177,6 @@ def indent(text, columns=None, padchar=None):
 
     Returns:
         str: An indented version of the given text as a Unicode str.
-
-    Raises:
-        AssertionError: Any argument has an unexpected type or value.
     """
     assert isinstance(text, str)
 
@@ -370,6 +354,12 @@ def remove_nonbreaking_spaces(text):
 
 
 def remove_zerowidth_spaces(text):
+    """
+    Removes "zero width space" characters with Unicode code point U+200B.
+
+    UTF-8 hex 0xE2808B
+    Octal Escape Sequence \342\200\213
+    """
     return text.replace('\u200B', '')
 
 
@@ -410,30 +400,6 @@ def urldecode(string):
 
 def html_unescape(string):
     return html.unescape(string)
-
-
-def batch_regex_replace(regex_replacement_tuples, string, ignore_case=False):
-    if not string:
-        return string
-    assert isinstance(string, str)
-
-    re_flags = 0
-    if ignore_case:
-        re_flags |= re.IGNORECASE
-
-    matches = list()
-    for regex, replacement in regex_replacement_tuples:
-        match = re.search(regex, string, re_flags)
-        if match:
-            matches.append((regex, replacement))
-
-    sorted_by_longest_replacement = sorted(
-        matches, key=lambda x: len(x[1]), reverse=True
-    )
-    for regex, replacement in sorted_by_longest_replacement:
-        string = re.sub(regex, replacement, string, flags=re_flags)
-
-    return string
 
 
 def remove_blacklisted_lines(text, blacklist):

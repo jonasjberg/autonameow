@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -58,7 +58,7 @@ class TestLoadYaml(TestCase):
 
 class TestLoadYamlFile(TestCase):
     def test_loads_valid_file(self):
-        _yaml_path = uu.abspath_testconfig()
+        _yaml_path = uu.samplefile_config_abspath()
         actual = load_yaml_file(_yaml_path)
         self.assertIsNotNone(actual)
         self.assertIsInstance(actual, dict)
@@ -73,7 +73,7 @@ class TestLoadYamlFile(TestCase):
         _fail(b'')
         _fail('foo')
         _fail(b'foo')
-        _fail(uu.abspath_testfile('magic_png.png'))
+        _fail(uu.samplefile_abspath('magic_png.png'))
 
 
 class TestWriteYamlFile(TestCase):

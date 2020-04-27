@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -76,19 +76,19 @@ class TestVersionModuleAttributes(TestCase):
 class TestTechniqueForAccessingAttributesWithoutImporting(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.version_file_path = os.path.realpath(
-            os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'core', 'version.py')
+        cls.version_filepath = os.path.realpath(
+            os.path.join(uuconst.DIRPATH_AUTONAMEOW_SRCROOT, 'core', 'version.py')
         )
 
     def test_version_file_exists(self):
-        self.assertTrue(os.path.isfile(self.version_file_path))
+        self.assertTrue(os.path.isfile(self.version_filepath))
 
     def test_can_access_attributes_by_executing_the_file(self):
         # Simulates technique used in 'setup.py' for loading attributes without
         # imports.  Based on the "Python Packaging User Guide" at:
         # https://packaging.python.org/guides/single-sourcing-package-version/#single-sourcing-the-version
         projectmeta = dict()
-        with open(self.version_file_path) as fp:
+        with open(self.version_filepath) as fp:
             exec(fp.read(), projectmeta)
 
         for key in [

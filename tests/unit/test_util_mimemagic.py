@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -20,7 +20,6 @@
 from unittest import TestCase
 
 import unit.utils as uu
-from core.exceptions import EncodingBoundaryViolation
 from util import coercers
 from util.mimemagic import eval_glob
 from util.mimemagic import file_mimetype
@@ -30,7 +29,7 @@ from util.mimemagic import MimeExtensionMapper
 
 
 class TestFileMimetype(TestCase):
-    TESTFILE_BASENAME_EXPECTED_MIMETYPE = [
+    SAMPLEFILE_BASENAME_EXPECTED_MIMETYPE = [
         ('magic_bmp.bmp', 'image/x-ms-bmp'),
         ('magic_gif.gif', 'image/gif'),
         ('magic_jpg.jpg', 'image/jpeg'),
@@ -46,11 +45,11 @@ class TestFileMimetype(TestCase):
     def setUpClass(cls):
         cls.null_mimetype = coercers.NULL_AW_MIMETYPE
         cls.FILEPATH_EXPECTED = [
-            (uu.abspath_testfile(basename), mimetype)
-            for basename, mimetype in cls.TESTFILE_BASENAME_EXPECTED_MIMETYPE
+            (uu.samplefile_abspath(basename), mimetype)
+            for basename, mimetype in cls.SAMPLEFILE_BASENAME_EXPECTED_MIMETYPE
         ]
 
-    def test_test_files_exist_and_are_readable(self):
+    def test_samplefiles_exist_and_are_readable(self):
         for filepath, _ in self.FILEPATH_EXPECTED:
             self.assertTrue(uu.file_exists(filepath))
             self.assertTrue(uu.path_is_readable(filepath))
@@ -59,7 +58,7 @@ class TestFileMimetype(TestCase):
         for _, expected_mime in self.FILEPATH_EXPECTED:
             self.assertIn('/', expected_mime)
 
-    def test_file_mimetype_returns_expected_mime_types_given_test_files(self):
+    def test_file_mimetype_returns_expected_mime_types_given_samplefiles(self):
         for filepath, expected_mime in self.FILEPATH_EXPECTED:
             actual = file_mimetype(filepath)
             self.assertEqual(expected_mime, actual)
@@ -104,15 +103,15 @@ class TestEvalMagicGlob(TestCase):
         _assert_raises(TypeError, b'application', ['*/*'])
         _assert_raises(ValueError, '1', ['*/*'])
         _assert_raises(TypeError, b'1', ['*/*'])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [b'*/jpeg'])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [b'*/jpeg', 'image/*'])
 
         # TODO: Raising the encoding boundary exception here isn't right!
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [1])
-        _assert_raises(EncodingBoundaryViolation,
+        _assert_raises(AssertionError,
                        'image/jpeg', [1, 'image/jpeg'])
 
         _assert_raises(ValueError, 'application', ['*a'])
@@ -328,11 +327,26 @@ class TestMimemagicGetExtension(TestCase):
     def test_maps_mime_type_mime_type_video_x_ms_asf_to_extension_wma(self):
         self._assert_returns_extension('wma', given='video/x-ms-asf')
 
+    def test_maps_mime_type_audio_midi_to_extension_mid(self):
+        self._assert_returns_extension('mid', given='audio/midi')
+
     def test_maps_mime_type_audio_x_wav_to_extension_wav(self):
         self._assert_returns_extension('wav', given='audio/x-wav')
 
+    def test_maps_mime_type_audio_x_m4a_to_extension_m4a(self):
+        self._assert_returns_extension('m4a', given='audio/x-m4a')
+
     def test_maps_mime_type_application_x_mobipocket_ebook_to_extension_azw3(self):
         self._assert_returns_extension('azw3', given='application/x-mobipocket-ebook')
+
+    def test_maps_mime_type_video_ogg_to_extension_ogv(self):
+        self._assert_returns_extension('ogv', given='video/ogg')
+
+    def test_maps_mime_type_video_x_ogg_to_extension_ogv(self):
+        self._assert_returns_extension('ogv', given='video/x-ogg')
+
+    def test_maps_mime_type_video_mpeg_to_extension_mpg(self):
+        self._assert_returns_extension('mpg', given='video/mpeg')
 
 
 class TestMimemagicGetMimetype(TestCase):
@@ -383,8 +397,20 @@ class TestMimemagicGetMimetype(TestCase):
     def test_maps_extension_wma_to_mime_type_video_x_ms_asf(self):
         self._assert_returns_mime('video/x-ms-asf', 'wma')
 
+    def test_maps_extension_mid_to_mime_type_audio_midi(self):
+        self._assert_returns_mime('audio/midi', 'mid')
+
     def test_maps_extension_wav_to_mime_type_audio_x_wav(self):
         self._assert_returns_mime('audio/x-wav', 'wav')
 
+    def test_maps_extension_m4a_to_mime_type_audio_x_m4a(self):
+        self._assert_returns_mime('audio/x-m4a', 'm4a')
+
     def test_maps_extension_azw3_to_mime_type_application_x_mobipocket_ebook(self):
         self._assert_returns_mime('application/x-mobipocket-ebook', 'azw3')
+
+    def test_maps_extension_ogv_to_mime_type_video_ogg(self):
+        self._assert_returns_mime('video/ogg', 'ogv')
+
+    def test_maps_extension_mpg_to_mime_type_video_mpeg(self):
+        self._assert_returns_mime('video/mpeg', 'mpg')

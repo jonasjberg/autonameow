@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -111,9 +111,6 @@ class ExtractorRunner(object):
             fileobject: The file object to extract data from.
             request_extractors: List of extractor classes that must be included.
             request_all: Whether all data extractors should be included.
-
-        Raises:
-            AssertionError: A sanity check failed.
         """
         log.debug(logs.center_pad_log_entry('Extractor Runner Started'))
         sanity.check_isinstance_fileobject(fileobject)
@@ -223,7 +220,7 @@ class ExtractorRunner(object):
             meowuri_prefix: MeowURI parts excluding the "leaf", as a Unicode str.
             data: Data to add, as a dict containing the data and meta-information.
         """
-        sanity.check_isinstance(data, dict)
+        assert isinstance(data, dict)
         for _uri_leaf, _data in data.items():
             uri = force_meowuri(meowuri_prefix, _uri_leaf)
             if not uri:
@@ -234,6 +231,7 @@ class ExtractorRunner(object):
             self._add_results_callback(fileobject, uri, _data)
 
     def shutdown_pooled_extractors(self, *_, **__):
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
         log.debug('Shutting down %s', self.__class__.__name__)
         for instance in self._instance_pool.values():
             if not hasattr(instance, 'shutdown'):

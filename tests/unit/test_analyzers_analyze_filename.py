@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -63,7 +63,7 @@ class TestFieldGetterMethods(TestCase):
         actual = self.fna._get_edition()
         self.assertIsNone(actual)
 
-    @patch('analyzers.analyze_filename.find_publisher')
+    @patch('analyzers.analyze_filename.find_known_publisher')
     def test__get_publisher_returns_expected_given_basename_with_publisher(
             self, mock_find_publisher
     ):
@@ -72,7 +72,7 @@ class TestFieldGetterMethods(TestCase):
         actual = self.fna._get_publisher()
         self.assertEqual('Foo Pub', actual)
 
-    @patch('analyzers.analyze_filename.find_publisher')
+    @patch('analyzers.analyze_filename.find_known_publisher')
     def test__get_publisher_returns_expected_given_basename_without_publisher(
             self, mock_find_publisher
     ):
@@ -460,6 +460,14 @@ class TestLikelyExtension(TestCase):
              Given(suffix='', mime='audio/x-wav')),
             (Expect('wma'),
              Given(suffix='wma', mime='video/x-ms-asf')),
+
+            # Video
+            (Expect('mpg'),
+             Given(suffix='', mime='video/mpeg')),
+            (Expect('mpg'),
+             Given(suffix='mpg', mime='video/mpeg')),
+            (Expect('mpg'),
+             Given(suffix='mpeg', mime='video/mpeg')),
         ]
 
     def test_returns_expected(self):

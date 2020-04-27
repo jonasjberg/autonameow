@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -179,8 +179,8 @@ class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
     def test_options_without_input_paths_is_passed_through_as_is(self):
         input_options = {
             'verbose': True,
-            'mode_batch': True,
-            'mode_interactive': False,
+            'batch': True,
+            'interactive': False,
             'dry_run': True,
             'recurse_paths': False,
         }
@@ -191,7 +191,7 @@ class TestRegressionTestLoaderModifyOptionsInputPaths(TestCase):
 class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls._default_config_path = uu.normpath(uu.abspath_testconfig())
+        cls._default_config_path = uu.normpath(uu.samplefile_config_abspath())
         cls._regressiontest_dir = _testsuite_abspath(
             uuconst.REGRESSIONTEST_DIR_BASENAMES[0]
         )
@@ -206,12 +206,12 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
     def test_uses_default_config_if_config_path_unspecified(self):
         input_options = {
             'verbose': True,
-            'mode_batch': True,
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -219,25 +219,25 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         input_options = {
             'verbose': True,
             'config_path': None,
-            'mode_batch': True,
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
-    def test_replaces_config_path_variable_testfiles(self):
+    def test_replaces_config_path_variable_samplefiles(self):
         input_options = {
             'verbose': True,
-            'config_path': '$TESTFILES/configs/default.yaml',
-            'mode_batch': True,
+            'config_path': '$SAMPLEFILES/configs/default.yaml',
+            'batch': True,
         }
         expected = {
             'verbose': True,
             'config_path': self._default_config_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -245,7 +245,7 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         input_options = {
             'verbose': True,
             'config_path': '$THISTEST/config.yaml',
-            'mode_batch': True,
+            'batch': True,
         }
 
         _expect_path = os.path.join(
@@ -257,7 +257,7 @@ class TestRegressionTestLoaderModifyOptionsConfigPath(TestCase):
         expected = {
             'verbose': True,
             'config_path': _expect_path,
-            'mode_batch': True,
+            'batch': True,
         }
         self._check(input_options, expected)
 
@@ -273,7 +273,7 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
     def test_description(self):
         self.assertEqual(
             self.actual.get('description'),
-            'Good old "test_files/gmail.pdf" integration test ..'
+            'Good old "samplefiles/gmail.pdf" integration test ..'
         )
 
     def test_options(self):
@@ -287,9 +287,9 @@ class TestRegressionTestLoaderGetTestSetupDictFromFiles(TestCase):
             'dump_options': False,
             'dump_meowuris': False,
             'list_all': True,
-            'mode_batch': True,
-            'mode_automagic': True,
-            'mode_interactive': False,
+            'batch': True,
+            'automagic': True,
+            'interactive': False,
             'dry_run': True,
             'recurse_paths': False,
         }
@@ -387,8 +387,8 @@ class TestNormalizeDescriptionWhitespace(TestCase):
         self._assert_returns('foo bar baz', 'foo\n bar baz\n')
 
     def test_replaceS_blank_lines_separating_sections_with_newline(self):
-        self._assert_returns('foo foo\nbar bar' ,
-'''foo
+        self._assert_returns('foo foo\nbar bar',
+                             '''foo
 foo
 
 bar
@@ -406,27 +406,27 @@ class TestExpandInputPathsVariables(TestCase):
 
     def test_input_path_is_replaced(self):
         self._assert_that_it_returns(
-            expected=[uu.abspath_testfile('gmail.pdf')],
-            given=['$TESTFILES/gmail.pdf']
+            expected=[uu.samplefile_abspath('gmail.pdf')],
+            given=['$SAMPLEFILES/gmail.pdf']
         )
 
     def test_input_paths_are_replaced(self):
         self._assert_that_it_returns(
-            expected=[uu.abspath_testfile('gmail.pdf'),
-                      uu.abspath_testfile('magic_txt.txt')],
-            given=['$TESTFILES/gmail.pdf',
-                   '$TESTFILES/magic_txt.txt']
+            expected=[uu.samplefile_abspath('gmail.pdf'),
+                      uu.samplefile_abspath('magic_txt.txt')],
+            given=['$SAMPLEFILES/gmail.pdf',
+                   '$SAMPLEFILES/magic_txt.txt']
         )
 
-    def test_testfiles_directory_only_is_replaced(self):
+    def test_samplefiles_directory_only_is_replaced(self):
         self._assert_that_it_returns(
-            expected=[uuconst.PATH_TEST_FILES],
-            given=['$TESTFILES']
+            expected=[uuconst.DIRPATH_SAMPLEFILES],
+            given=['$SAMPLEFILES']
         )
 
     def test_paths_are_normalized(self):
         self._assert_that_it_returns(
-            expected=[os.path.join(uuconst.PATH_USER_HOME, 'foo', 'temp')],
+            expected=[os.path.join(uuconst.DIRPATH_USER_HOME, 'foo', 'temp')],
             given=['~/foo/temp']
         )
 
@@ -638,7 +638,7 @@ class TestRenames(TestCase):
 
     def test_raises_exception_given_bad_arguments(self):
         def _fail(actual, expect):
-            with self.assertRaises(RegressionTestError):
+            with self.assertRaises(AssertionError):
                 _ = check_renames(actual, expect)
 
         _fail(None, None)
@@ -695,63 +695,98 @@ class TestRenames(TestCase):
         self._fail(actual={'A': 'A', 'C': 'D'}, expect={'B': 'A', 'C': 'C'})
 
 
-SAMPLE_TESTCASE_0000 = {
+SAMPLE_TESTSUITE_0000 = {
     'asserts': {
         'exit_code': 0
     },
     'description': 'Dummy test used by regression runner and utilities unit tests',
     'options': {
-        'config_path': b'foo/test_files/configs/default.yaml',
+        'automagic': True,
+        'batch': True,
+        'config_path': b'foo/tests/samplefiles/configs/default.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
         'dump_meowuris': False,
         'dump_options': False,
+        'interactive': False,
         'list_all': False,
         'list_rulematch': False,
-        'mode_automagic': True,
-        'mode_batch': True,
-        'mode_interactive': False,
-        'mode_timid': False,
         'quiet': False,
         'recurse_paths': False,
         'show_version': False,
+        'timid': False,
         'verbose': False,
     },
     'skiptest': False,
     'test_abspath': b'foo/tests/regression/0000_unittest_dummy',
     'test_dirname': b'0000_unittest_dummy'
 }
-SAMPLE_TESTCASE_0006 = {
+SAMPLE_TESTSUITE_0006 = {
     'asserts': {
         'exit_code': 0
     },
     'description': 'All *.jpg test files with minimal settings for output and actions',
     'options': {
-        'config_path': b'foo/test_files/configs/default.yaml',
+        'config_path': b'foo/tests/samplefiles/configs/default.yaml',
+        'debug': False,
+        'dry_run': True,
+        'dump_config': False,
+        'dump_meowuris': False,
+        'dump_options': False,
+        'automagic': True,
+        'batch': True,
+        'input_paths': [
+            'foo/tests/samplefiles/smulan.jpg',
+            'foo/tests/samplefiles/magic_jpg.jpg'
+        ],
+        'interactive': False,
+        'list_all': False,
+        'list_rulematch': False,
+        'quiet': True,
+        'recurse_paths': False,
+        'show_version': False,
+        'timid': False,
+        'verbose': False,
+    },
+    'skiptest': False,
+    'test_abspath': b'foo/tests/regression/0006_all_testfiles',
+    'test_dirname': b'0006_all_testfiles'
+}
+SAMPLE_TESTSUITE_0022 = {
+    'asserts': {
+        'exit_code': 0,
+        'renames': {
+            'Screen Shot 2018-06-25 at 21.43.07.png': '2018-06-25T214307 -- macbookpro screenshot.png'
+        },
+    },
+    'description': 'Match only the MacOS screenshot file and use the date/time from its filename.',
+    'options': {
+        'automagic': False,
+        'batch': True,
+        'config_path': b'foo/tests/regression/0022_macos_screenshot/config.yaml',
         'debug': False,
         'dry_run': True,
         'dump_config': False,
         'dump_meowuris': False,
         'dump_options': False,
         'input_paths': [
-            'foo/test_files/smulan.jpg',
-            'foo/test_files/magic_jpg.jpg'
+            'foo/gmail.pdf',
+            'foo/Screen Shot 2018-06-25 at 21.43.07.png',
+            'foo/2007-04-23_12-comments.png',
         ],
+        'interactive': False,
         'list_all': False,
         'list_rulematch': False,
-        'mode_automagic': True,
-        'mode_batch': True,
-        'mode_interactive': False,
-        'mode_timid': False,
-        'quiet': True,
+        'quiet': False,
         'recurse_paths': False,
         'show_version': False,
-        'verbose': False,
+        'timid': False,
+        'verbose': True,
     },
     'skiptest': False,
-    'test_abspath': b'foo/tests/regression/0006_all_testfiles',
-    'test_dirname': b'0006_all_testfiles'
+    'test_abspath': b'foo/tests/regression/0022_macos_screenshot',
+    'test_dirname': b'0022_macos_screenshot',
 }
 
 
@@ -767,40 +802,48 @@ def _as_testsuite(datadict):
 
 
 class TestCommandlineArgsForTestSuite(TestCase):
-    def test_returns_expected_command_for_test_0000(self):
-        expected_options = [
+    def _assert_commandline_args_for_testsuite(self, testsuite_dict, expect):
+        actual = _commandline_args_for_testsuite(_as_testsuite(testsuite_dict))
+        self.assertEqual(len(expect), len(actual))
+        for option in expect:
+            self.assertIn(option, actual)
+
+    def test_returns_expected_arguments_for_testsuite_0000(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0000, [
             '--dry-run',
             '--automagic',
             '--batch',
-            "--config-path 'foo/test_files/configs/default.yaml'"
-        ]
-        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
-        actual = _commandline_args_for_testsuite(suite)
-        self.assertEqual(len(expected_options), len(actual))
-        for expect_option in expected_options:
-            self.assertIn(expect_option, actual)
+            "--config-path 'foo/tests/samplefiles/configs/default.yaml'",
+        ])
 
-    def test_returns_expected_command_for_test_0006(self):
-        expected_options = [
+    def test_returns_expected_arguments_for_testsuite_0006(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0006, [
             '--dry-run',
             '--automagic',
             '--batch',
             '--quiet',
-            "--config-path 'foo/test_files/configs/default.yaml'",
+            "--config-path 'foo/tests/samplefiles/configs/default.yaml'",
             '--',
-            "'foo/test_files/smulan.jpg'",
-            "'foo/test_files/magic_jpg.jpg'"
-        ]
-        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
-        actual = _commandline_args_for_testsuite(suite)
-        self.assertEqual(len(expected_options), len(actual))
-        for expect_option in expected_options:
-            self.assertIn(expect_option, actual)
+            "'foo/tests/samplefiles/smulan.jpg'",
+            "'foo/tests/samplefiles/magic_jpg.jpg'",
+        ])
+
+    def test_returns_expected_arguments_for_testsuite_0022(self):
+        self._assert_commandline_args_for_testsuite(SAMPLE_TESTSUITE_0022, [
+            '--batch',
+            '--dry-run',
+            '--verbose',
+            "--config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml'",
+            '--',
+            "'foo/gmail.pdf'",
+            "'foo/Screen Shot 2018-06-25 at 21.43.07.png'",
+            "'foo/2007-04-23_12-comments.png'",
+        ])
 
 
-class TestCommandlineForTestcase(TestCase):
-    def test_returns_expected_for_empty_testcase(self):
-        suite = RegressionTestSuite(
+class TestCommandlineForTestSuite(TestCase):
+    def test_returns_expected_for_empty_testsuite(self):
+        testsuite = RegressionTestSuite(
             abspath=b'/tmp/bar',
             dirname=b'bar',
             asserts=None,
@@ -808,21 +851,30 @@ class TestCommandlineForTestcase(TestCase):
             skip=False,
             description=None
         )
-        actual = commandline_for_testsuite(suite)
-        expect = 'autonameow'
-        self.assertEqual(actual, expect)
+        actual = commandline_for_testsuite(testsuite)
+        self.assertEqual('autonameow', actual)
 
-    def test_returns_expected_for_testcase_0000(self):
-        suite = _as_testsuite(SAMPLE_TESTCASE_0000)
-        actual = commandline_for_testsuite(suite)
-        expect = "autonameow --automagic --batch --dry-run --config-path 'foo/test_files/configs/default.yaml'"
-        self.assertEqual(actual, expect)
+    def _assert_commandline_for_testsuite(self, testsuite_dict, expect):
+        actual = commandline_for_testsuite(_as_testsuite(testsuite_dict))
+        self.assertEqual(expect, actual)
 
-    def test_returns_expected_for_testcase_0006(self):
-        suite = _as_testsuite(SAMPLE_TESTCASE_0006)
-        actual = commandline_for_testsuite(suite)
-        expect = "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/test_files/configs/default.yaml' -- 'foo/test_files/smulan.jpg' 'foo/test_files/magic_jpg.jpg'"
-        self.assertEqual(actual, expect)
+    def test_returns_expected_for_sample_testsuite_0000(self):
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0000,
+            "autonameow --automagic --batch --dry-run --config-path 'foo/tests/samplefiles/configs/default.yaml'",
+        )
+
+    def test_returns_expected_for_sample_testsuite_0006(self):
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0006,
+            "autonameow --automagic --batch --dry-run --quiet --config-path 'foo/tests/samplefiles/configs/default.yaml' -- 'foo/tests/samplefiles/smulan.jpg' 'foo/tests/samplefiles/magic_jpg.jpg'",
+        )
+
+    def test_returns_expected_for_sample_testsuite_0022(self):
+        self._assert_commandline_for_testsuite(
+            SAMPLE_TESTSUITE_0022,
+            "autonameow --batch --dry-run --verbose --config-path 'foo/tests/regression/0022_macos_screenshot/config.yaml' -- 'foo/gmail.pdf' 'foo/Screen Shot 2018-06-25 at 21.43.07.png' 'foo/2007-04-23_12-comments.png'",
+        )
 
 
 class TestGlobFilter(TestCase):

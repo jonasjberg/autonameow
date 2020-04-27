@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -31,16 +31,16 @@ UNMET_DEPENDENCIES = (
     'Extractor dependencies not satisfied (!)'
 )
 
-TESTFILE_A = uu.abspath_testfile('sample.md')
-TESTFILE_A_EXPECTED = uu.get_expected_text_for_testfile('sample.md')
+SAMPLEFILE_A = uu.samplefile_abspath('sample.md')
+SAMPLEFILE_A_EXPECTED = uu.get_expected_text_for_samplefile('sample.md')
 
 
 class TestPrerequisites(TestCase):
-    def test_test_file_exists_a(self):
-        self.assertTrue(uu.file_exists(TESTFILE_A))
+    def test_samplefile_a_exists(self):
+        self.assertTrue(uu.file_exists(SAMPLEFILE_A))
 
     def test_expected_text_is_loaded(self):
-        self.assertIsNotNone(TESTFILE_A_EXPECTED)
+        self.assertIsNotNone(SAMPLEFILE_A_EXPECTED)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
@@ -53,33 +53,33 @@ class TestMarkdownTextExtractor(CaseTextExtractorBasics, TestCase):
 class TestMarkdownTextExtractorOutputTypes(CaseTextExtractorOutputTypes,
                                            TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorOutputTestFileA(CaseTextExtractorOutput,
                                                TestCase):
     EXTRACTOR_CLASS = MarkdownTextExtractor
-    SOURCE_FILEOBJECT = uu.as_fileobject(TESTFILE_A)
-    EXPECTED_TEXT = TESTFILE_A_EXPECTED
+    SOURCE_FILEOBJECT = uu.fileobject_from_filepath(SAMPLEFILE_A)
+    EXPECTED_TEXT = SAMPLEFILE_A_EXPECTED
 
 
 @skipIf(*UNMET_DEPENDENCIES)
 class TestMarkdownTextExtractorInternals(TestCase):
     def setUp(self):
         self.maxDiff = None
-        self.test_fileobject = uu.as_fileobject(TESTFILE_A)
+        self.sample_fileobject = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
         self.e = MarkdownTextExtractor()
         # Disable the cache
         self.e.cache = None
 
     def test__get_text_returns_something(self):
-        actual = self.e._extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.sample_fileobject)
         self.assertIsNotNone(actual)
 
     def test__get_text_returns_expected_type(self):
-        actual = self.e._extract_text(self.test_fileobject)
+        actual = self.e._extract_text(self.sample_fileobject)
         self.assertIsInstance(actual, str)
 
 
@@ -91,7 +91,7 @@ class TestMarkdownTextExtractorCanHandle(TestCase):
         self.fo_pdf = uu.get_mock_fileobject(mime_type='application/pdf')
         self.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         self.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
-        self.fo_md = uu.as_fileobject(TESTFILE_A)
+        self.fo_md = uu.fileobject_from_filepath(SAMPLEFILE_A)
 
     def test_class_method_can_handle_returns_expected(self):
         self.assertFalse(self.e.can_handle(self.fo_image))

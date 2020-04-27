@@ -5,13 +5,13 @@ dump_config: false
 dump_meowuris: false
 dump_options: false
 input_paths:
-- $TESTFILES/empty
+  - $SAMPLEFILES/empty
 list_all: false
 list_rulematch: false
-mode_automagic: false
-mode_batch: true
-mode_interactive: false
-mode_postprocess_only: true
+automagic: false
+batch: true
+interactive: false
+postprocess_only: true
 quiet: false
 recurse_paths: false
 show_version: false

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -27,7 +27,6 @@ from core.providers import ProviderMixin
 from core.providers import wrap_provider_results
 from extractors import text_provider
 from util import mimemagic
-from util import sanity
 
 
 class AnalyzerError(AutonameowException):
@@ -160,7 +159,7 @@ class BaseAnalyzer(ProviderMixin):
             self.log.info('Request for any textual content failed')
             return None
 
-        sanity.check_internal_string(text)
+        assert isinstance(text, str)
         return text
 
     @classmethod
@@ -205,7 +204,7 @@ class BaseAnalyzer(ProviderMixin):
                 'Classes without class attribute "HANDLES_MIME_TYPES" must '
                 'implement (override) class method "can_handle"!'
             )
-        sanity.check_isinstance(cls.HANDLES_MIME_TYPES, list)
+        assert isinstance(cls.HANDLES_MIME_TYPES, list)
         return cls._evaluate_mime_type_glob(fileobject)
 
     @classmethod

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -21,12 +21,14 @@ import logging
 from collections import defaultdict
 
 from core import logs
-from core import repository
+from core.datastore import repository
+from core.datastore.repository import DataBundle
 from core.metadata.normalize import normalize_full_human_name
 from core.metadata.normalize import normalize_full_title
 from core.model import genericfields as gf
 from core.namebuilder import fields
-from core.repository import DataBundle
+from core.truths import known_metadata
+from util import coercers
 from util import sanity
 
 
@@ -119,43 +121,34 @@ class TemplateFieldDataResolver(object):
 
         candidates = repository.SessionRepository.query_mapped(self.fileobject, field)
         log.debug('Resolver got %d candidates for field %s', len(candidates), field)
+        if not candidates:
+            return list()
 
         field_data_candidate_list = list()
-        for uri, candidate in candidates:
+        for mapping_weight, uri, databundle in candidates:
             sanity.check_isinstance_meowuri(uri)
-            sanity.check_isinstance(candidate, DataBundle)
+            assert isinstance(databundle, DataBundle)
 
-            candidate_mapped_fields = candidate.mapped_fields
-            if not candidate_mapped_fields:
-                continue
-
-            # TODO: How does this behave if the same generic field is mapped more than once with different probabilities?
-            _candidate_probability = 0.0
-            for mapping in candidate_mapped_fields:
-                if mapping.field == field:
-                    _candidate_probability = mapping.weight
-                    break
-
-            field_candidate_types_compatible = field.type_compatible(candidate.coercer, candidate.multivalued)
+            field_candidate_types_compatible = field.type_compatible(databundle.coercer, databundle.multivalued)
             if not field_candidate_types_compatible:
-                log.debug('Type of field %s is NOT compatible with candidate %s', field, candidate)
+                log.debug('Type of field %s is NOT compatible with candidate %s', field, databundle)
                 continue
             else:
-                log.debug('Type of field %s is compatible with candidate %s', field, candidate)
+                log.debug('Type of field %s is compatible with candidate %s', field, databundle)
 
-            if candidate.value == 'UNKNOWN':
-                log.debug('Value of field %s is UNKNOWN ..', field)
-                continue
+            if isinstance(databundle.value, str):
+                if is_known_bad_string_value(field, databundle.value):
+                    log.debug('Skipped known bad value for field %s: "%s"',
+                              field, databundle.value)
+                    continue
 
-            _formatted_value = field.format(candidate, config=self.config)
+            _formatted_value = field.format(databundle, config=self.config)
             assert _formatted_value is not None
 
-            _candidate_source = candidate.source
+            _candidate_source = databundle.source
             if not _candidate_source:
-                log.warning('Unknown source: %s', candidate)
+                log.warning('Unknown source: %s', databundle)
                 _candidate_source = '(unknown source)'
-
-            _candidate_generic_field = candidate.generic_field
 
             # TODO: Translate generic 'choice.meowuri' to not generic..
             if uri.is_generic:
@@ -164,9 +157,9 @@ class TemplateFieldDataResolver(object):
             field_data_candidate_list.append(FieldDataCandidate(
                 string_value=_formatted_value,
                 source=_candidate_source,
-                probability=str(_candidate_probability),
+                probability=str(mapping_weight),
                 meowuri=uri,
-                generic_field=_candidate_generic_field
+                generic_field=databundle.generic_field
             ))
 
         # TODO: [TD0104] Merge candidates and re-normalize probabilities.
@@ -209,14 +202,16 @@ class TemplateFieldDataResolver(object):
             num_databundles = len(databundles)
             log.debug('Got list of data. Attempting de-duplication of %d databundles',
                       num_databundles)
-            deduped_databundles = dedupe_list_of_databundles(databundles)
-            num_deduped_databundles = len(deduped_databundles)
-            log.debug('De-duplication returned %d of %d databundles',
-                      num_deduped_databundles, num_databundles)
-            if num_deduped_databundles < num_databundles:
-                # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-                # Use the deduplicated list
-                databundles = deduped_databundles
+
+            if num_databundles > 1:
+                deduped_databundles = dedupe_list_of_databundles(databundles)
+                num_deduped_databundles = len(deduped_databundles)
+                log.debug('De-duplication returned %d of %d databundles',
+                          num_deduped_databundles, num_databundles)
+                if num_deduped_databundles < num_databundles:
+                    # TODO: [TD0112] FIX THIS HORRIBLE MESS!
+                    # Use the deduplicated list
+                    databundles = deduped_databundles
 
             if len(databundles) == 1:
                 databundle = databundles[0]
@@ -245,11 +240,13 @@ class TemplateFieldDataResolver(object):
                     return None
 
         # TODO: [TD0112] FIX THIS HORRIBLE MESS!
-        sanity.check_isinstance(databundle, DataBundle)
+        assert isinstance(databundle, DataBundle)
 
-        if databundle.value == 'UNKNOWN':
-            log.debug('Value of field %s is UNKNOWN ..', field)
-            return None
+        if isinstance(databundle.value, str):
+            if is_known_bad_string_value(field, databundle.value):
+                log.debug('Skipped known bad value for field %s: "%s"',
+                          field, databundle.value)
+                return None
 
         log.debug('Updated data for field %s :: %s', field, databundle.value)
         return databundle
@@ -312,6 +309,18 @@ class TemplateFieldDataResolver(object):
         return self.__class__.__name__
 
 
+def is_known_bad_string_value(field, value):
+    assert isinstance(field, fields.NameTemplateField)
+    assert isinstance(value, str)
+
+    if value == 'UNKNOWN':
+        return True
+
+    fieldname = field.as_placeholder()
+    known_bad_values = known_metadata.incorrect_values(fieldname)
+    return value in known_bad_values
+
+
 def dedupe_list_of_databundles(databundle_list):
     """
     Given a list of provider result data dicts, deduplicate identical data.
@@ -328,6 +337,7 @@ def dedupe_list_of_databundles(databundle_list):
         values have been removed, leaving only one arbitrarily chosen bundle
         per group of bundles.
     """
+    log.debug('dedupe_list_of_databundles(%s)', databundle_list)
     list_of_databundles = list(databundle_list)
     if len(list_of_databundles) == 1:
         return list_of_databundles
@@ -358,6 +368,8 @@ def dedupe_list_of_databundles(databundle_list):
             seen_values.add(normalized_author)
 
         elif databundle.generic_field is gf.GenericTitle:
+            if not isinstance(value, str):
+                value = coercers.force_string(value)
             normalized_title = normalize_full_title(value)
             if normalized_title in seen_values:
                 continue
@@ -379,9 +391,9 @@ def sort_by_mapped_weights(databundles, primary_field, secondary_field=None):
     """
     Sorts bundles by their "weighted mapping" probabilities for given fields.
     """
-    sanity.check_isinstance(primary_field, fields.NameTemplateField)
+    assert isinstance(primary_field, fields.NameTemplateField)
     if secondary_field is not None:
-        sanity.check_isinstance(secondary_field, fields.NameTemplateField)
+        assert isinstance(secondary_field, fields.NameTemplateField)
 
     databundles.sort(
         key=lambda b: (b.field_mapping_weight(primary_field),
@@ -408,25 +420,30 @@ def get_one_from_many_generic_values(databundle_list, uri):
         for the name template field related to the MeowURI "leaf".
     """
     uri_leaf = uri.leaf
-    if uri_leaf == 'author':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Author)
-        return prioritized[0]
-    elif uri_leaf == 'title':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Title)
-        return prioritized[0]
-    elif uri_leaf == 'date_created':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.DateTime)
-        return prioritized[0]
-    elif uri_leaf == 'publisher':
-        prioritized = sort_by_mapped_weights(databundle_list,
-                                             primary_field=fields.Publisher)
-        return prioritized[0]
-
-    else:
-        log.debug('[TD0112] Unhandled uri.leaf: "%s"', uri_leaf)
 
     # TODO: [TD0112] Handle ranking candidates.
-    return None
+    uri_leaf_mapping_fields = {
+        'author': {
+            'primary_field': fields.Author,
+            'secondary_field': fields.Creator,
+        },
+        'title': {
+            'primary_field': fields.Title,
+            'secondary_field': fields.Description,
+        },
+        'date_created': {
+            'primary_field': fields.DateTime,
+            'secondary_field': fields.Date
+        },
+        'publisher': {
+            'primary_field': fields.Publisher,
+        },
+    }
+
+    if uri_leaf not in uri_leaf_mapping_fields:
+        log.debug('[TD0112] Unhandled uri.leaf: "%s"', uri_leaf)
+        return None
+
+    prioritized = sort_by_mapped_weights(databundle_list,
+                                         **uri_leaf_mapping_fields[uri_leaf])
+    return prioritized[0]

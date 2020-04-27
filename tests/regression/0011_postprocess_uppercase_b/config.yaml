@@ -1,54 +1,54 @@
 DATETIME_FORMAT:
-    date: '%Y-%m-%d'
-    datetime: '%Y-%m-%dT%H%M%S'
-    time: '%H-%M-%S'
+  date: '%Y-%m-%d'
+  datetime: '%Y-%m-%dT%H%M%S'
+  time: '%H-%M-%S'
 FILESYSTEM_OPTIONS:
-    ignore:
+  ignore:
     - '*.swp'
     - '*/.*'
-    sanitize_filename: true
-    sanitize_strict: false
+  sanitize_filename: true
+  sanitize_strict: false
 FILETAGS_OPTIONS:
-    between_tag_separator: ' '
-    filename_tag_separator: ' -- '
+  between_tag_separator: ' '
+  filename_tag_separator: ' -- '
 NAME_TEMPLATES:
-    default_book: '{publisher} {title} {edition} - {author} {datetime}.{extension}'
-    default_document: '{title} - {author} {datetime}.{extension}'
-    default_photo: '{datetime} {description} -- {tags}.{extension}'
+  default_book: '{publisher} {title} {edition} - {author} {datetime}.{extension}'
+  default_document: '{title} - {author} {datetime}.{extension}'
+  default_photo: '{datetime} {description} -- {tags}.{extension}'
 POST_PROCESSING:
-    uppercase_filename: true
+  uppercase_filename: true
 
 RULES:
-    test_files Gmail print-to-pdf:
-        CONDITIONS:
-            extractor.filesystem.xplat.extension: pdf
-            extractor.filesystem.xplat.basename_full: gmail.pdf
-            extractor.filesystem.xplat.mime_type: application/pdf
-        DATA_SOURCES:
-            datetime: extractor.metadata.exiftool.PDF:CreateDate
-            extension: extractor.filesystem.xplat.extension
-            title: extractor.filesystem.xplat.basename_prefix
-        NAME_TEMPLATE: '{datetime} {title}.{extension}'
-        description:
-        exact_match: true
-        ranking_bias: null
-    test_files smulan.jpg:
-        CONDITIONS:
-            extractor.filesystem.xplat.basename_full: smulan.jpg
-            extractor.filesystem.xplat.mime_type: image/jpeg
-        DATA_SOURCES:
-            datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
-            description: extractor.filesystem.filetags.description
-            extension: extractor.filesystem.xplat.extension
-        NAME_TEMPLATE: '{datetime} {description}.{extension}'
-        description:
-        exact_match: true
-        ranking_bias: 1
-    test_files simplest_pdf.md.pdf:
-        CONDITIONS:
-            extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
-        DATA_SOURCES:
-            extension: extractor.filesystem.xplat.extension
-        NAME_TEMPLATE: simplest_pdf.md.{extension}
-        exact_match: true
-        ranking_bias: 1
+  samplefiles Gmail print-to-pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.extension: pdf
+      extractor.filesystem.xplat.basename_full: gmail.pdf
+      extractor.filesystem.xplat.mime_type: application/pdf
+    DATA_SOURCES:
+      datetime: extractor.metadata.exiftool.PDF:CreateDate
+      extension: extractor.filesystem.xplat.extension
+      title: extractor.filesystem.xplat.basename_prefix
+    NAME_TEMPLATE: '{datetime} {title}.{extension}'
+    description:
+    exact_match: true
+    ranking_bias: null
+  samplefiles smulan.jpg:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: smulan.jpg
+      extractor.filesystem.xplat.mime_type: image/jpeg
+    DATA_SOURCES:
+      datetime: extractor.metadata.exiftool.EXIF:DateTimeOriginal
+      description: extractor.metadata.filetags.description
+      extension: extractor.filesystem.xplat.extension
+    NAME_TEMPLATE: '{datetime} {description}.{extension}'
+    description:
+    exact_match: true
+    ranking_bias: 1
+  samplefiles simplest_pdf.md.pdf:
+    CONDITIONS:
+      extractor.filesystem.xplat.basename_full: simplest_pdf.md.pdf
+    DATA_SOURCES:
+      extension: extractor.filesystem.xplat.extension
+    NAME_TEMPLATE: simplest_pdf.md.{extension}
+    exact_match: true
+    ranking_bias: 1

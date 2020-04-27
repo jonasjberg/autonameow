@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -65,7 +65,6 @@ class TestRuleMatcher(TestCase):
 
 
 class TestRuleMatcherMatching(TestCase):
-
     def test_returns_empty_list_if_no_rules_are_available(self):
         matcher = _get_rulematcher(rules=[])
         actual = matcher.get_matched_rules()
@@ -79,6 +78,10 @@ class TestRuleMatcherMatching(TestCase):
         rule.exact_match = bool(exact_match)
         rule.ranking_bias = float(bias)
         rule.data_sources = list()
+
+        name_template = Mock()
+        name_template.placeholders = list()
+        rule.name_template = name_template
 
         # NOTE(jonas): Prevent 'TypeError: unorderable types: Mock() < Mock()'
         #              when sorting rules in 'get_matched_rules()'.
@@ -170,6 +173,10 @@ class DummyRule(object):
         self.exact_match = exact_match
         self.ranking_bias = C.DEFAULT_RULE_RANKING_BIAS
         self.data_sources = list()
+
+        # self.name_template = Mock()
+        from core.namebuilder.template import NameTemplate
+        self.name_template = NameTemplate('foo {datetime} {title} bar.txt')
 
 
 class TestPrioritizeRules(TestCase):

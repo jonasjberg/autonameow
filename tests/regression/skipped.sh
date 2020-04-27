@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,8 +19,10 @@
 
 set -o nounset
 
-SELF_BASENAME="$(basename "$0")"
-SELF_DIR="$(realpath -e "$(dirname "$0")")"
+self_basename="$(basename -- "$0")"
+self_dirpath="$(realpath -e -- "$(dirname -- "$0")")"
+readonly self_basename
+readonly self_dirpath
 
 
 # Default configuration.
@@ -31,9 +33,9 @@ print_usage_info()
 {
     cat <<EOF
 
-"${SELF_BASENAME}"  --  skipped test helper
+"$self_basename"  --  skipped test helper
 
-  USAGE:  ${SELF_BASENAME} ([OPTIONS])
+  USAGE:  $self_basename ([OPTIONS])
 
   OPTIONS:  -h   Display usage information and exit.
             -c   Clear ("unskip") all skipped tests.
@@ -48,7 +50,7 @@ EOF
 
 if [ "$#" -eq "0" ]
 then
-    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$SELF_BASENAME"
+    printf '(USING DEFAULTS -- "%s -h" for usage information)\n\n' "$self_basename"
 else
     while getopts hc opt
     do
@@ -62,13 +64,21 @@ else
 fi
 
 
+declare -a common_find_flags=(-xdev -mindepth 2 -maxdepth 2 -type f -name skip)
+
+
 printf 'Currently skipped regression tests:\n'
-( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -printf '%P\n' | sed 's/\/skip//' )
+while IFS= read -r -d '' skipfile_path
+do
+    basename -- "$(dirname -- "$skipfile_path")"
+done < <(find "$self_dirpath" "${common_find_flags[@]}" -print0 | sort -z)
+
 
 if [ "$option_clear_all_skipped" == 'true' ]
 then
     printf '\nClearing all skipped tests .. '
-    if ( cd "$SELF_DIR" && find . -xdev -type f -name 'skip' -delete )
+
+    if find "$self_dirpath" "${common_find_flags[@]}" -delete
     then
         printf '[SUCCESS]\n'
     else

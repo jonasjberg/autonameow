@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -22,7 +22,6 @@ import logging
 from core.exceptions import FilesystemError
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -42,13 +41,13 @@ class FilenameDelta(object):
 
     def _get_displayable_from_path_basename(self):
         from_basename = disk.basename(self.from_path)
-        sanity.check_internal_bytestring(from_basename)
+        assert isinstance(from_basename, bytes)
         return enc.displayable_path(from_basename)
 
     def _get_displayable_new_basename(self):
         # TODO: Is this unnecessary round-tripping?
         new_basename = enc.bytestring_path(self.new_basename)
-        sanity.check_internal_bytestring(new_basename)
+        assert isinstance(new_basename, bytes)
         return enc.displayable_path(new_basename)
 
     def __eq__(self, other):
@@ -157,17 +156,17 @@ class FileRenamer(object):
         """
         # TODO: [TD0143] Add option to execute "hooks" at certain events.
         # TODO: [TD0092] Add storing history and ability to "undo" renames.
-        sanity.check_internal_bytestring(from_path)
-        sanity.check_internal_string(new_basename)
+        assert isinstance(from_path, bytes)
+        assert isinstance(new_basename, str)
 
         # Encoding boundary.  Internal str --> internal filename bytestring
         dest_basename = enc.bytestring_path(new_basename)
-        sanity.check_internal_bytestring(dest_basename)
+        assert isinstance(dest_basename, bytes)
         log.debug('Destination basename (bytestring): "%s"',
                   enc.displayable_path(dest_basename))
 
         from_basename = disk.basename(from_path)
-        sanity.check_internal_bytestring(from_basename)
+        assert isinstance(from_basename, bytes)
 
         if self._basenames_are_equivalent(from_basename, dest_basename):
             self._add_skipped(from_path, dest_basename)
@@ -220,6 +219,7 @@ class FileRenamer(object):
             log.debug('dry-run is enabled, skipping actual rename ..')
             return
 
+        log.debug('Renaming %r to %r ..', from_path, dest_basename)
         try:
             self._rename_func(from_path, dest_basename)
         except FilesystemError:
@@ -237,6 +237,7 @@ class FileRenamer(object):
             self.stats['failed'] += 1
             raise FilesystemError(e)
         else:
+            log.debug('Renamed %r to %r', from_path, dest_basename)
             self.stats['renamed'] += 1
 
     def _basenames_are_equivalent(self, from_basename, dest_basename):

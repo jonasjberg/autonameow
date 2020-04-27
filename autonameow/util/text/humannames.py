@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,8 +19,7 @@
 
 import re
 
-from thirdparty import nameparser
-from util import sanity
+import nameparser
 from util.text.regexcache import RegexCache
 from util.text import substring
 
@@ -170,37 +169,37 @@ def _parse_name(human_name):
 
     Returns:
         A dict of data returned by the 'HumanName' class or an empty dict if
-        "nameparser" is unavailable or the parsing returns non-True.
+        the parsing returns non-True.
     """
-    if nameparser:
-        parsed = nameparser.HumanName(human_name)
-        if parsed:
-            # Some first names are misinterpreted as titles.
-            if not parsed.first:
-                _first_list = parsed.title_list
-            else:
-                _first_list = parsed.first_list
+    parsed = nameparser.HumanName(human_name)
+    if not parsed:
+        return dict()
 
-            return {
-                'first': parsed.first or '',
-                'first_list': _first_list or [],
-                'last': parsed.last.replace(' ', '') or '',
-                'last_list': parsed.last_list or [],
-                'middle': parsed.middle or '',
-                'middle_list': parsed.middle_list or [],
-                'original': parsed.original or '',
-                'suffix': parsed.suffix or '',
-                'title': parsed.title or '',
-                'title_list': parsed.title_list or [],
-            }
-    return {}
+    # Some first names are misinterpreted as titles.
+    if not parsed.first:
+        _first_list = parsed.title_list
+    else:
+        _first_list = parsed.first_list
+
+    return {
+        'first': parsed.first or '',
+        'first_list': _first_list or [],
+        'last': parsed.last.replace(' ', '') or '',
+        'last_list': parsed.last_list or [],
+        'middle': parsed.middle or '',
+        'middle_list': parsed.middle_list or [],
+        'original': parsed.original or '',
+        'suffix': parsed.suffix or '',
+        'title': parsed.title or '',
+        'title_list': parsed.title_list or [],
+    }
 
 
 class HumanNameParser(object):
     def __call__(self, name):
         if name is None:
             return {}
-        sanity.check_internal_string(name)
+        assert isinstance(name, str)
 
         preprocessed_name = self._preprocess(name)
         parsed_name = _parse_name(preprocessed_name)
@@ -298,7 +297,7 @@ class HumanNameFormatter(object):
     RE_FORMATTED_NAME = None
 
     def __call__(self, parsed_name):
-        sanity.check_isinstance(parsed_name, dict)
+        assert isinstance(parsed_name, dict)
         if not self.RE_FORMATTED_NAME:
             raise NotImplementedError(
                 'Inheriting classes must define "RE_FORMATTED_NAME"'

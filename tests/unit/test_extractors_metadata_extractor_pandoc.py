@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -17,7 +17,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 from unittest import skipIf, TestCase
 
 import unit.utils as uu
@@ -46,14 +45,14 @@ class TestPandocMetadataExtractor(CaseExtractorBasics, TestCase):
 class TestPandocMetadataExtractorOutputTypes(CaseExtractorOutputTypes,
                                              TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('sample.md')
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileA(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('sample.md')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('sample.md')
     EXPECTED_FIELD_TYPE_VALUE = [
         ('author', list, ['Gibson Sjöberg']),
 
@@ -63,10 +62,10 @@ class TestPandocMetadataExtractorOutputTestFileA(CaseExtractorOutput,
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileB(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('pg38145-images.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('pg38145-images.epub')
     from datetime import datetime
     EXPECTED_FIELD_TYPE_VALUE = [
         ('author', list, ['Friedrich Wilhelm Nietzsche']),
@@ -96,10 +95,10 @@ class TestPandocMetadataExtractorOutputTestFileB(CaseExtractorOutput,
 
 
 @skipIf(*UNMET_DEPENDENCIES)
-class TestPandocMetadataExtractorOutputTestFileC(CaseExtractorOutput,
+class TestPandocMetadataExtractorOutputSamplefileC(CaseExtractorOutput,
                                                  TestCase):
     EXTRACTOR_CLASS = PandocMetadataExtractor
-    SOURCE_FILEOBJECT = uu.fileobject_testfile('4123.epub')
+    SOURCE_FILEOBJECT = uu.fileobject_from_samplefile('4123.epub')
 
     from datetime import datetime
     EXPECTED_FIELD_TYPE_VALUE = [
@@ -133,8 +132,8 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         cls.fo_pdf = uu.get_mock_fileobject(mime_type='application/pdf')
         cls.fo_rtf = uu.get_mock_fileobject(mime_type='text/rtf')
         cls.fo_txt = uu.get_mock_fileobject(mime_type='text/plain')
-        cls.fo_md = uu.fileobject_testfile('sample.md')
-        cls.fo_epub = uu.fileobject_testfile('pg38145-images.epub')
+        cls.fo_md = uu.fileobject_from_samplefile('sample.md')
+        cls.fo_epub = uu.fileobject_from_samplefile('pg38145-images.epub')
 
     def _assert_can_handle_returns(self, expected, fileobject):
         actual = self.e.can_handle(fileobject)
@@ -152,10 +151,10 @@ class TestPandocMetadataExtractorCanHandle(TestCase):
         self._assert_can_handle_returns(True, self.fo_epub)
 
 
-class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
+class TestExtractDocumentMetadataWithPandocSamplefileSampleMd(TestCase):
     @classmethod
     def setUpClass(cls):
-        fo = uu.fileobject_testfile('sample.md')
+        fo = uu.fileobject_from_samplefile('sample.md')
         cls.actual = extract_document_metadata_with_pandoc(fo.abspath)
 
     def test_does_not_return_none(self):
@@ -173,10 +172,10 @@ class TestExtractDocumentMetadataWithPandocTestFileSampleMd(TestCase):
         self.assertEqual(['On Meow'], self.actual['title'])
 
 
-class TestExtractDocumentMetadataWithPandocTestFile4123Epub(TestCase):
+class TestExtractDocumentMetadataWithPandocSamplefile4123Epub(TestCase):
     @classmethod
     def setUpClass(cls):
-        fo = uu.fileobject_testfile('4123.epub')
+        fo = uu.fileobject_from_samplefile('4123.epub')
         cls.actual = extract_document_metadata_with_pandoc(fo.abspath)
 
     def _assert_extracted_metadata(self, expected_field, expected_value):
@@ -214,7 +213,7 @@ class TestExtractDocumentMetadataWithPandocTestFile4123Epub(TestCase):
 
 class TestParsePandocOutput(TestCase):
     def test_parses_example_pandoc_output_json_string_4123_epub(self):
-        pandoc_output_for_test_files_4123_epub = '''
+        pandoc_output_for_samplefiles_4123_epub = '''
 {
     "author": "Bertrand Russell",
     "coverage": "",
@@ -242,13 +241,13 @@ class TestParsePandocOutput(TestCase):
     "title": "Mysticism and Logic and Other Essays"
 }
 '''
-        actual = _parse_pandoc_output(pandoc_output_for_test_files_4123_epub)
+        actual = _parse_pandoc_output(pandoc_output_for_samplefiles_4123_epub)
         self.assertIsInstance(actual, dict)
         self.assertIn('publisher', actual)
         self.assertEqual('Feedbooks', actual['publisher'])
 
     def test_parses_example_pandoc_output_json_string_pg38145_images_epub(self):
-        pandoc_output_for_test_files_pg38145_images_epub = '''
+        pandoc_output_for_samplefiles_pg38145_images_epub = '''
 {
     "author": "Friedrich Wilhelm Nietzsche",
     "contributor": "Alexander Harvey",
@@ -264,7 +263,7 @@ class TestParsePandocOutput(TestCase):
     "title": "Human, All Too Human: A Book for Free Spirits"
 }
 '''
-        actual = _parse_pandoc_output(pandoc_output_for_test_files_pg38145_images_epub)
+        actual = _parse_pandoc_output(pandoc_output_for_samplefiles_pg38145_images_epub)
         self.assertIsInstance(actual, dict)
         self.assertIn('author', actual)
         self.assertEqual('Friedrich Wilhelm Nietzsche', actual['author'])

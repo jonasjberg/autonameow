@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -26,8 +26,8 @@ from core.exceptions import ConfigError
 from core.exceptions import ConfigurationSyntaxError
 from core.exceptions import InvalidMeowURIError
 from core.model import MeowURI
-from core.model import NameTemplate
 from core.namebuilder import fields
+from core.namebuilder.template import NameTemplate
 
 
 log = logging.getLogger(__name__)
@@ -249,11 +249,23 @@ class Rule(object):
         )
 
     def __gt__(self, other):
-        # Sort by arbitrary attributes to get repeatable rule evaluation results.
+        # Sort by arbitrary attributes to get repeatable results. HOWEVER, note
+        # that the 'RuleMatcher' uses 'prioritize_rules()' to sort rules prior
+        # to evaluation.
         return (
-            len(self.conditions) > len(other.conditions)
-            and len(self.data_sources) > len(other.data_sources)
-            and self.ranking_bias > other.ranking_bias
+            len(self.conditions),
+            len(self.data_sources),
+            self.ranking_bias,
+            self.exact_match,
+            str(self.name_template),
+            self.description,
+        ) > (
+           len(other.conditions),
+           len(other.data_sources),
+           other.ranking_bias,
+           other.exact_match,
+           str(other.name_template),
+           other.description,
         )
 
     def __hash__(self):
@@ -278,10 +290,14 @@ class Rule(object):
         return self.description
 
     def __repr__(self):
-        out = list()
-        for key in self.__dict__:
-            out.append('{}="{}"'.format(key.title(), self.__dict__[key]))
-        return 'Rule({})'.format(', '.join(out))
+        return '{!s}({!r}, {!r}, {!r}, {!r}, {!r})'.format(
+            self.__class__.__name__,
+            self.conditions,
+            self.data_sources,
+            self.exact_match,
+            self.name_template,
+            self.ranking_bias,
+        )
 
     def stringify(self):
         # TODO: [TD0171] Separate logic from user interface.
@@ -357,25 +373,18 @@ def parse_data_sources(raw_sources):
 
     parsed_data_sources = dict()
     for raw_templatefield, raw_meowuri_strings in raw_sources.items():
+        if not raw_meowuri_strings:
+            log.debug('Skipped source with empty MeowURI(s) '
+                      '(template field: "%s")', raw_templatefield)
+            continue
+
         if not fields.is_valid_template_field(raw_templatefield):
             log.warning('Skipped source with invalid name template field '
                         '(MeowURI: "%s")', raw_meowuri_strings)
             continue
 
         tf = fields.nametemplatefield_class_from_string(raw_templatefield)
-        if not tf:
-            log.critical(
-                'Failed to convert template field string to class instance. '
-                'This should not happen as the prior validation passed!'
-            )
-            continue
-
         assert isinstance(tf, fields.NameTemplateField), type(tf)
-
-        if not raw_meowuri_strings:
-            log.debug('Skipped source with empty MeowURI(s) '
-                      '(template field: "%s")', raw_templatefield)
-            continue
 
         if not isinstance(raw_meowuri_strings, list):
             raw_meowuri_strings = [raw_meowuri_strings]
@@ -416,10 +425,11 @@ def is_valid_source(uri):
     Returns:
         True if the source is valid, otherwise False.
     """
-    if isinstance(uri, MeowURI):
-        if uri.is_generic:
-            return True
-        # TODO: [TD0185] Rework access to 'master_provider' functionality.
-        if master_provider.Registry.might_be_resolvable(uri):
-            return True
-    return False
+    if not isinstance(uri, MeowURI):
+        return False
+
+    if uri.is_generic:
+        return True
+    # TODO: [TD0185] Rework access to 'master_provider' functionality.
+    if master_provider.Registry.might_be_resolvable(uri):
+        return True

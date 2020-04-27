@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -30,23 +30,23 @@ from core import FileObject
 from core.model import MeowURI
 
 
-class TestUnitUtilityAbsPathTestFile(TestCase):
+class TestUnitUtilitySamplefileAbspath(TestCase):
     def test_returns_expected_encoding(self):
-        actual = uu.abspath_testfile('empty')
+        actual = uu.samplefile_abspath('empty')
         self.assertIsInstance(actual, str)
 
     def test_returns_absolute_paths(self):
-        actual = uu.abspath_testfile('empty')
+        actual = uu.samplefile_abspath('empty')
         self.assertTrue(os.path.isabs(actual))
 
 
-class TestUnitUtilityAbsPathTestConfig(TestCase):
+class TestUnitUtilitySamplefileConfigAbspath(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.actual_specified = uu.abspath_testconfig(
+        cls.actual_specified = uu.samplefile_config_abspath(
             uuconst.DEFAULT_YAML_CONFIG_BASENAME
         )
-        cls.actual_default = uu.abspath_testconfig()
+        cls.actual_default = uu.samplefile_config_abspath()
 
     def test_returns_expected_encoding(self):
         self.assertIsInstance(self.actual_specified, str)
@@ -60,69 +60,69 @@ class TestUnitUtilityAbsPathTestConfig(TestCase):
     def test_returns_path_to_existing_file(self):
         self.assertTrue(os.path.isfile(self.actual_specified))
 
-    def test_returns_default_config_if_basename_is_unspecified(self):
+    def test_returns_default_config_if_filename_is_unspecified(self):
         self.assertTrue(
             self.actual_default.endswith(uuconst.DEFAULT_YAML_CONFIG_BASENAME)
         )
 
-    def test_basename_unspecified_returns_expected_encoding(self):
+    def test_filename_unspecified_returns_expected_encoding(self):
         self.assertIsInstance(self.actual_default, str)
 
-    def test_basename_unspecified_returns_absolute_path(self):
+    def test_filename_unspecified_returns_absolute_path(self):
         self.assertTrue(os.path.isabs(self.actual_default))
 
-    def test_basename_unspecified_returns_existing_path(self):
+    def test_filename_unspecified_returns_existing_path(self):
         self.assertTrue(os.path.exists(self.actual_default))
 
-    def test_basename_unspecified_returns_path_to_existing_file(self):
+    def test_filename_unspecified_returns_path_to_existing_file(self):
         self.assertTrue(os.path.isfile(self.actual_default))
 
 
-class TestUnitUtilityAsFileObject(TestCase):
+class TestUnitUtilityFileobjectFromFilepath(TestCase):
     def test_returns_fileobject_given_unicode_string_path(self):
-        filepath = uu.abspath_testfile('empty')
+        filepath = uu.samplefile_abspath('empty')
         self.assertIsInstance(filepath, str)
         self.assertTrue(os.path.exists(filepath))
 
-        actual = uu.as_fileobject(filepath)
+        actual = uu.fileobject_from_filepath(filepath)
         self.assertIsInstance(actual, FileObject)
         self.assertTrue(os.path.isabs(actual.abspath))
 
     def test_returns_fileobject_given_bytes_path(self):
-        filepath = uu.abspath_testfile('empty')
+        filepath = uu.samplefile_abspath('empty')
 
         bytes_filepath = uu.bytestring_path(filepath)
         self.assertIsInstance(bytes_filepath, bytes)
         self.assertTrue(os.path.exists(bytes_filepath))
 
-        actual = uu.as_fileobject(bytes_filepath)
+        actual = uu.fileobject_from_filepath(bytes_filepath)
         self.assertIsInstance(actual, FileObject)
         self.assertTrue(os.path.isabs(actual.abspath))
 
 
-class TestUnitUtilityFileObjectTestFile(TestCase):
+class TestUnitUtilityFileobjectFromSamplefile(TestCase):
     def test_returns_expected_type(self):
-        actual = uu.fileobject_testfile('empty')
+        actual = uu.fileobject_from_samplefile('empty')
         self.assertIsInstance(actual, FileObject)
         self.assertTrue(os.path.isabs(actual.abspath))
 
 
-class TestUnitUtilityAllTestFiles(TestCase):
+class TestUnitUtilityAllSamplefiles(TestCase):
     def test_returns_expected_encoding(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         self.assertIsInstance(actual, list)
         for a in actual:
             self.assertIsInstance(a, str)
 
     def test_returns_existing_absolute_paths(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         for f in actual:
             self.assertTrue(os.path.exists(f))
             self.assertTrue(os.path.isfile(f) | os.path.islink(f))
             self.assertTrue(os.path.isabs(f))
 
     def test_does_not_return_symbolic_links(self):
-        actual = uu.all_testfiles()
+        actual = uu.all_samplefiles()
         for f in actual:
             self.assertFalse(os.path.islink(f))
 
@@ -204,11 +204,11 @@ class TestUnitUtilityDirExists(TestCase):
     def test_returns_true_for_likely_directory_paths(self):
         _files = [
             os.path.dirname(__file__),
-            uuconst.PATH_AUTONAMEOW_SRCROOT,
+            uuconst.DIRPATH_AUTONAMEOW_SRCROOT,
             '/',
             b'/',
             uu.bytestring_path(os.path.dirname(__file__)),
-            uu.bytestring_path(uuconst.PATH_AUTONAMEOW_SRCROOT)
+            uu.bytestring_path(uuconst.DIRPATH_AUTONAMEOW_SRCROOT)
         ]
         for df in _files:
             self._check_return(df)
@@ -428,7 +428,7 @@ class TestUnitUtilityGetInstantiatedAnalyzers(TestCase):
         expected = len([
             f for f in
             os.listdir(
-                os.path.join(uuconst.PATH_AUTONAMEOW_SRCROOT, 'analyzers')
+                os.path.join(uuconst.DIRPATH_AUTONAMEOW_SRCROOT, 'analyzers')
             )
             if f.startswith('analyze_') and f.endswith('.py')
         ])
@@ -664,13 +664,13 @@ class TestAsMeowURI(TestCase):
                 _ = uu.as_meowuri(given)
 
 
-class GetExpectedTextForTestfile(TestCase):
+class GetExpectedTextForSamplefile(TestCase):
     def test_returns_none_when_expected_text_file_does_not_exist(self):
-        actual = uu.get_expected_text_for_testfile('magic_png.png')
+        actual = uu.get_expected_text_for_samplefile('magic_png.png')
         self.assertIsNone(actual)
 
     def test_returns_expected_text_when_expected_text_file_exists(self):
-        actual = uu.get_expected_text_for_testfile('sample.rtf')
+        actual = uu.get_expected_text_for_samplefile('sample.rtf')
         expect = '''Foo title
 bar text
 

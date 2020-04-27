@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -34,44 +34,43 @@ from core import FileObject
 from util import encoding as enc
 
 
-def abspath_testfile(testfile_basename):
+def samplefile_abspath(filename):
     """
     Utility function used by tests to construct a full path to individual test
-    files in the 'test_files' directory.
+    files in the 'samplefiles' directory.
 
     Args:
-        testfile_basename: The basename of a file in the 'test_files' directory
-            as a Unicode string (internal string format)
+        filename: Basename of a file in the 'samplefiles' directory as a Unicode
+                  string (internal string format)
 
     Returns:
-        The full absolute path to the given file.
+        The full absolute path to the sample file with the given basename.
     """
-    return os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES,
-                                        testfile_basename))
+    return os.path.abspath(os.path.join(
+        uuconst.DIRPATH_SAMPLEFILES,
+        filename,
+    ))
 
 
-def abspath_testconfig(testconfig_basename=None):
+def samplefile_config_abspath(filename=uuconst.DEFAULT_YAML_CONFIG_BASENAME):
     """
     Utility function used by tests to construct a full path to individual
-    configuration files in the 'test_files/configs' directory.
+    configuration files in the 'samplefiles/configs' directory.
 
     Args:
-        testconfig_basename: The basename of a file in the 'test_files/configs'
-                             directory as a Unicode string.
+        filename: Basename of a file in the 'samplefiles/configs' directory as
+                  a Unicode string.
 
     Returns:
-        The absolute path to the given configuration file as a Unicode string.
-        Or the default configuration file is no basename is specified.
+        The absolute path to the given configuration file as a Unicode string,
+        or the default configuration file if no basename is specified.
     """
-    if testconfig_basename is None:
-        _basename = uuconst.DEFAULT_YAML_CONFIG_BASENAME
-    else:
-        _basename = testconfig_basename
-    assert isinstance(_basename, str), type(_basename)
-
-    return os.path.abspath(
-        os.path.join(uuconst.PATH_TEST_FILES, 'configs', _basename)
-    )
+    assert isinstance(filename, str), type(filename)
+    return os.path.abspath(os.path.join(
+        uuconst.DIRPATH_SAMPLEFILES,
+        'configs',
+        filename,
+    ))
 
 
 def encode(s):
@@ -90,66 +89,66 @@ def normpath(path):
     return enc.normpath(path)
 
 
-def all_testfiles():
+def all_samplefiles():
     """
-    Returns: Absolute paths to all files in 'uuconst.TEST_FILES_DIR',
+    Returns: Absolute paths to all files in the "samplefiles" directory
         as a list of Unicode strings.
     """
     _abs_paths = [
-        os.path.abspath(os.path.join(uuconst.PATH_TEST_FILES, f))
-        for f in os.listdir(uuconst.PATH_TEST_FILES)
+        os.path.abspath(os.path.join(uuconst.DIRPATH_SAMPLEFILES, f))
+        for f in os.listdir(uuconst.DIRPATH_SAMPLEFILES)
     ]
     return [
         f for f in _abs_paths if os.path.isfile(f) and not os.path.islink(f)
     ]
 
 
-def file_exists(file_path):
+def file_exists(filepath):
     """
     Tests whether a given path is an existing file.
 
     Args:
-        file_path: Path to the file to test.
+        filepath: Path to the file to test.
 
     Returns:
         True if the file exists, else False.
     """
     try:
-        return bool(os.path.isfile(enc.syspath(file_path)))
+        return bool(os.path.isfile(enc.syspath(filepath)))
     except (OSError, TypeError, ValueError):
         return False
 
 
-def dir_exists(dir_path):
+def dir_exists(dirpath):
     """
     Tests whether a given path is an existing directory.
 
     Args:
-        dir_path: The path to test.
+        dirpath: The path to test.
 
     Returns:
         True if the directory exists and is readable, else False.
     """
-    _path = enc.syspath(dir_path)
+    _path = enc.syspath(dirpath)
     try:
         return bool(os.path.exists(_path) and os.path.isdir(_path))
     except (OSError, TypeError, ValueError):
         return False
 
 
-def path_is_readable(file_path):
+def path_is_readable(filepath):
     """
     Tests whether a given path is readable.
 
     Args:
-        file_path: The path to test.
+        filepath: The path to test.
 
     Returns:
         True if the path is readable.
         False for any other case, including errors.
     """
     try:
-        return bool(os.access(enc.syspath(file_path), os.R_OK))
+        return bool(os.access(enc.syspath(filepath), os.R_OK))
     except (OSError, TypeError, ValueError):
         return False
 
@@ -201,34 +200,44 @@ def make_temporary_file(prefix=None, suffix=None, basename=None):
     Returns:
         The full absolute path of the created file as a bytestring.
     """
-    if basename:
-        f = os.path.realpath(tempfile.NamedTemporaryFile(delete=False).name)
-        _dest_dir = os.path.realpath(os.path.dirname(f))
-        _dest_path = os.path.join(_dest_dir,
-                                  enc.syspath(basename))
-        os.rename(f, _dest_path)
+    temp_filepath = os.path.realpath(
+        tempfile.NamedTemporaryFile(
+            delete=False,
+            prefix=prefix,
+            suffix=suffix,
+        ).name
+    )
 
-        out = os.path.realpath(_dest_path)
+    if basename:
+        # Rename the file.
+        dest_filepath = os.path.abspath(os.path.join(
+            os.path.dirname(temp_filepath),
+            enc.syspath(basename),
+        ))
+        os.rename(temp_filepath, dest_filepath)
+        resulting_filepath = dest_filepath
     else:
-        out = os.path.realpath(tempfile.NamedTemporaryFile(delete=False,
-                                                           prefix=prefix,
-                                                           suffix=suffix).name)
-    return bytestring_path(out)
+        resulting_filepath = temp_filepath
+
+    return bytestring_path(resulting_filepath)
 
 
 def get_mock_fileobject(mime_type=None):
     """
     Returns 'FileObject' instances for use by unit tests.
 
+    The returned instance is either created from a sample file with the
+    specified MIME-type, or from a new temporary file if no MIME-type is given.
+
     Args:
-        mime_type: Optional MIME type of the source file.
+        mime_type: Optional MIME type of an existing sample file.
 
     Returns:
-        A mock FileObject built from an actual (empty) file.
+        An instance of 'FileObject' constructed from a file on disk.
     """
     # TODO: [hardcoded] Might break if options data structure is modified.
 
-    MIME_TYPE_TEST_FILE_LOOKUP = {
+    SAMPLEFILE_FROM_MIMETYPE_LOOKUP = {
         'application/pdf': 'magic_pdf.pdf',
         'image/gif': 'magic_gif.gif',
         'image/jpeg': 'magic_jpg.jpg',
@@ -239,14 +248,12 @@ def get_mock_fileobject(mime_type=None):
         'video/mp4': 'magic_mp4.mp4',
         'inode/x-empty': 'empty',
     }
+    if mime_type and mime_type in SAMPLEFILE_FROM_MIMETYPE_LOOKUP:
+        filename = SAMPLEFILE_FROM_MIMETYPE_LOOKUP[mime_type]
+        return fileobject_from_samplefile(filename)
 
-    if mime_type and mime_type in MIME_TYPE_TEST_FILE_LOOKUP:
-        __test_file_basename = MIME_TYPE_TEST_FILE_LOOKUP[mime_type]
-        temp_file = abspath_testfile(__test_file_basename)
-    else:
-        temp_file = make_temporary_file()
-
-    return FileObject(normpath(temp_file))
+    filepath = make_temporary_file()
+    return fileobject_from_filepath(filepath)
 
 
 def get_meowuri():
@@ -259,17 +266,16 @@ def get_meowuri():
     return as_meowuri(uuconst.MEOWURI_FS_XPLAT_MIMETYPE)
 
 
-def as_fileobject(filepath):
+def fileobject_from_filepath(filepath):
     bytestring_filepath = bytestring_path(filepath)
     return FileObject(bytestring_filepath)
 
 
-def fileobject_testfile(testfile_basename):
+def fileobject_from_samplefile(filename):
     """
-    Like 'abspath_testfile' but wraps the result in a 'FileObject' instance.
+    Like 'samplefile_abspath' but wraps the result in a 'FileObject' instance.
     """
-    _f = normpath(abspath_testfile(testfile_basename))
-    return FileObject(_f)
+    return FileObject(normpath(samplefile_abspath(filename)))
 
 
 def get_mock_analyzer():
@@ -281,15 +287,6 @@ def get_mock_analyzer():
     while n < len(get_instantiated_analyzers()):
         yield get_instantiated_analyzers()[n]
         n += 1
-
-
-def get_named_fileobject(basename):
-    """
-    Returns: A FileObject based on a temporary file with the given basename.
-    """
-    _tf = make_temporary_file(basename=basename)
-    _f = normpath(_tf)
-    return FileObject(_f)
 
 
 @contextmanager
@@ -477,7 +474,7 @@ def is_importable(module_name):
 
 def init_session_repository():
     # TODO: [hack][cleanup] Mock properly! Remove?
-    from core import repository
+    from core.datastore import repository
     repository._initialize()
 
 
@@ -507,7 +504,7 @@ def get_default_config():
     # TODO: [hack][cleanup] Mock properly! Remove?
     init_session_repository()
 
-    _config_path = normpath(abspath_testconfig())
+    _config_path = normpath(samplefile_config_abspath())
     assert isinstance(_config_path, bytes)
 
     from core.config.config_parser import ConfigurationParser
@@ -532,27 +529,27 @@ def as_meowuri(s):
         raise AssertionError(e)
 
 
-def get_expected_text_for_testfile(testfile_basename):
+def get_expected_text_for_samplefile(filename):
     """
-    Returns any text that should be extracted from a given test file.
+    Returns any text that should be extracted from a given sample file.
 
-    If the given basename is found in the 'test_files' directory and
-    a accompanying file containing reference text is found, it is returned.
+    If the given basename is found in the 'samplefiles' directory and a
+    accompanying file containing reference text is found, it is returned.
 
     Args:
-        testfile_basename: The basename of a file in the 'test_files' directory
-            as a Unicode string (internal string format)
+        filename: Basename of a file in the 'samplefiles' directory as a Unicode
+                  string (internal string format)
 
     Returns:
         Reference, expected text contained in file as a Unicode string or None
         if there is no file with expected text.
     """
-    assert isinstance(testfile_basename, str)
+    assert isinstance(filename, str)
 
-    expected_text_basename = testfile_basename + '_expected.txt'
-    p = abspath_testfile(expected_text_basename)
+    expected_text_basename = filename + '_expected.txt'
+    expected_text_filepath = samplefile_abspath(expected_text_basename)
     try:
-        with open(p, 'r', encoding='utf8') as fh:
+        with open(expected_text_filepath, 'r', encoding='utf8') as fh:
             return fh.read()
     except FileNotFoundError:
         return None

@@ -1,0 +1,69 @@
+DATETIME_FORMAT:
+    date: '%Y-%m-%d'
+    datetime: '%Y-%m-%dT%H%M%S'
+    time: '%H-%M-%S'
+FILETAGS_OPTIONS:
+    between_tag_separator: ' '
+    filename_tag_separator: ' -- '
+RULES:
+    'Chrome "Full Page Screen Capture" plugin image':
+        CONDITIONS:
+            contents:
+                mime_type: image/png
+            filesystem:
+                basename: ^screencapture-.*[0-9]{13}\.png$
+                extension: png
+        DATA_SOURCES:
+            datetime: analysis.filename.unixtimestamp
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
+        NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
+        exact_match: true
+        weight: 1
+    MacOS Screen Recording:
+        CONDITIONS:
+            contents:
+                mime_type: video/quicktime
+            filesystem:
+                pathname: ~/Desktop
+                basename: Untitled[0-9]?.mov
+                extension: mov
+        DATA_SOURCES:
+            datetime: metadata.exiftool.QuickTime:CreationDate
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
+        NAME_TEMPLATE: "{datetime} {title} -- screenshot macbookpro.{extension}"
+        exact_match: true
+        weight: 1
+    samplefiles Gmail print-to-pdf:
+        CONDITIONS:
+            contents:
+                mime_type: application/pdf
+            filesystem:
+                basename: gmail.pdf
+                extension: pdf
+        DATA_SOURCES:
+            datetime: metadata.exiftool.PDF:CreateDate
+            extension: filesystem.extension
+            title: filesystem.basename_prefix
+        NAME_TEMPLATE: "{datetime}\_{title}.{extension}"
+        exact_match: true
+        weight: null
+    samplefiles smulan.jpg:
+        CONDITIONS:
+            contents:
+                mime_type: image/jpeg
+            filesystem:
+                basename: smulån@föo.jpg
+        DATA_SOURCES:
+            datetime: metadata.exiftool.EXIF:DateTimeOriginal
+            description: extractor.filesystem.filetags.description
+            extension: filesystem.extension
+        NAME_TEMPLATE: "{datetime}\_{description}.{extension}"
+        exact_match: true
+        weight: 1
+NAME_TEMPLATES:
+    default_book: '{publisher} {title} {edition} - {author} {date}.{extension}'
+    default_document: '{title} - {author} {datetime}.{extension}'
+    default_photo: '{datetime} {description} -- {tags}.{extension}'
+autonameow_version: 0.5.4

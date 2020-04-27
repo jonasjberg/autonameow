@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -17,17 +17,20 @@
 #   You should have received a copy of the GNU General Public License
 #   along with autonameow.  If not, see <http://www.gnu.org/licenses/>.
 
+import pyexiftool
+
 from core.metadata.canonicalize import canonicalize_creatortool
 from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
+from core.truths import known_metadata
 from extractors import ExtractorError
-from extractors.base import BaseMetadataExtractor
-from thirdparty import pyexiftool
+from extractors.metadata.base import BaseMetadataExtractor
 from util import process
 from util.text.humannames import preprocess_names
 
 
 IGNORED_EXIFTOOL_TAGNAMES = frozenset([
+    'ExifTool:Error',
     'ExifTool:ExifToolVersion',
     'ExifTool:Warning',
     'Palm:CreatorBuildNumber',
@@ -41,6 +44,9 @@ IGNORED_EXIFTOOL_TAGNAMES = frozenset([
     'XML:CustomDateProperty1-1-2001',  # invalid or non-standard
     'XML:CustomNumberProperty42',  # not useful
     'XML:CustomTextPropertyValue',  # could be anything
+    'XMP:ManifestPlacedXResolution',  # Adobe InDesign
+    'XMP:ManifestPlacedYResolution',  # Adobe InDesign
+    'XMP:ManifestPlacedResolutionUnit',  # Adobe InDesign
     'XML:MyCustomBoolean',  # could be anything
     'XML:MyCustomNumber',  # could be anything
     'XML:MyCustomString',  # could be anything
@@ -199,7 +205,9 @@ BAD_EXIFTOOL_METADATA_ANY_TAG = frozenset([
     'http://freepdf-books.com',
     'http://www.epubor.com',
     'IT eBooks',
+    'ModDate',
     'MyStringValue',
+    'null',
     'test',
     'Toolkit http://www.activepdf.com',
     'Toolkit http://www.activepdf.com(Infix)',
@@ -249,6 +257,7 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
         return self._get_metadata(fileobject.abspath)
 
     def shutdown(self):
+        # TODO: [TD0202] Handle signals and graceful shutdown properly!
         self._shutdown_exiftool_instance()
 
     def _initialize_exiftool_instance(self):
@@ -322,50 +331,100 @@ class ExiftoolMetadataExtractor(BaseMetadataExtractor):
                 and not is_bad_metadata(tag, value)}
 
     def _to_internal_format(self, raw_metadata):
+        # TODO: [hack][cleanup] Do this properly!
         coerced_metadata = dict()
 
-        def _canonicalize(field, _value_or_values, canonicalizer):
-            # TODO: [hack][cleanup][TD0189] Do this properly!
-            assert callable(canonicalizer)
+        def _canonicalize(_field, _value_or_values, _canonicalizer):
+            # TODO: [hack][cleanup] Do this properly!
+            assert callable(_canonicalizer)
+
+            self.log.debug(
+                'Attempting %s canonicalization of %s value(s) :: "%s"',
+                _canonicalizer.__name__, _field, _value_or_values
+            )
             if isinstance(_value_or_values, list):
-                coerced_metadata[field] = list()
-                for v in _value_or_values:
-                    coerced_metadata[field].append(canonicalizer(v))
+                _result = [_canonicalizer(v) for v in _value_or_values]
             else:
-                coerced_metadata[field] = canonicalizer(_value_or_values)
+                _result = _canonicalizer(_value_or_values)
 
-            self.log.debug('Canonicalized %s value :: %s -> %s',
-                           field, _value_or_values, coerced_metadata[field])
+            self.log.debug('Canonicalized %s value(s) :: %s -> %s',
+                           _field, _value_or_values, _result)
+            return _result
 
-        for field, value in raw_metadata.items():
-            coerced = self.coerce_field_value(field, value)
+        def _preprocess_human_names(_field, _values):
+            # TODO: [hack][cleanup] Do this properly!
+            self.log.debug(
+                'Attempting canonicalization of assumed human names '
+                'in field %s :: "%s"', _field, _values
+            )
+            assert isinstance(_values, list)
+            _result = preprocess_names(_values)
+            self.log.debug('Canonicalized %s values :: %s -> %s',
+                           _field, _values, _result)
+            return _result
+
+        known_creatortool_values = known_metadata.canonical_values('creatortool')
+        known_publisher_values = known_metadata.canonical_values('publisher')
+
+        for field, raw_value in raw_metadata.items():
             # Empty strings are being passed through. But if we test with
-            # 'if coerced', any False booleans, 0, etc. would be discarded.
+            # 'if coerced_value', any False booleans, 0, etc. would be discarded.
             # Filtering must be field-specific.
-            if coerced is not None:
-                filtered = _filter_coerced_value(coerced)
-                if filtered is not None:
-                    # TODO: [hack][cleanup][TD0189] Do this properly!
-                    # TODO: [TD0189] Canonicalize metadata values by direct replacements.
-                    if 'Producer' in field or 'Creator' in field or 'CreatorTool' in field:
-                        # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
-                        # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
-                        #       determine possible contents of the 'XMP:Creator' field.
-                        #       Could be "creatortool", publisher, human names, etc.
-                        _canonicalize(field, filtered, canonicalize_creatortool)
-                    elif ':Language' in field:
-                        _canonicalize(field, filtered, canonicalize_language)
-                    elif 'Publisher' in field:
-                        _canonicalize(field, filtered, canonicalize_publisher)
-                    elif 'Author' in field:
-                        self.log.debug(
-                            'Attempting preprocessing of assumed human names '
-                            'in field %s :: "%s"', field, filtered
-                        )
-                        assert isinstance(filtered, list)
-                        coerced_metadata[field] = preprocess_names(filtered)
-                    else:
-                        coerced_metadata[field] = filtered
+            coerced_value = self.coerce_field_value(field, raw_value)
+            if coerced_value is None:
+                continue
+
+            value = _filter_coerced_value(coerced_value)
+            if value is None:
+                continue
+
+            # TODO: [hack][cleanup] Do this properly!
+            if 'CreatorFile-as' in field:
+                coerced_metadata[field] = _preprocess_human_names(field, value)
+
+            elif 'CreatorTool' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif 'Producer' in field:
+                # TODO: 'XMP:Producer' could be either "creatortool" or human names ..
+                #       Although seems to be "creatortool" most of the time, maybe.
+                if value in known_publisher_values:
+                    coerced_metadata[field] = value
+                else:
+                    coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif 'Creator' in field:
+                # TODO: Look at 'XMP:CreatorId' or 'XMP:CreatorRole' to
+                #       determine possible contents of the 'XMP:Creator' field.
+                #       Could be "creatortool", publisher, human names, etc.
+                if isinstance(value, list):
+                    if len(value) == 1:
+                        # Lists of multiple "creatortool" values seem to be rare.
+                        result = _canonicalize(field, value[0], canonicalize_creatortool)
+                        if result in known_creatortool_values:
+                            self.log.debug(
+                                'Canonicalized %s value into previously known '
+                                'value :: %s -> %s', field, value[0], result
+                            )
+                            coerced_metadata[field] = result
+                            continue
+
+                    # Maybe this was a author and not a creatortool?
+                    coerced_metadata[field] = _preprocess_human_names(field, value)
+                else:
+                    coerced_metadata[field] = _canonicalize(field, value, canonicalize_creatortool)
+
+            elif ':Language' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_language)
+
+            elif 'Publisher' in field:
+                coerced_metadata[field] = _canonicalize(field, value, canonicalize_publisher)
+
+            elif 'Author' in field:
+                coerced_metadata[field] = _preprocess_human_names(field, value)
+
+            else:
+                coerced_metadata[field] = value
 
         return coerced_metadata
 

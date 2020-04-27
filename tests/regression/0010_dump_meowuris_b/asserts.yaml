@@ -1,16 +1,16 @@
 exit_code: 0
 stdout:
-    matches:
+  matches:
     - 'analyzer.document.*DocumentAnalyzer'
     - 'analyzer.ebook.*EbookAnalyzer'
     - 'analyzer.filename.*FilenameAnalyzer'
-    - 'extractor.filesystem.filetags.*FiletagsExtractor'
-    - 'extractor.filesystem.guessit.*GuessitExtractor'
     - 'extractor.filesystem.xplat.*CrossPlatformFileSystemExtractor'
     - 'extractor.metadata.exiftool.*ExiftoolMetadataExtractor'
+    - 'extractor.metadata.filetags.*FiletagsMetadataExtractor'
+    - 'extractor.metadata.guessit.*GuessitMetadataExtractor'
     - 'extractor.metadata.jpeginfo.*JpeginfoMetadataExtractor'
     - 'extractor.metadata.pandoc.*PandocMetadataExtractor'
-    does_not_match:
+  does_not_match:
     - '.*class.*'
     - '.*NULL.*'
     - '.*generic.*'

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -40,7 +40,6 @@ def init_logging(opts):
         opts: Per-instance program options, as type dict.
     """
     global _logging_initialized
-    # assert not _logging_initialized
     if _logging_initialized:
         # TODO: Fix global logging state making testing tedious.
         return
@@ -95,8 +94,8 @@ def init_logging(opts):
 
     # Reset global list of logged run-times.
     # TODO: [cleanup] Do not use global variable to store logged run-times
-    global global_logged_runtime
-    global_logged_runtime = list()
+    global _GLOBAL_LOGGED_RUNTIME
+    _GLOBAL_LOGGED_RUNTIME = list()
 
     _logging_initialized = True
 
@@ -117,8 +116,8 @@ def deinit_logging():
 
     # Reset global list of logged run-times.
     # TODO: [cleanup] Do not use global variable to store logged run-times
-    global global_logged_runtime
-    global_logged_runtime = list()
+    global _GLOBAL_LOGGED_RUNTIME
+    _GLOBAL_LOGGED_RUNTIME = list()
 
     global _logging_initialized
     _logging_initialized = False
@@ -137,7 +136,7 @@ def unsilence():
 
 
 # TODO: [cleanup] Do not use global variable to store logged run-times
-global_logged_runtime = list()
+_GLOBAL_LOGGED_RUNTIME = list()
 
 
 def center_pad(string, maxwidth, fillchar):
@@ -182,6 +181,11 @@ def center_pad_log_entry(string):
     return center_pad(string, maxwidth=TERMINAL_WIDTH - 80, fillchar='=')
 
 
+def stringify_seconds(seconds):
+    assert isinstance(seconds, (float, int))
+    return '{:.9f}'.format(seconds)
+
+
 @contextmanager
 def report_runtime(reporter_function, description, decorate=True):
     """
@@ -200,15 +204,19 @@ def report_runtime(reporter_function, description, decorate=True):
             _msg = center_pad(message, maxwidth=TERMINAL_WIDTH, fillchar='=')
         else:
             _msg = message
+
         reporter_function(_msg)
 
     _report('{} Started'.format(description))
-    start_time = time.time()
+    time_started = time.time()
     try:
         yield
     finally:
-        elapsed_time = time.time() - start_time
-        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
+        time_elapsed_seconds = stringify_seconds(time.time() - time_started)
+        completed_msg = '{} Completed in {} seconds'.format(
+            description,
+            time_elapsed_seconds,
+        )
         _report(completed_msg)
 
 
@@ -237,15 +245,18 @@ def log_runtime(logger, description, log_level=None):
         decorated_message = center_pad_log_entry(message)
         logger.log(_log_level, decorated_message)
 
-    global global_logged_runtime
     _log('{} Started'.format(description))
-    start_time = time.time()
+    time_started = time.time()
     try:
         yield
     finally:
-        elapsed_time = time.time() - start_time
-        completed_msg = '{} Completed in {:.9f} seconds'.format(description, elapsed_time)
-        global_logged_runtime.append(completed_msg)
+        time_elapsed_seconds = stringify_seconds(time.time() - time_started)
+        completed_msg = '{} Completed in {} seconds'.format(
+            description,
+            time_elapsed_seconds,
+        )
+        global _GLOBAL_LOGGED_RUNTIME
+        _GLOBAL_LOGGED_RUNTIME.append(completed_msg)
         _log(completed_msg)
 
 
@@ -265,22 +276,29 @@ def log_func_runtime(logger):
     def decorator(func):
         @wraps(func)
         def log_runtime_wrapper(*args, **kwds):
-            _start_time = time.time()
-            func_returnval = func(*args, **kwds)
-            _elapsed_time = time.time() - _start_time
-            completed_msg = '{}.{} Completed in {:.9f} seconds'.format(
-                func.__module__, func.__name__, _elapsed_time)
-            global global_logged_runtime
-            global_logged_runtime.append(completed_msg)
+            time_started = time.time()
+            func_return = func(*args, **kwds)
+
+            time_elapsed_seconds = stringify_seconds(time.time() - time_started)
+            completed_msg = '{}.{} Completed in {} seconds'.format(
+                func.__module__,
+                func.__name__,
+                time_elapsed_seconds,
+            )
+            global _GLOBAL_LOGGED_RUNTIME
+            _GLOBAL_LOGGED_RUNTIME.append(completed_msg)
             logger.debug(completed_msg)
-            return func_returnval
+
+            return func_return
+
         return log_runtime_wrapper
+
     return decorator
 
 
 def log_previously_logged_runtimes(logger):
-    global global_logged_runtime
-    for entry in global_logged_runtime:
+    global _GLOBAL_LOGGED_RUNTIME
+    for entry in _GLOBAL_LOGGED_RUNTIME:
         logger.debug(entry)
 
 

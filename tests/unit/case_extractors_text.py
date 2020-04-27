@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -87,8 +87,8 @@ class CaseTextExtractorOutputTypes(object):
         )
 
 
-ALL_TESTFILES = [
-    uu.fileobject_testfile(f) for f in uu.all_testfiles()
+ALL_SAMPLEFILES = [
+    uu.fileobject_from_samplefile(f) for f in uu.all_samplefiles()
 ]
 
 
@@ -158,7 +158,7 @@ class CaseTextExtractorBasics(object):
     def test_method_can_handle_returns_expected_type(self):
         actual_list = list()
 
-        for f in ALL_TESTFILES:
+        for f in ALL_SAMPLEFILES:
             actual = self.extractor.can_handle(f)
             actual_list.append(actual)
 

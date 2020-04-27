@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -21,40 +21,9 @@ import re
 from functools import lru_cache
 
 from util import coercers
+from util.text.regexcache import RegexCache
 from util.text.transform import collapse_whitespace
 
-
-# Like '\w' but without numbers (Unicode letters): '[^\W\d]'
-_re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
-_re_copyright_symbol = r'(©|\(?[Cc]\)?)'
-_re_copyright_text = r'[Cc]opyright'
-_re_copyright_symbol_and_or_text = r'({CS}{SEP}{CT}|{CT}{SEP}{CS}|{CT}{SEP}|{CS}{SEP})'.format(CS=_re_copyright_symbol, CT=_re_copyright_text, SEP=' +?')
-_re_copyright_year = r'(?P<year>\d{4})'
-_re_copyright_years = r'(?P<year_range>\d{4}[- ]+\d{4})'
-
-RE_COPYRIGHT_NOTICE_A = re.compile(
-    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?({year}|{years}) ?{name}'.format(
-        copyright=_re_copyright_text,
-        symbol=_re_copyright_symbol,
-        year=_re_copyright_year,
-        years=_re_copyright_years,
-        name=_re_copyright_name
-    ), re.IGNORECASE
-)
-RE_COPYRIGHT_NOTICE_B = re.compile(
-    r'({copyright}? ?{symbol}|{symbol} ?{copyright}?) ?{name}[, ]+?({year}|{years})'.format(
-        copyright=_re_copyright_text,
-        symbol=_re_copyright_symbol,
-        year=_re_copyright_year,
-        years=_re_copyright_years,
-        name=_re_copyright_name
-    ), re.IGNORECASE
-)
-
-RE_EDITION = re.compile(
-    r'([0-9])+\s?(e\b|ed\.?|edition)',
-    re.IGNORECASE
-)
 
 # TODO: [TD0130] Implement general-purpose substring matching/extraction.
 _ORDINAL_NUMBER_PATTERNS = [
@@ -172,9 +141,6 @@ def find_and_extract_edition(string):
 
     Returns:
         Any found edition and modified text as a (int, str) tuple.
-
-    Raises:
-        AssertionError: Given text is not an instance of 'str'.
     """
     # TODO: [TD0192] Detect and extract editions from titles
     if not string:
@@ -205,8 +171,10 @@ def find_and_extract_edition(string):
         modified_text = re.sub(matched_regex, '', string)
         return matched_number, modified_text
 
+    re_edition = RegexCache(r'([0-9])+\s?(e\b|ed\.?|edition)', re.IGNORECASE)
+
     # Try a third approach.
-    match = RE_EDITION.search(string)
+    match = re_edition.search(string)
     if match:
         ed = match.group(1)
         try:
@@ -214,30 +182,55 @@ def find_and_extract_edition(string):
         except coercers.AWTypeError:
             pass
         else:
-            modified_text = re.sub(RE_EDITION, '', string)
+            modified_text = re.sub(re_edition, '', string)
             return edition, modified_text
 
     return None, string
 
 
-def find_publisher_in_copyright_notice(string):
-    text = collapse_whitespace(string)
-    text = text.replace(',', ' ')
-    text = text.strip()
+_re_symbol_text_combos = r'({SYM}{SEP}{TXT}|{TXT}{SEP}{SYM}|{SYM}{SEP})'.format(
+    SYM=r'\(c\)',
+    TXT=r'copyright',
+    SEP=' ?',
+)
+_re_copyright_year = r'(?P<year>\d{4})'
+_re_copyright_years = r'(?P<year_range>\d{4}[- ]+\d{4})'
 
-    if 'copyright' not in text.lower():
+# Like '\w' but without numbers (Unicode letters): '[^\W\d]'
+_re_copyright_name = r'(?P<name>[^\W\d]+[\D\.]+)'
+
+_RE_COPYRIGHT_NOTICE_A = r'{symbol_text_combos} ?({year}|{years}) ?{name}'.format(
+    symbol_text_combos=_re_symbol_text_combos,
+    year=_re_copyright_year,
+    years=_re_copyright_years,
+    name=_re_copyright_name
+)
+_RE_COPYRIGHT_NOTICE_B = r'{symbol_text_combos} ?{name} ?({year}|{years})'.format(
+    symbol_text_combos=_re_symbol_text_combos,
+    year=_re_copyright_year,
+    years=_re_copyright_years,
+    name=_re_copyright_name
+)
+
+
+def find_publisher_in_copyright_notice(strng):
+    assert isinstance(strng, str)
+
+    text = strng
+    text = text.replace(',', ' ')
+    text = text.replace('©', '(c)')
+    text = text.replace('&#169;', '(c)')
+    text = collapse_whitespace(text).strip()
+    if not text:
         return None
 
-    # endmarker = text.find('and/or')
-    # if endmarker > 1:
-    #     text = text[:endmarker]
+    for regex in (_RE_COPYRIGHT_NOTICE_A, _RE_COPYRIGHT_NOTICE_B):
+        matches = RegexCache(regex, re.IGNORECASE).search(text)
+        if matches:
+            break
 
-    matches = RE_COPYRIGHT_NOTICE_A.search(text)
     if not matches:
-        matches = RE_COPYRIGHT_NOTICE_B.search(text)
-        if not matches:
-            return None
+        return None
 
-    match = matches.group('name')
-
-    return match.strip()
+    publisher_name = matches.group('name')
+    return publisher_name.strip()

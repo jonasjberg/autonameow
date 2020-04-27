@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -27,7 +27,6 @@ from core.exceptions import FilesystemError
 from util import coercers
 from util import disk
 from util import encoding as enc
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -80,7 +79,7 @@ class BasePersistence(object):
             self._persistence_dir_abspath = get_config_persistence_path()
         else:
             self._persistence_dir_abspath = persistence_dir_abspath
-        sanity.check_internal_bytestring(self._persistence_dir_abspath)
+        assert isinstance(self._persistence_dir_abspath, bytes)
         assert disk.isabs(self._persistence_dir_abspath)
 
         str_file_prefix = coercers.force_string(file_prefix)
@@ -131,9 +130,9 @@ class BasePersistence(object):
         if key in self._persistence_file_abspath_cache:
             return self._persistence_file_abspath_cache[key]
 
-        p = _key_as_file_path(key, self.persistencefile_prefix,
-                              self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
-                              self._persistence_dir_abspath)
+        p = _key_as_filepath(key, self.persistencefile_prefix,
+                             self.PERSISTENCE_FILE_PREFIX_SEPARATOR,
+                             self._persistence_dir_abspath)
         self._persistence_file_abspath_cache[key] = p
         return p
 
@@ -163,15 +162,15 @@ class BasePersistence(object):
             raise KeyError
 
         if key not in self._data:
-            key_file_path = self._persistence_file_abspath(key)
-            if not disk.exists(key_file_path):
+            key_filepath = self._persistence_file_abspath(key)
+            if not disk.exists(key_filepath):
                 # Avoid displaying errors on first use.
                 raise KeyError
 
             try:
-                key_file_data = self._load(key_file_path)
+                key_file_data = self._load(key_filepath)
             except PersistenceImplementationBackendError as e:
-                _dp = enc.displayable_path(key_file_path)
+                _dp = enc.displayable_path(key_filepath)
                 log.error('Error while reading key "%s" from file "%s" :: %s',
                           key, _dp, e)
 
@@ -181,7 +180,7 @@ class BasePersistence(object):
 
                 raise KeyError(e)
             except Exception as e:
-                _dp = enc.displayable_path(key_file_path)
+                _dp = enc.displayable_path(key_filepath)
                 log.critical('Caught top-level exception reading key "%s" from '
                              'persistence file "%s" :: %s', key, _dp, e)
                 raise PersistenceError(
@@ -203,11 +202,11 @@ class BasePersistence(object):
         """
         self._data[key] = value
 
-        key_file_path = self._persistence_file_abspath(key)
+        key_filepath = self._persistence_file_abspath(key)
         try:
-            self._dump(value, key_file_path)
+            self._dump(value, key_filepath)
         except OSError as e:
-            _dp = enc.displayable_path(key_file_path)
+            _dp = enc.displayable_path(key_filepath)
             log.error('Error while trying to write key "%s" with value "%s" to '
                       'persistence file "%s" :: %s', key, value, _dp, e)
 
@@ -235,9 +234,9 @@ class BasePersistence(object):
         if key in self._data:
             return True
 
-        key_file_path = self._persistence_file_abspath(key)
+        key_filepath = self._persistence_file_abspath(key)
         try:
-            return disk.exists(key_file_path)
+            return disk.exists(key_filepath)
         except FilesystemError:
             return False
 
@@ -274,23 +273,23 @@ class BasePersistence(object):
         if not key:
             raise KeyError
 
-        key_file_path = self._persistence_file_abspath(key)
-        if not disk.exists(key_file_path):
+        key_filepath = self._persistence_file_abspath(key)
+        if not disk.exists(key_filepath):
             return 0
 
         try:
-            size = disk.file_bytesize(key_file_path)
+            size = disk.file_bytesize(key_filepath)
             return size
         except FilesystemError as e:
-            _dp = enc.displayable_path(key_file_path)
+            _dp = enc.displayable_path(key_filepath)
             log.error('Error when getting file size for persistence file "%s" '
                       'from key "%s" :: %s', _dp, key, e)
             raise PersistenceError(e)
 
-    def _load(self, file_path):
+    def _load(self, filepath):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
-    def _dump(self, value, file_path):
+    def _dump(self, value, filepath):
         raise NotImplementedError('Must be implemented by inheriting classes.')
 
     def __str__(self):
@@ -313,9 +312,9 @@ def _basename_as_key(str_basename, persistencefile_prefix,
     return key
 
 
-def _key_as_file_path(key, persistencefile_prefix,
-                      persistence_file_prefix_separator,
-                      persistence_dir_abspath):
+def _key_as_filepath(key, persistencefile_prefix,
+                     persistence_file_prefix_separator,
+                     persistence_dir_abspath):
     str_key = coercers.force_string(key)
     if not str_key.strip():
         raise KeyError('Invalid key: "{!s}" ({!s})'.format(key, type(key)))
@@ -334,9 +333,9 @@ class PicklePersistence(BasePersistence):
     """
     Persistence implementation using 'pickle' to read/write data to disk.
     """
-    def _load(self, file_path):
+    def _load(self, filepath):
         try:
-            with open(enc.syspath(file_path), 'rb') as fh:
+            with open(enc.syspath(filepath), 'rb') as fh:
                 try:
                     return pickle.load(fh, encoding='bytes')
                 except (EOFError, ValueError) as e:
@@ -350,9 +349,9 @@ class PicklePersistence(BasePersistence):
         except OSError as e:
             raise PersistenceImplementationBackendError(e)
 
-    def _dump(self, value, file_path):
+    def _dump(self, value, filepath):
         try:
-            with open(enc.syspath(file_path), 'wb') as fh:
+            with open(enc.syspath(filepath), 'wb') as fh:
                 try:
                     pickle.dump(value, fh, pickle.HIGHEST_PROTOCOL)
                 except (AttributeError, pickle.PicklingError) as e:
@@ -470,5 +469,5 @@ event.dispatcher.on_config_changed.add(_on_config_changed)
 
 def get_config_persistence_path():
     cache_dirpath = _persistence_path_store.config_persistence_path
-    sanity.check_internal_bytestring(cache_dirpath)
+    assert isinstance(cache_dirpath, bytes)
     return cache_dirpath

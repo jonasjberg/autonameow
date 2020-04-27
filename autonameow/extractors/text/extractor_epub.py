@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -30,7 +30,6 @@ except ImportError:
 from extractors import ExtractorError
 from extractors.text.base import BaseTextExtractor
 from util import encoding as enc
-from util import sanity
 
 
 class EpubTextExtractor(BaseTextExtractor):
@@ -56,7 +55,7 @@ def _extract_text_with_ebooklib(filepath):
     assert BeautifulSoup, 'Missing required module "BeautifulSoup"'
 
     unicode_filepath = enc.decode_(filepath)
-    sanity.check_internal_string(unicode_filepath)
+    assert isinstance(unicode_filepath, str)
 
     try:
         book = epub.read_epub(unicode_filepath)

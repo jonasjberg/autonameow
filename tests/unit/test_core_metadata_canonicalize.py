@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -21,9 +21,7 @@ import os
 import re
 from unittest import TestCase
 
-import unit.utils as uu
 from core.metadata.canonicalize import build_string_value_canonicalizer
-from core.metadata.canonicalize import CanonicalizerConfigParser
 from core.metadata.canonicalize import canonicalize_creatortool
 from core.metadata.canonicalize import canonicalize_language
 from core.metadata.canonicalize import canonicalize_publisher
@@ -46,250 +44,33 @@ def _build_string_value_canonicalizer(*args, **kwargs):
     return build_string_value_canonicalizer(*args, **kwargs)
 
 
-def _get_canonicalizer_config_parser(*args, **kwargs):
-    return CanonicalizerConfigParser(*args, **kwargs)
-
-
 def _load_test_data_from_yaml_file(filename):
     from util import coercers
     from util import disk
-    ABSPATH_THIS_DIR = coercers.coerce_to_normalized_path(
+    _self_dirpath = coercers.coerce_to_normalized_path(
         os.path.abspath(os.path.dirname(__file__))
     )
     bytes_basename = coercers.AW_PATHCOMPONENT(filename)
-    abspath_yaml_file = disk.joinpaths(ABSPATH_THIS_DIR, bytes_basename)
+    abspath_yaml_file = disk.joinpaths(_self_dirpath, bytes_basename)
     assert disk.isfile(abspath_yaml_file), (
         'File does not exist: {!s}'.format(abspath_yaml_file)
     )
     return disk.load_yaml_file(abspath_yaml_file)
 
 
-class TestCanonicalizerConfigParser(TestCase):
-    # TODO: Implement 'match_any_literal_ignorecase'!
-    @classmethod
-    def setUpClass(cls):
-        cls.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL_CASESENSITIVE
-        cls.SECTION_MATCH_ANY_LITERAL_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_LITERAL_IGNORECASE
-        cls.SECTION_MATCH_ANY_REGEX_IGNORECASE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX_IGNORECASE
-        cls.SECTION_MATCH_ANY_REGEX_CASESENSITIVE = CanonicalizerConfigParser.CONFIG_SECTION_MATCH_ANY_REGEX_CASESENSITIVE
-
-    def _get_parser_from_empty_config(self):
-        empty_config = dict()
-        return _get_canonicalizer_config_parser(empty_config)
-
-    def _get_parser_from_config(self, config):
-        return _get_canonicalizer_config_parser(config)
-
-    def _compile_regex(self, pattern):
-        # NOTE: Compilation flags must match those used in the implementation.
-        return re.compile(pattern, re.IGNORECASE)
-
-    def test_filepath_config_is_expected_absolute_path(self):
-        empty_config = dict()
-        parser = _get_canonicalizer_config_parser(empty_config, b'/tmp/canonical_publisher.yaml')
-        actual = parser.str_lookup_dict_filepath
-        self.assertIsInstance(actual, str,
-                              '*not bytestring* path is stored for logging only')
-        self.assertTrue(actual.endswith('canonical_publisher.yaml'))
-        self.assertTrue(uu.is_abspath(actual))
-
-    def test_can_be_instantiated_with_empty_config_dict(self):
-        parser = self._get_parser_from_empty_config()
-        self.assertIsNotNone(parser)
-
-    def test_parsed_literal_lookup_is_empty_when_given_empty_config_dict(self):
-        parser = self._get_parser_from_empty_config()
-        self.assertEqual(dict(), parser.parsed_literal_lookup)
-
-    def test_parsed_regex_lookup_is_empty_when_given_empty_config_dict(self):
-        parser = self._get_parser_from_empty_config()
-        self.assertEqual(dict(), parser.parsed_regex_lookup)
-
-    def test_parsed_literal_lookup_is_empty_when_given_only_empty_strings(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    '',
-                ],
-                self.SECTION_MATCH_ANY_LITERAL_IGNORECASE: [
-                    '',
-                ]
-            },
-            'BarPub': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    ' ',
-                    '  ',
-                ]
-            }
-        })
-        self.assertEqual(dict(), parser.parsed_literal_lookup)
-
-    def test_parsed_literal_lookup_is_empty_when_given_empty_literals(self):
-        parser = self._get_parser_from_config({
-            '': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    'foo',
-                ]
-            },
-            '  ': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    'bar',
-                ]
-            }
-        })
-        self.assertEqual(dict(), parser.parsed_literal_lookup)
-
-    def test_returns_expected_parsed_literal_lookup_given_config_with_one_entry(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    'Foo',
-                    'foo pub',
-                    'Foo',  # Duplicate that should be removed
-                    '   ',  # Whitespace that should be ignored
-                ]
-             }
-        })
-        expect_parsed_literal_lookup = {
-            'FooPub': {'Foo', 'foo pub'}
-        }
-        self.assertEqual(expect_parsed_literal_lookup, parser.parsed_literal_lookup)
-
-    def test_returns_expected_parsed_literal_lookup_given_config_with_two_entries(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    'Foo',
-                    'foo pub',
-                    'Foo',  # Duplicate that should be removed
-                ]
-             },
-            'BarPub': {
-                self.SECTION_MATCH_ANY_LITERAL_CASESENSITIVE: [
-                    'Bar Publishers Inc.',
-                    'bar pub.',
-                    '\n',  # Whitespace that should be ignored
-                ]
-             }
-        })
-        expect_parsed_literal_lookup = {
-            'FooPub': {'Foo', 'foo pub'},  # set literal
-            'BarPub': {'Bar Publishers Inc.', 'bar pub.'}
-        }
-        self.assertEqual(expect_parsed_literal_lookup, parser.parsed_literal_lookup)
-
-    def test_parsed_regex_lookup_is_empty_when_given_only_empty_strings(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX_CASESENSITIVE: [
-                    '',
-                ]
-            },
-            'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    ' ',
-                    '  ',
-                ]
-            }
-        })
-        self.assertEqual(dict(), parser.parsed_regex_lookup)
-
-    def test_parsed_regex_lookup_is_empty_when_given_empty_regex(self):
-        parser = self._get_parser_from_config({
-            '': {
-                self.SECTION_MATCH_ANY_REGEX_CASESENSITIVE: [
-                    'foo',
-                ]
-            },
-            '  ': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    'bar',
-                ]
-            }
-        })
-        self.assertEqual(dict(), parser.parsed_regex_lookup)
-
-    def test_returns_expected_parsed_regex_lookup_given_config_with_one_entry(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    'Foo',
-                    'foo pub',
-                    'Foo',  # Duplicate that should be removed
-                    '   ',  # Whitespace that should be ignored
-                ]
-             }
-        })
-        expect_parsed_regex_lookup = sorted({
-            'FooPub': {self._compile_regex('Foo'),
-                       self._compile_regex('foo pub')}
-        })
-        actual = sorted(parser.parsed_regex_lookup)
-        self.assertEqual(expect_parsed_regex_lookup, actual)
-
-    def test_returns_expected_parsed_regex_lookup_given_config_with_two_entries(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    'Foo',
-                    'foo pub',
-                    'Foo',  # Duplicate that should be removed
-                ]
-             },
-            'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    'Bar Publishers Inc.',
-                    'bar pub.',
-                    '\n',  # Whitespace that should be ignored
-                ]
-             }
-        })
-        expect_parsed_regex_lookup = sorted({
-            'FooPub': {self._compile_regex('Foo'),
-                       self._compile_regex('foo pub')},
-            'BarPub': {self._compile_regex('Bar Publishers Inc.'),
-                       self._compile_regex('bar pub.')}
-        })
-        actual = sorted(parser.parsed_regex_lookup)
-        self.assertEqual(expect_parsed_regex_lookup, actual)
-
-    def test_parsed_regex_lookup_given_config_with_different_case_sensitivity(self):
-        parser = self._get_parser_from_config({
-            'FooPub': {
-                self.SECTION_MATCH_ANY_REGEX_CASESENSITIVE: [
-                    'Foo',
-                    'foo pub',
-                    'Foo',  # Duplicate that should be removed
-                ]
-             },
-            'BarPub': {
-                self.SECTION_MATCH_ANY_REGEX_IGNORECASE: [
-                    'Bar Publishers Inc.',
-                    'bar pub.',
-                    '\n',  # Whitespace that should be ignored
-                ]
-             }
-        })
-        expect_parsed_regex_lookup = sorted({
-            'FooPub': {self._compile_regex('Foo'),
-                       self._compile_regex('foo pub')},
-            'BarPub': {self._compile_regex('Bar Publishers Inc.'),
-                       self._compile_regex('bar pub.')}
-        })
-        actual = sorted(parser.parsed_regex_lookup)
-        self.assertEqual(expect_parsed_regex_lookup, actual)
-
-
 class TestBuildStringValueCanonicalizer(TestCase):
+    def _assert_canonicalizes_value(self, given, expect):
+        for datafile_basename in ('publisher',
+                                  'publisher.yaml'):
+            c = _build_string_value_canonicalizer(datafile_basename)
+            actual = c(given)
+            self.assertEqual(expect, actual)
+
     def test_returns_given_as_is_when_used_as_callable(self):
-        c = _build_string_value_canonicalizer(b'canonical_publisher.yaml')
-        actual = c('Manning')
-        self.assertEqual('Manning', actual)
+        self._assert_canonicalizes_value('Manning', 'Manning')
 
     def test_returns_expected_when_used_as_callable(self):
-        c = _build_string_value_canonicalizer(b'canonical_publisher.yaml')
-        actual = c('Manning Publications')
-        self.assertEqual('Manning', actual)
+        self._assert_canonicalizes_value('Manning Publications', 'Manning')
 
 
 class CaseCanonicalizers(object):
@@ -309,6 +90,22 @@ class CaseCanonicalizers(object):
     def test_loaded_test_data_is_ok(self):
         self.assertIsInstance(self.TESTDATA, dict)
         self.assertGreater(len(self.TESTDATA), 1)
+
+    def test_loaded_test_data_does_not_contain_too_similar_keys(self):
+        seen_keys = set()
+
+        for key in self.TESTDATA:
+            normalized_key = key.lower().strip()
+            self.assertNotIn(normalized_key, seen_keys)
+
+    def test_loaded_test_data_does_not_contain_duplicate_values(self):
+        seen_values = set()
+
+        for key, values in self.TESTDATA.items():
+            for value in values:
+                self.assertNotIn(value, seen_values)
+
+            seen_values.clear()
 
 
 class TestCanonicalizePublisher(CaseCanonicalizers, TestCase):

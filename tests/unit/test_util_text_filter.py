@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -19,7 +19,6 @@
 
 from unittest import TestCase
 
-from core.exceptions import EncodingBoundaryViolation
 from unit import constants as uuconst
 from util.text.filter import RegexFilter
 from util.text.filter import RegexLineFilter
@@ -68,7 +67,7 @@ class TestRegexFilter(TestCase):
             [b'[fF]oo', 'bar'],
         ]:
             with self.subTest(given=given_expressions):
-                with self.assertRaises(EncodingBoundaryViolation):
+                with self.assertRaises(AssertionError):
                     _ = _get_regex_filter(given_expressions)
 
     def test_len_is_zero_when_passing_empty_list_to_init(self):

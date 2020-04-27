@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,7 +24,7 @@ from unittest.mock import MagicMock, patch
 
 import unit.utils as uu
 from util.process import blocking_read_stdout
-from util.process import ChildProcessError
+from util.process import ChildProcessFailure
 from util.process import current_process_id
 from util.process import git_commit_hash
 from util.process import is_executable
@@ -54,7 +54,7 @@ class TestBlockingReadStdout(TestCase):
         self._setup_mock_popen(mock_popen, return_code=-1)
 
         given_args = 'expect this to fail'
-        with self.assertRaises(ChildProcessError):
+        with self.assertRaises(ChildProcessFailure):
             _ = blocking_read_stdout(given_args)
 
         self.assertIn(given_args, mock_popen.call_args[0][0])

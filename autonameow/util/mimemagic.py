@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#   Copyright(c) 2016-2018 Jonas Sjöberg <autonameow@jonasjberg.com>
+#   Copyright(c) 2016-2020 Jonas Sjöberg <autonameow@jonasjberg.com>
 #   Source repository: https://github.com/jonasjberg/autonameow
 #
 #   This file is part of autonameow.
@@ -24,7 +24,6 @@ import os
 from core.exceptions import AutonameowException
 from core.exceptions import DependencyError
 from util import coercers
-from util import sanity
 
 
 log = logging.getLogger(__name__)
@@ -128,7 +127,7 @@ def _build_magic():
 MY_MAGIC = None
 
 
-def file_mimetype(file_path):
+def file_mimetype(filepath):
     """
     Determine file type by reading "magic" header bytes.
 
@@ -136,14 +135,14 @@ def file_mimetype(file_path):
     This functions sets the global 'MY_MAGIC' the first time it is called.
 
     Args:
-        file_path: The path to the file to get the MIME type of as a string.
+        filepath: The path to the file to get the MIME type of as a string.
 
     Returns:
         The MIME type of the file at the given path ('application/pdf') or
         a "null" class instance if the MIME type can not be determined.
     """
     unknown_mime_type = coercers.NULL_AW_MIMETYPE
-    if not file_path:
+    if not filepath:
         return unknown_mime_type
 
     global MY_MAGIC
@@ -151,7 +150,7 @@ def file_mimetype(file_path):
         MY_MAGIC = _build_magic()
 
     try:
-        found_type = MY_MAGIC(file_path)
+        found_type = MY_MAGIC(filepath)
     except (AttributeError, TypeError):
         # TODO: Fix 'magic.MagicException' not available in both libraries.
         found_type = unknown_mime_type
@@ -218,7 +217,7 @@ def eval_glob(mime_to_match, glob_list):
     #           mime_to_match, glob_list)
     mime_to_match_type, mime_to_match_subtype = mime_to_match.split('/')
     for glob in glob_list:
-        sanity.check_internal_string(glob)
+        assert isinstance(glob, str)
 
         if glob == mime_to_match:
             return True
