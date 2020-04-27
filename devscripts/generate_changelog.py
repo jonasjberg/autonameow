@@ -56,10 +56,14 @@ GIT_LOG_FORMAT = GIT_LOG_FORMAT_SEP_FIELD.join(GIT_LOG_FORMAT) + GIT_LOG_FORMAT_
 
 class ChangelogEntry(object):
     def __init__(self, subject, body):
+        assert isinstance(subject, str)
+        assert isinstance(body, str)
+
         self.subject = subject
+        if not self.subject.endswith('.'):
+            self.subject += '.'
+
         self.body = body or ''
-        assert isinstance(self.subject, str)
-        assert isinstance(self.body, str)
 
     def __eq__(self, other):
         if self.subject.lower().strip() == other.subject.lower().strip():
