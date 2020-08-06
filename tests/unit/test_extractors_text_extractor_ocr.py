@@ -19,13 +19,6 @@
 
 from unittest import skipIf, TestCase
 
-try:
-    import PIL
-except ImportError:
-    PIL_IS_NOT_AVAILABLE = True, 'Missing required module "PIL"'
-else:
-    PIL_IS_NOT_AVAILABLE = False, ''
-
 import unit.utils as uu
 from extractors import ExtractorError
 from extractors.text.extractor_ocr import pil_read_image
@@ -98,7 +91,7 @@ class TestTesseractOCRTextExtractorWithImageFile(TestCase):
         self.assertIn(self.SAMPLEFILE_IMAGE_TEXT, actual)
 
 
-@skipIf(*PIL_IS_NOT_AVAILABLE)
+@skipIf(*UNMET_DEPENDENCIES)
 class TestTesseractWrapper(TestCase):
     SAMPLEFILE = uu.samplefile_abspath('2007-04-23_12-comments.png')
 
@@ -108,6 +101,7 @@ class TestTesseractWrapper(TestCase):
         for _image_file in [self.SAMPLEFILE,
                             uu.normpath(self.SAMPLEFILE)]:
             actual = pil_read_image(_image_file)
+            import PIL
             self.assertIsInstance(actual, PIL.Image.Image)
 
     def test_pil_read_image_raises_expected_exception_for_invalid_images(self):
